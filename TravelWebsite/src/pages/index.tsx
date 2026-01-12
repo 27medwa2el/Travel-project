@@ -1,17 +1,16 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
-import Banner from "../components/Banner";
-import CarouselTitlesCard from "../components/CarouselTitlesCard";
+import LandingHero from "../components/LandingHero";
+import CityCarousel from "../components/CityCarousel";
+import CityInfoModal from "../components/CityInfoModal";
 import Drawer from "../components/Drawer";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
-import LargeCard from "../components/LargeCard";
-import SmallCard from "../components/SmallCard";
 import ActivityCard from "../components/ActivityCard";
 import { IStyleData, ISuggestionFormatted } from "../types/typings";
 import { ActivityWithLocation } from "../types/domain";
 import { activityStore, cityStore, countryStore } from "@/lib/mockStore";
+import { useRouter } from "next/router";
 
 type Props = {
   citiesData: ISuggestionFormatted[];
@@ -26,96 +25,76 @@ const Home = ({
   getInspiredCities = [], 
   activities = [] 
 }: Props) => {
-  console.log('Client-side activities:', activities);
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [searchInput, setSearchInput] = useState("");
-  const [selectedCity, setSelectedCity] = useState<ISuggestionFormatted | null>(
-    null
-  );
+  const [selectedCityModal, setSelectedCityModal] = useState<ISuggestionFormatted | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = (city: ISuggestionFormatted) => {
+    setSelectedCityModal(city);
+    setIsModalOpen(true);
+  };
+
+  const handleExploreCity = (city: ISuggestionFormatted) => {
+    setIsModalOpen(false);
+    router.push({
+      pathname: "/details",
+      query: { id: city.id, location: city.shortName }
+    });
+  };
 
   return (
-    <div className="">
+    <div className="bg-[#f8faff] min-h-screen">
       <Head>
         <title>Travel - Vacation rentals for every style</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {/* Header */}
-      <Header
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        selectedCity={selectedCity}
-        setSelectedCity={setSelectedCity}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-      />
-      {/* Banner */}
-      <Banner
-        getInspiredCities={getInspiredCities}
-        setSearchInput={setSearchInput}
-        setSelectedCity={setSelectedCity}
+
+      {/* Hero Section with Nav */}
+      <LandingHero />
+
+      {/* 3D City Carousel Section */}
+      <div className="max-w-7xl mx-auto -mt-40 relative z-30">
+        <CityCarousel cities={getInspiredCities} onExplore={handleOpenModal} />
+      </div>
+
+      {/* City Information Modal */}
+      <CityInfoModal 
+        city={selectedCityModal} 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onExplore={handleExploreCity}
       />
 
-      <main className="max-w-7xl mx-auto px-8 sm:px-16">
-        <section className="pt-6">
-          <h2 className="text-4xl font-semibold pb-5">
-            Most visited Canadian cities
-          </h2>
-          {/* Map Canadian cities */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {citiesData.map((city) => (
-              <SmallCard
-                key={city.img}
-                cityData={city}
-                setSearchInput={setSearchInput}
-                setSelectedCity={setSelectedCity}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* New Activities Section linked to Admin Panel */}
-        <section className="pt-10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-4xl font-semibold pb-5">
-              Local Activities
-            </h2>
-            <Link href="/admin/overview" className="text-orange-500 hover:underline text-sm font-medium">
+      <main className="max-w-7xl mx-auto px-8 sm:px-16 pb-20">
+        {/* Local Activities Section */}
+        <section className="pt-20">
+          <div className="flex items-center justify-between mb-10">
+            <div>
+              <h2 className="text-5xl font-black text-gray-900 mb-2">
+                Local Activities
+              </h2>
+              <p className="text-gray-500 text-xl font-medium">Discover unique experiences curated by our experts</p>
+            </div>
+            <Link href="/admin/overview" className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-purple-600 hover:shadow-md transition-all font-bold">
               Manage in Admin →
             </Link>
           </div>
-          <p className="text-gray-500 -mt-4 mb-6">Discover unique experiences curated by our experts</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {activities && activities.length > 0 ? (
               activities.slice(0, 6).map((activity) => (
                 <ActivityCard key={activity.id} activity={activity} />
               ))
             ) : (
-              <p className="col-span-full text-center py-10 text-muted-foreground border rounded-xl bg-gray-50/50">
+              <p className="col-span-full text-center py-20 text-muted-foreground border-2 border-dashed rounded-3xl bg-gray-50/50 text-xl font-medium">
                 No activities found. Add some in the Admin Panel to see them here!
               </p>
             )}
           </div>
         </section>
-
-        <section>
-          <h2 className="text-4xl font-semibold py-8">
-            Find your travel style
-          </h2>
-          {/* Map styles data from api */}
-          <CarouselTitlesCard images={stylesData} />
-          {/* Travel Styles Carousel */}
-        </section>
-
-        <LargeCard
-          img="/get-inspired1200x600.jpg"
-          title="Discover New Destinations"
-          description="Curated by our Travel Experts"
-          buttonText="Get Inspired"
-          getInspiredCities={getInspiredCities}
-          setSearchInput={setSearchInput}
-          setSelectedCity={setSelectedCity}
-        />
       </main>
+
       <Footer />
 
       {/* Drawer */}
@@ -137,22 +116,25 @@ const Home = ({
 export default Home;
 
 export const getServerSideProps = async () => {
-  // previous citiesDataUrl = "https://www.jsonkeeper.com/b/AU5N";
-  const citiesDataUrl = "https://www.jsonkeeper.com/b/DXQ2";
-  const citiesData = await fetch(citiesDataUrl).then((res) => res.json());
+  // Use our local cityStore for more reliable data and images
+  const allCities = cityStore.getAll();
+  const getInspiredCities: ISuggestionFormatted[] = allCities.slice(0, 8).map(city => {
+    const country = countryStore.getById(city.countryId);
+    return {
+      id: parseInt(city.id.split('-')[0]), // Safe conversion for demo
+      displayName: `${city.name}, ${country?.name || 'Global'}`,
+      shortName: `${city.name}, ${country?.name || 'Global'}`,
+      type: "CITY",
+      img: city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80"
+    };
+  });
 
   const stylesData = await fetch("https://www.jsonkeeper.com/b/RWNY").then(
     (res) => res.json()
-  );
-
-  const getInspiredCities = await fetch(
-    // "https://www.jsonkeeper.com/b/AU5N"
-    "https://www.jsonkeeper.com/b/SNPG"
-  ).then((res) => res.json());
+  ).catch(() => []);
 
   // Fetch activities from our local admin store
   const allActivities = activityStore.getAll();
-  console.log(`🏠 Home page: fetched ${allActivities.length} activities from store`);
   const activities = allActivities.map(activity => {
     const city = cityStore.getById(activity.cityId);
     const country = city ? countryStore.getById(city.countryId) : undefined;
@@ -165,10 +147,10 @@ export const getServerSideProps = async () => {
 
   return {
     props: {
-      citiesData,
+      citiesData: [], // Placeholder
       stylesData,
       getInspiredCities,
-      activities: JSON.parse(JSON.stringify(activities)), // Ensure serializable dates
+      activities: JSON.parse(JSON.stringify(activities)),
     },
   };
 };

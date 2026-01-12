@@ -15,6 +15,7 @@ module.exports = {
       "api.slingacademy.com",
       "img.clerk.com",
       "clerk.com",
+      "images.unsplash.com",
     ],
   },
 };

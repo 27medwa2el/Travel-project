@@ -9,6 +9,7 @@ import { ActiveThemeProvider } from "@/components/admin/active-theme";
 import { Toaster } from "@/components/admin/ui/sonner";
 import NextTopLoader from "nextjs-toploader";
 import { useEffect, useState } from "react";
+import Navbar from "@/components/Navbar";
 
 const progress = new ProgressBar({
   size: 4,
@@ -64,7 +65,10 @@ const MyApp = ({ Component, pageProps, router }: AppProps) => {
             <Component {...pageProps} />
           </AdminProviders>
         ) : (
-          <Component {...pageProps} />
+          <>
+            <Navbar />
+            <Component {...pageProps} />
+          </>
         )}
       </ClerkProvider>
     </ThemeProvider>

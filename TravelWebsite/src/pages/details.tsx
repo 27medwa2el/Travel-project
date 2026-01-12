@@ -1,308 +1,182 @@
-import { HeartIcon } from "@heroicons/react/24/outline";
-import {
-  HeartIcon as HeartIconSolid,
-  StarIcon,
-} from "@heroicons/react/24/solid";
-import { loadStripe, Stripe } from "@stripe/stripe-js";
-import axios from "axios";
-import { GetServerSidePropsContext } from "next";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import CarouselCard from "../components/CarouselCard";
-import Drawer from "../components/Drawer";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import MapCard from "../components/MapCard";
-import { IDetails, IResult, ISuggestionFormatted } from "../types/typings";
-import getHotelDetails from "../utils/getHotelDetails";
+import React, { useState } from 'react';
+import Head from 'next/head';
+import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { motion } from 'framer-motion';
+import { 
+  HeartIcon, 
+  ShareIcon, 
+  MapIcon, 
+  CurrencyDollarIcon,
+  ChevronDownIcon
+} from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/solid';
+import WeatherWidget from '../components/WeatherWidget';
+import StatsCard from '../components/StatsCard';
+import Footer from '../components/Footer';
+import { ISuggestionFormatted } from '../types/typings';
 
-let stripePromise: Promise<Stripe | null>;
+const tabs = [
+  'Places', 'Events', 'Travel Document', 'Recommended Items', 'Applications',
+  'Flight', 'Hotel', 'Cars', 'Drivers', 'Tour Guides', 'Tips'
+];
 
-type Props = {
-  detailsResult: IDetails;
-};
-
-const Details = ({ detailsResult }: Props) => {
+const Details = () => {
+  const router = useRouter();
+  const { id, location } = router.query;
+  const [activeTab, setActiveTab] = useState('Places');
   const [isOpen, setIsOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [selectedCity, setSelectedCity] = useState<ISuggestionFormatted | null>(
-    null
-  );
-  const [isFav, setIsFav] = useState(false);
-  // For now, use anonymous email since travel routes are public
-  // In the future, get from Clerk: const { user } = useUser(); const userEmail = user?.emailAddresses[0]?.emailAddress || "anonymous@user.com";
-  const userEmail = "anonymous@user.com";
-  const router = useRouter();
-  const {
-    cityId,
-    favorite,
-    fromFavPage,
-    booking,
-    startDate,
-    endDate,
-    numOfGuests,
-    hotelId,
-    img,
-    location,
-    title,
-    description,
-    star,
-    price,
-    total,
-    long,
-    lat,
-  } = router.query;
-  const searchResults: IResult[] = [
-    {
-      hotelId: hotelId as string,
-      img: img as string,
-      title: title as string,
-      description: description as string,
-      star: parseFloat(star as string),
-      price: price as string,
-      total: total as unknown as number,
-      long: parseFloat(long as string),
-      lat: parseFloat(lat as string),
-      userEmail: userEmail as string,
-    },
-  ];
-  console.log({ startDate, endDate });
-  const formattedStartDate = startDate;
-  const formattedEndDate = endDate;
-  const range = `from ${formattedStartDate} to ${formattedEndDate}`;
-  // Update Fav State from Query Value
-  useEffect(() => {
-    if (favorite === "true") setIsFav(true);
-  }, []);
-  // Create New Stripe Checkout Session
-  const createCheckoutSession = async () => {
-    // Load Stripe
-    if (!stripePromise) {
-      stripePromise = loadStripe(process.env.stripe_public_key!);
-    }
-    // Call the Backend API to create a Checkout session
-    const checkoutSession = await axios.post("/api/create-checkout-session", {
-      hotelId: hotelId,
-      title: title,
-      description: description,
-      img: img,
-      location: location,
-      startDate: formattedStartDate,
-      endDate: formattedEndDate,
-      price: price,
-      total: total,
-      userEmail: userEmail,
-      long: long,
-      lat: lat,
-      star: star,
-      cityId: cityId,
-    });
-    const stripe = await stripePromise;
-    // Redirect user/customer to Stripe Checkout
-    const result = await stripe!.redirectToCheckout({
-      sessionId: checkoutSession.data.id,
-    });
+  const [selectedCity, setSelectedCity] = useState<ISuggestionFormatted | null>(null);
 
-    if (result.error) {
-      alert(result.error.message);
-    }
-  };
-  // Add Fav Hotel to DB
-  const submitFavorite = async () => {
-    try {
-      const body = { ...searchResults[0], location, cityId };
-      await fetch("/api/post-favorite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  // Delete Fav Hotel from DB
-  const deleteFavorite = async () => {
-    try {
-      const body = { hotelId: hotelId, userEmail: userEmail };
-      await fetch("/api/delete-favorite", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  const cityName = location ? (location as string).split(',')[0] : 'Paris';
+  const countryName = location ? (location as string).split(',')[1]?.trim() : 'France';
 
   return (
-    <div>
-      {/* No Placeholder for Hotels from Favorite List */}
-      <Header
-        searchInput={searchInput}
-        setSearchInput={setSearchInput}
-        selectedCity={selectedCity}
-        setSelectedCity={setSelectedCity}
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        placeholder={
-          fromFavPage === "false"
-            ? `${location} - ${range} - ${numOfGuests}`
-            : ``
-        }
-      />
-      <main className="flex flex-col max-w-4xl mx-auto">
-        {/* Left Section */}
-        <section className="flex-grow pt-14 px-6">
-          {fromFavPage === "false" && (
-            <h3 className="text-sm font-extralight pb-4 mt-2 mb-6 border-b">
-              Accommodation available {range}, {numOfGuests} guests
-            </h3>
-          )}
-          <div className="flex justify-between">
-            <p className="text-right">{location}</p>
-            {/* Favorite Heart Icon */}
-            {!isFav ? (
-              <HeartIcon
-                onClick={() => {
-                  submitFavorite();
-                  setIsFav(true);
-                }}
-                className="h-7 cursor-pointer"
-              />
-            ) : (
-              <HeartIconSolid
-                onClick={() => {
-                  deleteFavorite();
-                  setIsFav(false);
-                }}
-                className="h-7 cursor-pointer text-orange-600"
-              />
-            )}
+    <div className="bg-[#f8faff] min-h-screen">
+      <Head>
+        <title>{cityName} - Explore City</title>
+      </Head>
+
+      <main className="pt-24">
+        {/* Full-screen Hero Section */}
+        <div className="relative h-[90vh] w-full overflow-hidden">
+          <Image
+            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2000&q=80"
+            alt={cityName}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+
+          {/* Top Left: Weather Widget */}
+          <div className="absolute top-10 left-10 z-20">
+            <WeatherWidget />
           </div>
-          <h4 className="text-3xl font-bold">{title}</h4>
-          <div className="border-b w-10 pt-2" />
-          <div className="flex">
-            <p className="pt-2 text-sm text-gray-800 flex-grow">
-              {description}
-            </p>
-            <p className="flex items-center">
-              <StarIcon className="h-5 text-red-400" /> {star}
-            </p>
+
+          {/* Top Right: Actions */}
+          <div className="absolute top-10 right-10 z-20 flex flex-col gap-4">
+            <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+              <HeartIcon className="w-6 h-6" />
+            </button>
+            <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+              <ShareIcon className="w-6 h-6" />
+            </button>
           </div>
-          {/* Photo Gallery */}
-          <CarouselCard images={detailsResult.images.slice(0, 25)} />
-          {/* Accommodation Price Details */}
-          {fromFavPage === "false" && (
-            <>
-              <p className="text-right pb-1 text-sm md:text-base">{range}</p>
-              <p className="text-right text-md lg:text-xl">
-                {numOfGuests} {numOfGuests === "1" ? "Guest" : "Guests"}
-              </p>
-            </>
-          )}
-          <p className="text-right text-xl lg:text-2xl font-semibold">
-            {`${price} / night`}
-          </p>
-          {fromFavPage === "false" && (
-            <p className="text-right font-extralight">{`$${total} total (tax incl.)`}</p>
-          )}
-          {/* Button only available for Searched Hotels, and Not From Favorites List */}
-          {fromFavPage === "false" && (
-            <div className="w-full flex justify-end">
+
+          {/* Bottom Left: Title and Badges */}
+          <div className="absolute bottom-20 left-10 z-20">
+            <div className="flex gap-3 mb-6">
+              <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 border border-white/20 text-white text-sm font-bold shadow-lg">
+                <MapIcon className="w-4 h-4 text-purple-400" /> {countryName}
+              </div>
+            </div>
+            
+            <h1 className="text-[12rem] font-black text-white leading-none uppercase tracking-tighter drop-shadow-2xl">
+              {cityName}
+            </h1>
+
+            <div className="flex gap-4 mt-8">
+              <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-yellow-500/30 text-yellow-400 font-black">
+                <StarIcon className="w-5 h-5" /> 2 Places
+              </div>
+              <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-blue-500/30 text-blue-400 font-black uppercase tracking-tighter">
+                📍 {countryName}
+              </div>
+              <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-green-500/30 text-green-400 font-black uppercase tracking-tighter">
+                <CurrencyDollarIcon className="w-5 h-5" /> EUR
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Right: Stats Card */}
+          <div className="absolute bottom-20 right-10 z-20">
+            <StatsCard />
+          </div>
+
+          {/* Center Bottom: Scroll Indicator */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
+            <p className="text-white font-bold text-xs uppercase tracking-[0.3em] opacity-70">Scroll to explore</p>
+            <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-1">
+              <motion.div 
+                animate={{ y: [0, 15, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="w-1.5 h-1.5 bg-white rounded-full" 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="sticky top-[68px] z-40 bg-white border-b border-gray-100 shadow-sm overflow-x-auto no-scrollbar">
+          <div className="max-w-7xl mx-auto px-10 flex gap-10">
+            {tabs.map((tab) => (
               <button
-                role="link"
-                onClick={createCheckoutSession}
-                disabled={!session}
-                className="text-md px-3 py-1 italic text-white cursor-pointer bg-orange-500  rounded-xl mt-3 hover:bg-orange-600 active:scale-95 transition duration-250"
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`py-6 text-sm font-black uppercase tracking-widest whitespace-nowrap border-b-2 transition-all ${
+                  activeTab === tab 
+                    ? 'border-purple-600 text-purple-600' 
+                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                }`}
               >
-                Express Booking
+                {tab}
               </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Based on Tab */}
+        <div className="max-w-7xl mx-auto py-20 px-10">
+          {activeTab === 'Places' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              {/* Places would be mapped here */}
+              <div className="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 bg-white">
+                <Image
+                  src="https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=1000&q=80"
+                  alt="Place"
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute top-6 left-6 flex gap-2">
+                  <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">Historical Site</span>
+                </div>
+                <div className="absolute bottom-10 left-10 right-10 text-white">
+                  <h3 className="text-4xl font-black mb-4">Arc de Triomphe</h3>
+                  <p className="text-gray-200 font-medium leading-relaxed line-clamp-2">
+                    The Arc de Triomphe embodies the strength of French history and was built to honor France's soldiers.
+                  </p>
+                </div>
+              </div>
+
+              <div className="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 bg-white">
+                <Image
+                  src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?auto=format&fit=crop&w=1000&q=80"
+                  alt="Place"
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute top-6 left-6 flex gap-2">
+                  <span className="bg-green-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">Historical Site</span>
+                </div>
+                <div className="absolute bottom-10 left-10 right-10 text-white">
+                  <h3 className="text-4xl font-black mb-4">Eiffel Tower</h3>
+                  <p className="text-gray-200 font-medium leading-relaxed line-clamp-2">
+                    The Eiffel Tower is the most famous landmark in Paris, known for its stunning panoramic views.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
-          {/* Reservation Details */}
-          {booking === "true" && (
-            <>
-              <h3 className="text-2xl font-semibold pt-3 pb-7">
-                Booking & Payment details
-              </h3>
-              <ul className="list-disc pl-5 pb-7">
-                <li>
-                  Hotel: <span className="font-semibold">{title}</span>
-                </li>
-                <li>
-                  City:{" "}
-                  <span className="font-semibold">
-                    {(location as string).split("from ")[1]}
-                  </span>{" "}
-                </li>
-                <li>
-                  Start date:{" "}
-                  <span className="font-semibold"> {startDate}</span>{" "}
-                </li>
-                <li>
-                  End date: <span className="font-semibold"> {endDate}</span>
-                </li>
-                <li>
-                  Price per night<span className="font-semibold"> {price}</span>
-                </li>
-                <li>
-                  Num. of nights:{" "}
-                  <span className="font-semibold">
-                    {" "}
-                    {Math.round(
-                      +total! / Number((price! as string).split("$")[1])
-                    )}
-                  </span>
-                </li>
-                <li>
-                  Total price: <span className="font-semibold"> ${total}</span>
-                </li>
-              </ul>
-              {/* More Hotel Details, Amenities */}
-            </>
-          )}
-          <h3 className="text-2xl font-semibold pb-7">Amenities</h3>
-          <ul className="list-disc pl-5">
-            {detailsResult.amenities.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          {/* MapBox, Bottom Section */}
-          <h3 className="text-2xl font-semibold py-7">Location</h3>
-          <p className="pb-7">{detailsResult.address}</p>
-          <div className="w-full h-[500px]">
-            <MapCard searchResults={searchResults} />
-          </div>
-        </section>
+        </div>
       </main>
+
       <Footer />
-      {/* Drawer Menu, closed by default */}
-      <Drawer isOpen={isOpen} setIsOpen={setIsOpen}>
-        <p className="drawer-item">
-          <Link href={"/favorites"}>List of Favorites</Link>
-        </p>
-        <p className="drawer-item">
-          <Link href={"/bookings"}>Your Bookings</Link>
-        </p>
-      </Drawer>
     </div>
   );
 };
 
 export default Details;
-
-export const getServerSideProps = async (
-  context: GetServerSidePropsContext
-) => {
-  const { hotelId } = context.query;
-
-  const detailsResult = await getHotelDetails(hotelId).catch(console.error);
-
-  return {
-    props: {
-      detailsResult,
-    },
-  };
-};
