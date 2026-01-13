@@ -57,6 +57,7 @@ export default function ActivitiesPage() {
     cityId: '',
     price: '',
     currency: 'USD',
+    bookingUrl: '', // Added
     lat: '',
     lng: '',
     tags: '',
@@ -185,6 +186,7 @@ export default function ActivitiesPage() {
       cityId: '',
       price: '',
       currency: 'USD',
+      bookingUrl: '',
       lat: '',
       lng: '',
       tags: '',
@@ -202,6 +204,7 @@ export default function ActivitiesPage() {
       cityId: activity.cityId,
       price: activity.price?.toString() || '',
       currency: activity.currency || 'USD',
+      bookingUrl: activity.bookingUrl || '',
       lat: activity.lat.toString(),
       lng: activity.lng.toString(),
       tags: activity.tags?.join(', ') || '',
@@ -237,6 +240,7 @@ export default function ActivitiesPage() {
         cityId: formData.cityId,
         price: formData.price ? parseFloat(formData.price) : undefined,
         currency: formData.currency || undefined,
+        bookingUrl: formData.bookingUrl || undefined,
         lat: parseFloat(formData.lat),
         lng: parseFloat(formData.lng),
         tags: formData.tags
@@ -465,6 +469,17 @@ export default function ActivitiesPage() {
                         />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bookingUrl" className="text-[10px] font-black uppercase tracking-widest text-gray-400">External Booking URL (Optional)</Label>
+                    <Input
+                      id="bookingUrl"
+                      className="h-14 rounded-2xl border-gray-100 bg-white shadow-sm font-black lowercase tracking-tight"
+                      value={formData.bookingUrl}
+                      onChange={(e) => setFormData({ ...formData, bookingUrl: e.target.value })}
+                      placeholder="https://www.getyourguide.com/..."
+                    />
                   </div>
 
                   <div className="space-y-2">

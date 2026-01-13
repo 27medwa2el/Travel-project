@@ -23,8 +23,78 @@ export interface City {
   id: string;
   countryId: string;
   name: string;
+  lat: number;
+  lng: number;
+  images?: string[];
+  timezone?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CityTip {
+  id: string;
+  cityId: string;
+  content: string;
+}
+
+export interface CityDocument {
+  id: string;
+  cityId: string;
+  name: string;
+  exampleUrl?: string; // Added for optional document example
+}
+
+export interface CityRecommendedItem {
+  id: string;
+  cityId: string;
+  name: string;
+  imageUrl?: string; // Added for optional item photo
+}
+
+export interface CityEvent {
+  id: string;
+  cityId: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  lat: number; // Added for map
+  lng: number; // Added for map
+  imageUrl?: string;
+}
+
+export interface CityCar {
+  id: string;
+  cityId: string;
+  name: string;
+  type: string;
+  pricePerDay: number;
+  transmission: string;
+  fuel: string;
+  contactInfo?: string; // Added
+  imageUrl?: string;
+}
+
+export interface CityTourGuide {
+  id: string;
+  cityId: string;
+  name: string;
+  bio: string;
+  languages: string[];
+  pricePerHour: number;
+  rating: number;
+  contactInfo?: string; // Added
+  imageUrl?: string;
+}
+
+export interface CityApplication {
+  id: string;
+  cityId: string; // Added for standalone management
+  name: string;
+  description: string;
+  iconUrl?: string; // Added for app icon
+  androidLink?: string;
+  iphoneLink?: string;
 }
 
 export interface Activity {
@@ -38,6 +108,7 @@ export interface Activity {
   lng: number;
   images?: string[]; // Array of image URLs
   tags?: string[]; // e.g., ["adventure", "family", "outdoor"]
+  bookingUrl?: string; // Added for external booking
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +118,7 @@ export interface Driver {
   cityId: string;
   name: string;
   phone?: string;
+  contactInfo?: string; // Standardizing
   pricePerDay?: number;
   vehicleType?: string; // e.g., "sedan", "suv", "van"
   rating?: number; // 1-5

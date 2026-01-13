@@ -8,9 +8,19 @@ import {
   ShareIcon, 
   MapIcon, 
   CurrencyDollarIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  DevicePhoneMobileIcon,
+  QrCodeIcon,
+  ShoppingBagIcon,
+  CalendarDaysIcon,
+  DocumentTextIcon,
+  BriefcaseIcon,
+  InformationCircleIcon,
+  UserGroupIcon as UserGroupIconOutline,
+  IdentificationIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon, SparklesIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
 import WeatherWidget from '../components/WeatherWidget';
 import StatsCard from '../components/StatsCard';
 import CityMapView from '../components/CityMapView';
@@ -19,8 +29,8 @@ import HotelSearch from '../components/HotelSearch';
 import Footer from '../components/Footer';
 import { ISuggestionFormatted } from '../types/typings';
 
-import { activityStore, cityStore, countryStore, driverStore } from '@/lib/mockStore';
-import { Activity, City, Country, Driver } from '@/types/domain';
+import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore } from '@/lib/mockStore';
+import { Activity, City, Country, Driver, CityEvent, CityCar, CityTourGuide, CityApplication, CityTip, CityDocument, CityRecommendedItem } from '@/types/domain';
 
 const tabs = [
   'Places', 'Map', 'Events', 'Travel Document', 'Recommended Items', 'Applications',
@@ -32,9 +42,16 @@ type Props = {
   country: Country | null;
   activities: Activity[];
   drivers: Driver[];
+  events: CityEvent[];
+  cars: CityCar[];
+  tourGuides: CityTourGuide[];
+  applications: CityApplication[];
+  tips: CityTip[];
+  documents: CityDocument[];
+  recommendedItems: CityRecommendedItem[];
 };
 
-const Details = ({ city, country, activities, drivers }: Props) => {
+const Details = ({ city, country, activities, drivers, events, cars, tourGuides, applications, tips, documents, recommendedItems }: Props) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Places');
 
@@ -229,18 +246,358 @@ const Details = ({ city, country, activities, drivers }: Props) => {
                       </p>
                       <div className="mt-6 flex items-center justify-between">
                         <span className="text-2xl font-black">{activity.price} {activity.currency}</span>
-                        <button 
-                          onClick={() => router.push(`/checkout?type=activity&id=${activity.id}`)}
-                          className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-500 hover:text-white transition-all shadow-xl"
-                        >
-                          Book Now
-                        </button>
+                        <div className="flex gap-4">
+                          {activity.bookingUrl ? (
+                            <a 
+                              href={activity.bookingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 hover:text-white transition-all shadow-xl flex items-center gap-2"
+                            >
+                              <ShoppingBagIcon className="w-4 h-4" /> Book Tickets
+                            </a>
+                          ) : (
+                            <button 
+                              onClick={() => router.push(`/checkout?type=activity&id=${activity.id}`)}
+                              className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-500 hover:text-white transition-all shadow-xl"
+                            >
+                              Book Now
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 )) : (
                   <div className="col-span-2 py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
                     <p className="text-gray-400 font-bold uppercase tracking-widest">No places added for this city yet.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'Events' && (
+              <motion.div 
+                key="events"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {events.length > 0 ? events.map((event, i) => (
+                  <motion.div 
+                    key={event.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white rounded-[40px] overflow-hidden shadow-xl border border-gray-50 flex flex-col group hover:scale-[1.02] transition-all"
+                  >
+                    <div className="h-48 relative overflow-hidden">
+                      <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl">
+                        <p className="text-[10px] font-black text-purple-600 uppercase tracking-widest">{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
+                      </div>
+                    </div>
+                    <div className="p-8">
+                      <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">{event.title}</h3>
+                      <p className="text-gray-400 font-bold text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <MapIcon className="w-3 h-3" /> {event.location}
+                      </p>
+                      <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-6">{event.description}</p>
+                      <button className="w-full py-4 bg-purple-50 text-purple-600 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-purple-600 hover:text-white transition-all">Interested</button>
+                    </div>
+                  </motion.div>
+                )) : (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
+                    <CalendarDaysIcon className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No upcoming events scheduled.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'Travel Document' && (
+              <motion.div 
+                key="documents"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-3xl mx-auto"
+              >
+                <div className="bg-white p-12 rounded-[50px] shadow-2xl border border-gray-50">
+                  <div className="flex items-center gap-6 mb-10">
+                    <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center">
+                      <DocumentTextIcon className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Required Documents</h3>
+                      <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Essential travel papers for {cityName}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    {documents && documents.length > 0 ? documents.map((doc, i) => (
+                      <motion.div 
+                        key={doc.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="flex items-center justify-between p-6 bg-gray-50 rounded-2xl border border-gray-100 group hover:border-blue-200 transition-all"
+                      >
+                        <div className="flex items-center gap-4">
+                          <CheckBadgeIcon className="w-6 h-6 text-green-500" />
+                          <span className="text-sm font-black text-gray-700 uppercase tracking-tight">{doc.name}</span>
+                        </div>
+                        {doc.exampleUrl && (
+                          <a 
+                            href={doc.exampleUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-white px-4 py-2 rounded-xl text-[9px] font-black text-blue-600 uppercase tracking-widest border border-blue-50 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                          >
+                            View Example
+                          </a>
+                        )}
+                      </motion.div>
+                    )) : (
+                      <p className="text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Document info coming soon.</p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'Recommended Items' && (
+              <motion.div 
+                key="items"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-3xl mx-auto"
+              >
+                <div className="bg-white p-12 rounded-[50px] shadow-2xl border border-gray-50">
+                  <div className="flex items-center gap-6 mb-10">
+                    <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center">
+                      <BriefcaseIcon className="w-8 h-8 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">Packing Essentials</h3>
+                      <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Recommended for your trip to {cityName}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {recommendedItems && recommendedItems.length > 0 ? recommendedItems.map((item, i) => (
+                      <motion.div 
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center gap-4 p-4 bg-orange-50/30 rounded-3xl border border-orange-100 group hover:bg-white hover:shadow-xl transition-all"
+                      >
+                        <div className="w-16 h-16 rounded-2xl bg-white border border-orange-100 overflow-hidden flex items-center justify-center text-orange-400 group-hover:scale-110 transition-transform">
+                          {item.imageUrl ? (
+                            <img src={item.imageUrl} className="w-full h-full object-cover" />
+                          ) : (
+                            <SparklesIcon className="w-6 h-6" />
+                          )}
+                        </div>
+                        <span className="text-xs font-black text-gray-700 uppercase tracking-tight">{item.name}</span>
+                      </motion.div>
+                    )) : (
+                      <p className="col-span-2 text-center py-10 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Recommended items coming soon.</p>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'Cars' && (
+              <motion.div 
+                key="cars"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {cars.length > 0 ? cars.map((car, i) => (
+                  <motion.div 
+                    key={car.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white rounded-[40px] overflow-hidden shadow-xl border border-gray-50 group hover:scale-[1.02] transition-all"
+                  >
+                    <div className="h-48 p-6 bg-gray-50">
+                      <img src={car.imageUrl} alt={car.name} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                    <div className="p-8">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">{car.name}</h3>
+                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-lg text-[10px] font-black">${car.pricePerDay}/day</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-8">
+                        <div className="bg-gray-50 p-3 rounded-xl flex flex-col items-center">
+                          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Type</p>
+                          <p className="text-[10px] font-black text-gray-700 uppercase">{car.type}</p>
+                        </div>
+                        <div className="bg-gray-50 p-3 rounded-xl flex flex-col items-center">
+                          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Transmission</p>
+                          <p className="text-[10px] font-black text-gray-700 uppercase">{car.transmission}</p>
+                        </div>
+                      </div>
+                      <button className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all shadow-lg">Rent Now</button>
+                    </div>
+                  </motion.div>
+                )) : (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No rental cars available.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'Tour Guides' && (
+              <motion.div 
+                key="guides"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {tourGuides.length > 0 ? tourGuides.map((guide, i) => (
+                  <motion.div 
+                    key={guide.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white p-10 rounded-[50px] shadow-xl border border-gray-50 flex flex-col items-center text-center group"
+                  >
+                    <div className="w-32 h-32 rounded-[40px] overflow-hidden mb-6 border-4 border-gray-50 group-hover:border-purple-100 transition-all">
+                      <img src={guide.imageUrl} alt={guide.name} className="w-full h-full object-cover" />
+                    </div>
+                    <h3 className="text-2xl font-black text-gray-900 mb-1 uppercase tracking-tighter">{guide.name}</h3>
+                    <div className="flex gap-2 mb-4">
+                      {guide.languages.map(lang => (
+                        <span key={lang} className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{lang}</span>
+                      ))}
+                    </div>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-8 px-4 line-clamp-3">{guide.bio}</p>
+                    <div className="flex gap-4 w-full">
+                      <div className="flex-1 py-4 bg-gray-50 rounded-2xl">
+                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Rating</p>
+                        <p className="text-xs font-black text-gray-900">⭐ {guide.rating}</p>
+                      </div>
+                      <div className="flex-1 py-4 bg-gray-50 rounded-2xl">
+                        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Price</p>
+                        <p className="text-xs font-black text-gray-900">${guide.pricePerHour}/hr</p>
+                      </div>
+                    </div>
+                    <button className="w-full mt-6 py-4 bg-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-purple-700 transition-all shadow-lg">Hire Guide</button>
+                  </motion.div>
+                )) : (
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No licensed tour guides found.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'Tips' && (
+              <motion.div 
+                key="tips"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6"
+              >
+                {tips && tips.length > 0 ? tips.map((tip, i) => (
+                  <motion.div 
+                    key={tip.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white p-8 rounded-[40px] shadow-lg border border-gray-50 flex gap-6 group hover:border-purple-200 transition-all"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-600 transition-all">
+                      <ChatBubbleLeftRightIcon className="w-7 h-7 text-purple-600 group-hover:text-white transition-all" />
+                    </div>
+                    <div>
+                      <p className="text-gray-900 font-bold text-sm leading-relaxed tracking-tight">{tip.content}</p>
+                      <p className="mt-2 text-[10px] font-black text-purple-400 uppercase tracking-widest">Travel Advice</p>
+                    </div>
+                  </motion.div>
+                )) : (
+                  <div className="col-span-2 py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
+                    <InformationCircleIcon className="w-12 h-12 text-gray-200 mx-auto mb-4" />
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No local tips shared yet.</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {activeTab === 'Applications' && (
+              <motion.div 
+                key="applications"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {applications && applications.length > 0 ? applications.map((app, i) => (
+                  <motion.div 
+                    key={app.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="bg-white p-10 rounded-[50px] shadow-2xl border border-gray-50 flex flex-col items-center text-center group hover:shadow-[#9333ea20] hover:border-purple-100 transition-all duration-500"
+                  >
+                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-600 rounded-[30px] flex items-center justify-center mb-8 shadow-2xl shadow-purple-200 group-hover:rotate-6 transition-transform duration-500 overflow-hidden border-4 border-white">
+                      {app.iconUrl ? (
+                        <img src={app.iconUrl} alt={app.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <QrCodeIcon className="w-12 h-12 text-white" />
+                      )}
+                    </div>
+                    
+                    <h3 className="text-2xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{app.name}</h3>
+                    <p className="text-gray-400 font-bold text-sm leading-relaxed mb-10 px-4">
+                      {app.description}
+                    </p>
+
+                    <div className="flex gap-4 w-full mt-auto">
+                      {app.iphoneLink && (
+                        <a 
+                          href={app.iphoneLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-gray-900 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-black transition-all group/btn"
+                        >
+                          <DevicePhoneMobileIcon className="w-4 h-4 group-hover/btn:-translate-y-0.5 transition-transform" />
+                          <span className="text-[10px] font-black uppercase tracking-widest">iPhone</span>
+                        </a>
+                      )}
+                      {app.androidLink && (
+                        <a 
+                          href={app.androidLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-purple-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-purple-700 transition-all group/btn"
+                        >
+                          <DevicePhoneMobileIcon className="w-4 h-4 group-hover/btn:translate-y-0.5 transition-transform" />
+                          <span className="text-[10px] font-black uppercase tracking-widest">Android</span>
+                        </a>
+                      )}
+                    </div>
+                  </motion.div>
+                )) : (
+                  <div className="col-span-full py-32 text-center border-4 border-dashed border-gray-100 rounded-[60px] flex flex-col items-center">
+                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
+                      <DevicePhoneMobileIcon className="w-10 h-10 text-gray-200" />
+                    </div>
+                    <p className="text-gray-300 font-black uppercase tracking-[0.3em] text-sm">Official apps coming soon for {cityName}</p>
                   </div>
                 )}
               </motion.div>
@@ -363,6 +720,13 @@ export const getServerSideProps = async (context: any) => {
   const country = countryStore.getById(city.countryId) || null;
   const activities = activityStore.getByCityId(city.id);
   const drivers = driverStore.getByCityId(city.id);
+  const events = eventStore.getByCityId(city.id);
+  const cars = carStore.getByCityId(city.id);
+  const tourGuides = tourGuideStore.getByCityId(city.id);
+  const applications = applicationStore.getByCityId(city.id);
+  const tips = tipStore.getByCityId(city.id);
+  const documents = documentStore.getByCityId(city.id);
+  const recommendedItems = itemStore.getByCityId(city.id);
 
   return {
     props: {
@@ -370,6 +734,13 @@ export const getServerSideProps = async (context: any) => {
       country: JSON.parse(JSON.stringify(country)),
       activities: JSON.parse(JSON.stringify(activities)),
       drivers: JSON.parse(JSON.stringify(drivers)),
+      events: JSON.parse(JSON.stringify(events)),
+      cars: JSON.parse(JSON.stringify(cars)),
+      tourGuides: JSON.parse(JSON.stringify(tourGuides)),
+      applications: JSON.parse(JSON.stringify(applications)),
+      tips: JSON.parse(JSON.stringify(tips)),
+      documents: JSON.parse(JSON.stringify(documents)),
+      recommendedItems: JSON.parse(JSON.stringify(recommendedItems)),
     },
   };
 };

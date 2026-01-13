@@ -63,9 +63,34 @@ export const navItems: NavItem[] = [
         icon: 'activity'
       },
       {
+        title: 'Events',
+        url: '/admin/events',
+        icon: 'calendar'
+      },
+      {
+        title: 'Applications',
+        url: '/admin/applications',
+        icon: 'smartphone'
+      },
+      {
+        title: 'City Essentials',
+        url: '/admin/essentials',
+        icon: 'post'
+      },
+      {
+        title: 'Rental Cars',
+        url: '/admin/cars',
+        icon: 'car'
+      },
+      {
         title: 'Drivers',
         url: '/admin/drivers',
-        icon: 'car'
+        icon: 'user'
+      },
+      {
+        title: 'Tour Guides',
+        url: '/admin/tour-guides',
+        icon: 'contact'
       }
     ]
   },
