@@ -22,10 +22,10 @@ import { useUser } from '@clerk/nextjs';
 
 const Checkout = () => {
   const router = useRouter();
-  const { type, id } = router.query;
+  const { type, id, price, name } = router.query;
   const { user } = useUser();
   
-  const [item, setItem] = useState<Activity | Driver | null>(null);
+  const [item, setItem] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -50,8 +50,9 @@ const Checkout = () => {
         referenceId: item.id,
         date: new Date().toISOString(),
         status: 'confirmed',
-        price: type === 'activity' ? (item as Activity).price || 0 : (item as Driver).pricePerDay || 0,
-        currency: type === 'activity' ? (item as Activity).currency || 'USD' : 'USD',
+        price: type === 'activity' ? (item as Activity).price || 0 : 
+               (item as Driver).pricePerDay || 0,
+        currency: item.currency || 'USD',
       });
       
       setIsProcessing(false);
@@ -96,7 +97,7 @@ const Checkout = () => {
                   <div className="flex gap-6 mb-8">
                     <div className="relative w-32 h-32 rounded-3xl overflow-hidden flex-shrink-0">
                       <Image 
-                        src={type === 'activity' ? (item as Activity).images?.[0] || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80' : 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&w=400&q=80'} 
+                        src={item.images?.[0] || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80'} 
                         alt="Booking" 
                         fill 
                         className="object-cover"
@@ -107,7 +108,7 @@ const Checkout = () => {
                         <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{type}</span>
                       </div>
                       <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tighter mb-2">
-                        {type === 'activity' ? (item as Activity).title : (item as Driver).name}
+                        {item.title || item.name}
                       </h2>
                       <div className="flex items-center gap-2 text-gray-400 text-sm font-bold">
                         <MapPinIcon className="w-4 h-4" />
@@ -169,7 +170,8 @@ const Checkout = () => {
                   <div className="flex flex-col gap-4 mb-10">
                     <div className="flex justify-between items-center opacity-60">
                       <span className="font-bold text-sm">Subtotal</span>
-                      <span className="font-black">{type === 'activity' ? (item as Activity).price : (item as Driver).pricePerDay} USD</span>
+                      <span className="font-black">{type === 'activity' ? (item as Activity).price : 
+                             (item as Driver).pricePerDay} USD</span>
                     </div>
                     <div className="flex justify-between items-center opacity-60">
                       <span className="font-bold text-sm">Service Fee</span>
@@ -182,7 +184,8 @@ const Checkout = () => {
                     <div className="h-px bg-white/10 my-2" />
                     <div className="flex justify-between items-center">
                       <span className="text-xl font-black uppercase tracking-tighter">Total Price</span>
-                      <span className="text-3xl font-black">{(type === 'activity' ? (item as Activity).price || 0 : (item as Driver).pricePerDay || 0) + 17} USD</span>
+                      <span className="text-3xl font-black">{(type === 'activity' ? (item as Activity).price || 0 : 
+                              (item as Driver).pricePerDay || 0) + 17} USD</span>
                     </div>
                   </div>
 

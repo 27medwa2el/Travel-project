@@ -14,6 +14,8 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import WeatherWidget from '../components/WeatherWidget';
 import StatsCard from '../components/StatsCard';
 import CityMapView from '../components/CityMapView';
+import FlightSearch from '../components/FlightSearch';
+import HotelSearch from '../components/HotelSearch';
 import Footer from '../components/Footer';
 import { ISuggestionFormatted } from '../types/typings';
 
@@ -259,6 +261,30 @@ const Details = ({ city, country, activities, drivers }: Props) => {
                     lng: city.lng 
                   }} 
                 />
+              </motion.div>
+            )}
+
+            {activeTab === 'Flight' && (
+              <motion.div 
+                key="flight"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="w-full"
+              >
+                <FlightSearch destinationCity={city.name} />
+              </motion.div>
+            )}
+
+            {activeTab === 'Hotel' && (
+              <motion.div 
+                key="hotel"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="w-full"
+              >
+                <HotelSearch cityId={city.id} cityName={city.name} />
               </motion.div>
             )}
             

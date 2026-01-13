@@ -1,42 +1,34 @@
-import { IOptions } from "../types/typings";
+export interface HotelDetails {
+  images: string[];
+  amenities: string[];
+  address: string;
+}
 
-const getHotelDetails = async (propertyId: string | string[] | undefined) => {
-  const url = "https://hotels4.p.rapidapi.com/properties/v2/get-summary";
+const getHotelDetails = async (propertyId: string | string[] | undefined): Promise<HotelDetails> => {
+  // Removing RapidAPI logic completely as requested. 
+  // We use high-quality mock data for a seamless demo experience.
+  
+  // Simulate delay
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  const bodyStr = await JSON.stringify({
-    currency: "CAD",
-    eapid: 1,
-    locale: "en_CA",
-    siteId: 300000001,
-    propertyId: propertyId,
-  });
-
-  const options: IOptions = {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "X-RapidAPI-Key": process.env.NEXT_PUBLIC_RAPIDAPI_KEY!,
-      "X-RapidAPI-Host": "hotels4.p.rapidapi.com",
-    },
-    body: bodyStr,
+  return {
+    images: [
+      "https://images.unsplash.com/photo-1566073771259-1200abb0d34c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80"
+    ],
+    amenities: [
+      "Free WiFi", 
+      "Infinity Pool", 
+      "Spa & Wellness", 
+      "Gourmet Dining", 
+      "Butler Service",
+      "Ocean View",
+      "Private Balcony"
+    ],
+    address: "123 Luxury Avenue, Premium District, World Center"
   };
-
-  const data = await fetch(url, options);
-  const json = await data.json();
-
-  const property = await json.data.propertyInfo;
-  const hotelDetailsFormatted = {
-    images: property.propertyGallery.images.map(
-      (item: { image: { url: string } }) => item.image.url
-    ),
-    amenities: property.summary.amenities.topAmenities.items.map(
-      (item: { text: string }) => item.text
-    ),
-    address: property.summary.location.address.addressLine,
-    
-  };
-
-  return hotelDetailsFormatted!;
 };
 
 export default getHotelDetails;
