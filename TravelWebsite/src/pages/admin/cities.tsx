@@ -251,33 +251,33 @@ export default function CitiesPage() {
   return (
     <AdminLayout>
       <PageContainer scrollable>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-start justify-between">
             <Heading
               title="Cities"
               description="Manage cities in your travel platform"
             />
-            <Button onClick={handleCreate} className="bg-[#9333ea] hover:bg-[#a855f7]">
+            <Button onClick={handleCreate} className="bg-[#9333ea] hover:bg-[#a855f7] rounded-xl px-6 font-black uppercase tracking-widest text-[10px]">
               <Plus className="mr-2 h-4 w-4" />
               Add City
             </Button>
           </div>
-          <Separator />
+          <Separator className="bg-gray-100" />
 
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+              <div className="w-8 h-8 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="rounded-[24px] border border-gray-100 bg-white overflow-hidden shadow-sm">
+            <div className="rounded-[32px] border border-gray-100 bg-white overflow-hidden shadow-xl shadow-black/[0.02]">
               <Table>
                 <TableHeader className="bg-gray-50/50">
                   <TableRow>
-                    <TableHead className="font-black uppercase tracking-widest text-[10px]">Name</TableHead>
-                    <TableHead className="font-black uppercase tracking-widest text-[10px]">Country</TableHead>
-                    <TableHead className="font-black uppercase tracking-widest text-[10px]">Coordinates</TableHead>
-                    <TableHead className="font-black uppercase tracking-widest text-[10px]">Created</TableHead>
-                    <TableHead className="text-right font-black uppercase tracking-widest text-[10px]">Actions</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] px-6">Name</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Country</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Coordinates</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Status</TableHead>
+                    <TableHead className="text-right font-black uppercase tracking-[0.2em] text-[10px] px-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -289,8 +289,10 @@ export default function CitiesPage() {
                     </TableRow>
                   ) : (
                     cities.map((city) => (
-                      <TableRow key={city.id} className="hover:bg-gray-50/50 transition-colors">
-                        <TableCell className="font-black uppercase tracking-tighter text-lg">{city.name}</TableCell>
+                      <TableRow key={city.id} className="group hover:bg-gray-50/50 transition-colors">
+                        <TableCell className="px-6">
+                          <p className="font-black uppercase tracking-tighter text-lg text-gray-900">{city.name}</p>
+                        </TableCell>
                         <TableCell>
                           <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                             {getCountryName(city.countryId)}
@@ -299,16 +301,19 @@ export default function CitiesPage() {
                         <TableCell className="font-mono text-xs text-gray-400">
                           {city.lat?.toFixed(4)}, {city.lng?.toFixed(4)}
                         </TableCell>
-                        <TableCell className="text-gray-500 font-medium">
-                          {new Date(city.createdAt).toLocaleDateString()}
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Global Enabled</span>
+                          </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right px-6">
                           <div className="flex justify-end gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEdit(city)}
-                              className="hover:bg-blue-50 hover:text-blue-600"
+                              className="rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -316,7 +321,7 @@ export default function CitiesPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(city.id)}
-                              className="hover:bg-red-50 hover:text-red-600"
+                              className="rounded-xl hover:bg-red-50 hover:text-red-600 transition-all"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -455,6 +460,28 @@ export default function CitiesPage() {
                     className="rounded-xl"
                   />
                 </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="image" className="text-xs font-black uppercase tracking-widest">City Image URL</Label>
+                <Input
+                  id="image"
+                  value={formData.images[0] || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, images: [e.target.value] })
+                  }
+                  placeholder="https://images.unsplash.com/..."
+                  className="rounded-xl"
+                />
+                {formData.images[0] && (
+                  <div className="mt-2 relative h-32 w-full rounded-2xl overflow-hidden border border-gray-100">
+                    <img 
+                      src={formData.images[0]} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             

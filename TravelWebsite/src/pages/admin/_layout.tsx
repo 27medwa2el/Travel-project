@@ -27,12 +27,16 @@ export default function AdminLayout({
     <KBar>
       <SidebarProvider defaultOpen={false}>
         <InfobarProvider defaultOpen={false}>
-          <AppSidebar />
-          <SidebarInset>
-            <Header />
-            {children}
-          </SidebarInset>
-          <InfoSidebar side='right' />
+          <div className="flex min-h-screen w-full bg-[#f8faff]">
+            <AppSidebar />
+            <SidebarInset className="bg-transparent border-none">
+              <Header />
+              <main className="flex-1 overflow-y-auto px-6 pb-10">
+                {children}
+              </main>
+            </SidebarInset>
+            <InfoSidebar side='right' />
+          </div>
         </InfobarProvider>
       </SidebarProvider>
     </KBar>

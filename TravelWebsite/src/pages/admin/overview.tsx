@@ -28,62 +28,73 @@ export default function OverviewPage({ stats, recentBookings }: { stats: any, re
             </h2>
           </div>
 
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
-            <Card className='bg-white shadow-sm border-gray-100'>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardDescription className="text-sm font-medium">Total Revenue</CardDescription>
-                <IconTrendingUp className="h-4 w-4 text-green-500" />
+          <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
+            <Card className='bg-white rounded-[32px] shadow-xl shadow-black/[0.02] border-gray-100 overflow-hidden group hover:scale-[1.02] transition-transform duration-500'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Total Revenue</CardDescription>
+                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                  <IconTrendingUp className="h-5 w-5" />
+                </div>
               </CardHeader>
-              <CardHeader className="pt-0">
-                <CardTitle className='text-2xl font-black'>
+              <CardHeader className="pt-0 pb-8">
+                <CardTitle className='text-4xl font-black tracking-tighter text-gray-900'>
                   ${stats.revenue.toLocaleString()}
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
-                  From {stats.bookingsCount} confirmed bookings
-                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    From {stats.bookingsCount} confirmed bookings
+                  </p>
+                </div>
               </CardHeader>
             </Card>
 
-            <Card className='bg-white shadow-sm border-gray-100'>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardDescription className="text-sm font-medium">Global Locations</CardDescription>
-                <IconGlobe className="h-4 w-4 text-blue-500" />
+            <Card className='bg-white rounded-[32px] shadow-xl shadow-black/[0.02] border-gray-100 overflow-hidden group hover:scale-[1.02] transition-transform duration-500'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Global Locations</CardDescription>
+                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                  <IconGlobe className="h-5 w-5" />
+                </div>
               </CardHeader>
-              <CardHeader className="pt-0">
-                <CardTitle className='text-2xl font-black'>
+              <CardHeader className="pt-0 pb-8">
+                <CardTitle className='text-4xl font-black tracking-tighter text-gray-900'>
                   {stats.countriesCount} Countries
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
                   Across {stats.citiesCount} different cities
                 </p>
               </CardHeader>
             </Card>
 
-            <Card className='bg-white shadow-sm border-gray-100'>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardDescription className="text-sm font-medium">Active Activities</CardDescription>
-                <IconActivity className="h-4 w-4 text-purple-500" />
+            <Card className='bg-white rounded-[32px] shadow-xl shadow-black/[0.02] border-gray-100 overflow-hidden group hover:scale-[1.02] transition-transform duration-500'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Active Activities</CardDescription>
+                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
+                  <IconActivity className="h-5 w-5" />
+                </div>
               </CardHeader>
-              <CardHeader className="pt-0">
-                <CardTitle className='text-2xl font-black'>
+              <CardHeader className="pt-0 pb-8">
+                <CardTitle className='text-4xl font-black tracking-tighter text-gray-900'>
                   {stats.activitiesCount} Places
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
                   Curated local experiences
                 </p>
               </CardHeader>
             </Card>
 
-            <Card className='bg-white shadow-sm border-gray-100'>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardDescription className="text-sm font-medium">Professional Drivers</CardDescription>
-                <IconCar className="h-4 w-4 text-orange-500" />
+            <Card className='bg-white rounded-[32px] shadow-xl shadow-black/[0.02] border-gray-100 overflow-hidden group hover:scale-[1.02] transition-transform duration-500'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Professional Drivers</CardDescription>
+                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                  <IconCar className="h-5 w-5" />
+                </div>
               </CardHeader>
-              <CardHeader className="pt-0">
-                <CardTitle className='text-2xl font-black'>
+              <CardHeader className="pt-0 pb-8">
+                <CardTitle className='text-4xl font-black tracking-tighter text-gray-900'>
                   {stats.driversCount} Drivers
                 </CardTitle>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
                   Available for private tours
                 </p>
               </CardHeader>

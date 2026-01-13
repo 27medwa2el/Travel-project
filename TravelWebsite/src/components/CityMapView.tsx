@@ -22,6 +22,16 @@ const CityMapView = ({ activities, center }: Props) => {
     pitch: 45,
   });
 
+  // Sync map when center changes
+  React.useEffect(() => {
+    setViewState(prev => ({
+      ...prev,
+      latitude: center.lat,
+      longitude: center.lng,
+      zoom: 13
+    }));
+  }, [center]);
+
   return (
     <div className="relative w-full h-[700px] rounded-[48px] overflow-hidden shadow-2xl border border-white/50">
       <Map

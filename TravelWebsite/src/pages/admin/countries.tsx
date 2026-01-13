@@ -119,53 +119,62 @@ export default function CountriesPage() {
   return (
     <AdminLayout>
       <PageContainer scrollable>
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex items-start justify-between">
             <Heading
               title="Countries"
               description="Manage countries for your travel platform"
             />
-            <Button onClick={handleCreate}>
+            <Button onClick={handleCreate} className="bg-[#9333ea] hover:bg-[#a855f7] rounded-xl px-6 font-black uppercase tracking-widest text-[10px]">
               <Plus className="mr-2 h-4 w-4" />
               Add Country
             </Button>
           </div>
-          <Separator />
+          <Separator className="bg-gray-100" />
 
           {loading ? (
-            <div>Loading...</div>
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+            </div>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-[32px] border border-gray-100 bg-white overflow-hidden shadow-xl shadow-black/[0.02]">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-gray-50/50">
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] px-6">Name</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Code</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Status</TableHead>
+                    <TableHead className="text-right font-black uppercase tracking-[0.2em] text-[10px] px-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {countries.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      <TableCell colSpan={4} className="text-center py-20 text-muted-foreground font-medium">
                         No countries found. Create one to get started.
                       </TableCell>
                     </TableRow>
                   ) : (
                     countries.map((country) => (
-                      <TableRow key={country.id}>
-                        <TableCell className="font-medium">{country.name}</TableCell>
-                        <TableCell>{country.code || '-'}</TableCell>
-                        <TableCell>
-                          {new Date(country.createdAt).toLocaleDateString()}
+                      <TableRow key={country.id} className="group hover:bg-gray-50/50 transition-colors">
+                        <TableCell className="px-6">
+                          <p className="font-black uppercase tracking-tighter text-lg text-gray-900">{country.name}</p>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell>
+                          <span className="bg-purple-50 text-purple-600 px-3 py-1 rounded-lg font-mono text-xs font-black">
+                            {country.code || '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Global Enabled</span>
+                        </TableCell>
+                        <TableCell className="text-right px-6">
                           <div className="flex justify-end gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEdit(country)}
+                              className="rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -173,6 +182,7 @@ export default function CountriesPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(country.id)}
+                              className="rounded-xl hover:bg-red-50 hover:text-red-600 transition-all"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>

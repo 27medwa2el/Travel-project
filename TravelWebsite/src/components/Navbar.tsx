@@ -95,12 +95,19 @@ const Navbar = () => {
                           href={`/details?id=${city.id}`}
                           className="flex items-center gap-3 p-2 rounded-2xl hover:bg-blue-50 transition-colors group/item"
                         >
-                          <div className="relative w-10 h-10 rounded-xl overflow-hidden">
-                            <Image src={city.images?.[0] || ""} alt={city.name} fill className="object-cover" />
+                          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 border border-gray-100 shadow-sm flex-shrink-0">
+                            <Image 
+                              src={city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80"} 
+                              alt={city.name} 
+                              fill 
+                              sizes="48px"
+                              className="object-cover" 
+                              unoptimized={true}
+                            />
                           </div>
                           <div>
-                            <p className="text-sm font-black text-gray-900 uppercase tracking-tighter">{city.name}</p>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase">Explore →</p>
+                            <p className="text-[11px] font-black text-gray-900 uppercase tracking-tighter leading-tight">{city.name}</p>
+                            <p className="text-[9px] text-gray-400 font-bold uppercase">Explore Destination →</p>
                           </div>
                         </Link>
                       ))}

@@ -60,36 +60,16 @@ export function ThemeSelector() {
       <Select value={activeTheme} onValueChange={setActiveTheme}>
         <SelectTrigger
           id='theme-selector'
-          className='justify-start *:data-[slot=select-value]:w-12'
+          className='rounded-xl border-gray-100 bg-white shadow-sm h-10 w-40'
         >
-          <span className='text-muted-foreground hidden sm:block'>
-            Select a theme:
-          </span>
-          <span className='text-muted-foreground block sm:hidden'>Theme</span>
-          <SelectValue placeholder='Select a theme' />
+          <span className='text-[10px] font-black uppercase tracking-widest text-gray-400 mr-2'>Theme:</span>
+          <SelectValue placeholder='Select' className="text-xs font-black uppercase tracking-tighter" />
         </SelectTrigger>
-        <SelectContent align='end'>
+        <SelectContent align='end' className="rounded-2xl shadow-2xl border-gray-100">
           <SelectGroup>
-            <SelectLabel>Default</SelectLabel>
+            <SelectLabel className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 p-2">Colors</SelectLabel>
             {DEFAULT_THEMES.map((theme) => (
-              <SelectItem key={theme.name} value={theme.value}>
-                {theme.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-          <SelectSeparator />
-          <SelectGroup>
-            <SelectLabel>Scaled</SelectLabel>
-            {SCALED_THEMES.map((theme) => (
-              <SelectItem key={theme.name} value={theme.value}>
-                {theme.name}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-          <SelectGroup>
-            <SelectLabel>Monospaced</SelectLabel>
-            {MONO_THEMES.map((theme) => (
-              <SelectItem key={theme.name} value={theme.value}>
+              <SelectItem key={theme.name} value={theme.value} className="rounded-lg text-[10px] font-black uppercase tracking-widest">
                 {theme.name}
               </SelectItem>
             ))}

@@ -25,9 +25,10 @@ const ActivityCard = ({ activity }: Props) => {
       <div className="relative h-20 w-20 flex-shrink-0">
         <Image
           className="rounded-lg object-cover"
-          src={activity.images?.[0] || "/banner1200x600.jpg"}
+          src={activity.images?.[0] || "https://images.unsplash.com/photo-1540959733332-e94e270b4d82?auto=format&fit=crop&w=400&q=80"}
           alt={activity.title}
           fill
+          unoptimized={true}
         />
       </div>
       {/* Right side */}

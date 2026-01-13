@@ -56,6 +56,7 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
           return (
             <motion.div
               key={city.id}
+              layout="position"
               initial={false}
               animate={{
                 opacity: isVisible ? (isCenter ? 1 : 0.4) : 0,
@@ -67,9 +68,10 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
               }}
               transition={{ 
                 type: "spring",
-                stiffness: 260,
-                damping: 20,
-                mass: 1
+                stiffness: 300,
+                damping: 30,
+                mass: 1,
+                layout: { duration: 0.3 }
               }}
               className={`absolute w-[380px] h-[520px] rounded-[48px] overflow-hidden shadow-2xl bg-white border border-white/50 transition-shadow duration-500 ${
                 isCenter ? 'cursor-default shadow-purple-500/20' : 'cursor-pointer pointer-events-none md:pointer-events-auto'
@@ -80,11 +82,13 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
                 {/* Image Container */}
                 <div className="absolute inset-0 bg-gray-100">
                   <Image
-                    src={city.img || `https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80`}
+                    src={city.img || `https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80`}
                     alt={cityName}
                     fill
+                    sizes="380px"
                     className="object-cover transition-transform duration-1000 group-hover:scale-110"
                     unoptimized={true}
+                    priority={isCenter}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-transparent" />
                 </div>
@@ -109,14 +113,14 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
                     {cityName}
                   </h3>
                   
-                  <AnimatePresence mode="wait">
+                  <AnimatePresence mode="popLayout">
                     {isCenter && (
                       <motion.div
                         key={`content-${city.id}`}
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
                         className="flex flex-col items-center w-full"
                       >
                         <div className="w-full h-[1px] bg-white/20 mb-8 max-w-[200px]" />

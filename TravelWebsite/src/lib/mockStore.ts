@@ -329,6 +329,33 @@ export function seedMockData() {
     });
   }
 
+  // Define high-quality images for core cities
+  const cityImages: Record<string, string[]> = {
+    'New York': ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80'],
+    'Los Angeles': ['https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=1200&q=80'],
+    'Toronto': ['https://images.unsplash.com/photo-1517090504586-fde19ea6066f?auto=format&fit=crop&w=1200&q=80'],
+    'Vancouver': ['https://images.unsplash.com/photo-1560806114-1de54992713e?auto=format&fit=crop&w=1200&q=80'],
+    'London': ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80'],
+    'Paris': ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80'],
+    'Tokyo': ['https://images.unsplash.com/photo-1540959733332-e94e270b4d82?auto=format&fit=crop&w=1200&q=80'],
+    'Sydney': ['https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80'],
+  };
+
+  // If cities exist but are missing images, update them
+  if (store.cities.size > 0) {
+    Array.from(store.cities.values()).forEach(city => {
+      if (!city.images || city.images.length === 0 || city.images[0] === '') {
+        const image = cityImages[city.name];
+        if (image) {
+          cityStore.update(city.id, { images: image });
+        } else {
+          // Generic high-quality city fallback
+          cityStore.update(city.id, { images: ['https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80'] });
+        }
+      }
+    });
+  }
+
   if (store.cities.size === 0) {
     console.log('🚀 Seeding core mock data...');
     // Find seeded countries
@@ -338,12 +365,42 @@ export function seedMockData() {
     const uk = countries.find(c => c.code === 'GB');
 
     if (usa && canada && uk) {
-      // Seed cities
-      const nyc = cityStore.create({ countryId: usa.id, name: 'New York', lat: 40.7128, lng: -74.0060 });
-      const la = cityStore.create({ countryId: usa.id, name: 'Los Angeles', lat: 34.0522, lng: -118.2437 });
-      const toronto = cityStore.create({ countryId: canada.id, name: 'Toronto', lat: 43.6532, lng: -79.3832 });
-      const vancouver = cityStore.create({ countryId: canada.id, name: 'Vancouver', lat: 49.2827, lng: -123.1207 });
-      const london = cityStore.create({ countryId: uk.id, name: 'London', lat: 51.5074, lng: -0.1278 });
+      // Seed cities with high-quality specific images
+      const nyc = cityStore.create({ 
+        countryId: usa.id, 
+        name: 'New York', 
+        lat: 40.7128, 
+        lng: -74.0060,
+        images: ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80']
+      });
+      const la = cityStore.create({ 
+        countryId: usa.id, 
+        name: 'Los Angeles', 
+        lat: 34.0522, 
+        lng: -118.2437,
+        images: ['https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=1200&q=80']
+      });
+      const toronto = cityStore.create({ 
+        countryId: canada.id, 
+        name: 'Toronto', 
+        lat: 43.6532, 
+        lng: -79.3832,
+        images: ['https://images.unsplash.com/photo-1517090504586-fde19ea6066f?auto=format&fit=crop&w=1200&q=80']
+      });
+      const vancouver = cityStore.create({ 
+        countryId: canada.id, 
+        name: 'Vancouver', 
+        lat: 49.2827, 
+        lng: -123.1207,
+        images: ['https://images.unsplash.com/photo-1560806114-1de54992713e?auto=format&fit=crop&w=1200&q=80']
+      });
+      const london = cityStore.create({ 
+        countryId: uk.id, 
+        name: 'London', 
+        lat: 51.5074, 
+        lng: -0.1278,
+        images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80']
+      });
 
       // Seed activities
       activityStore.create({

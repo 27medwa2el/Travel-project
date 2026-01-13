@@ -71,11 +71,12 @@ const Details = ({ city, country, activities, drivers }: Props) => {
             className="absolute inset-0"
           >
             <Image
-              src={city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=2000&q=80"}
+              src={city.images?.[0] || "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2000&q=80"}
               alt={cityName}
               fill
               className="object-cover"
               priority
+              unoptimized={true}
             />
           </motion.div>
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
@@ -254,8 +255,8 @@ const Details = ({ city, country, activities, drivers }: Props) => {
                 <CityMapView 
                   activities={activities} 
                   center={{ 
-                    lat: activities[0]?.lat || 48.8566, 
-                    lng: activities[0]?.lng || 2.3522 
+                    lat: city.lat, 
+                    lng: city.lng 
                   }} 
                 />
               </motion.div>
