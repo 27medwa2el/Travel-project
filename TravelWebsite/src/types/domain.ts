@@ -14,6 +14,7 @@ export interface Country {
   id: string;
   name: string;
   code?: string; // ISO country code (e.g., "US", "CA", "UK")
+  continent?: string; // e.g., "Asia", "Europe", "Africa"
   createdAt: string;
   updatedAt: string;
 }

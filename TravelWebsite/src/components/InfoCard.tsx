@@ -123,5 +123,3 @@ const InfoCard = ({
 };
 
 export default InfoCard;
-
-export default InfoCard;

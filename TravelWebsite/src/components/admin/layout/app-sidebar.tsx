@@ -25,7 +25,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarRail
+  SidebarRail,
+  useSidebar
 } from '@/components/admin/ui/sidebar';
 import { UserAvatarProfile } from '@/components/admin/user-avatar-profile';
 import { navItems } from '@/config/nav-config';
@@ -51,7 +52,7 @@ import { cn } from '@/lib/utils';
 export default function AppSidebar() {
   const router = useRouter();
   const pathname = router.pathname;
-  const { isOpen } = useMediaQuery();
+  const { setOpen, open } = useSidebar();
   const { user } = useUser();
   const { organization } = useOrganization();
   const { signOut } = useClerk();
@@ -59,7 +60,7 @@ export default function AppSidebar() {
 
   React.useEffect(() => {
     // Side effects based on sidebar state changes
-  }, [isOpen]);
+  }, [open]);
 
   return (
     <Sidebar collapsible='icon' className="border-r border-gray-100 bg-white/80 backdrop-blur-xl">
@@ -78,11 +79,11 @@ export default function AppSidebar() {
           <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2 px-4 group-data-[collapsible=icon]:hidden">Main Navigation</SidebarGroupLabel>
           <SidebarMenu className="gap-1">
             {filteredItems.map((item) => {
-              const Icon = item.icon ? Icons[item.icon] : Icons.logo;
+              const Icon = item.icon ? Icons[item.icon as keyof typeof Icons] : Icons.logo;
               
               if (!Icon) return null;
               
-              const isActive = pathname === item.url || item.items?.some(sub => pathname === sub.url);
+              const isActive = pathname === item.url || item.items?.some((sub: any) => pathname === sub.url);
 
               return item?.items && item?.items?.length > 0 ? (
                 <Collapsible
@@ -96,6 +97,7 @@ export default function AppSidebar() {
                       <SidebarMenuButton
                         tooltip={item.title}
                         isActive={isActive}
+                        onClick={() => !open && setOpen(true)}
                         className={cn(
                           "h-12 rounded-2xl transition-all duration-300 group-data-[collapsible=icon]:justify-center",
                           isActive ? "bg-purple-50 text-purple-600 font-black" : "text-gray-500 hover:bg-gray-50"
@@ -108,7 +110,7 @@ export default function AppSidebar() {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub className="ml-4 group-data-[collapsible=icon]:hidden border-l border-gray-100 gap-1 mt-1">
-                        {item.items?.map((subItem) => (
+                        {item.items?.map((subItem: any) => (
                           <SidebarMenuSubItem key={subItem.title}>
                             <SidebarMenuSubButton
                               asChild

@@ -1,21 +1,3 @@
-import { FaceFrownIcon } from "@heroicons/react/24/outline";
-import { format } from "date-fns";
-import { GetServerSidePropsContext } from "next";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import Drawer from "../components/Drawer";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import InfoCard from "../components/InfoCard";
-import MapCard from "../components/MapCard";
-import { IResult, ISuggestionFormatted } from "../types/typings";
-import getHotelList from "../utils/getHotelList";
-
-type Props = {
-  searchResults: IResult[];
-};
-
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { FaceFrownIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon, MapIcon as MapIconOutline } from "@heroicons/react/24/outline";
@@ -23,7 +5,6 @@ import { format } from "date-fns";
 import { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";

@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: 'Home', href: '/', icon: HomeIcon, color: 'text-[#3b82f6]' },
-    { name: 'Explore', href: '/search', icon: MagnifyingGlassIcon, color: 'text-[#9333ea]' },
+    { name: 'Explore', href: '/explore', icon: MagnifyingGlassIcon, color: 'text-[#9333ea]' },
     { name: 'Destinations', href: '#', icon: MapIcon, color: 'text-[#ea580c]', isDropdown: true },
     { name: 'Dashboard', href: '/dashboard', icon: ChartBarIcon, color: 'text-[#06b6d4]' },
     { name: 'Itinerary', href: '/calendar', icon: CalendarDaysIcon, color: 'text-[#db2777]' },

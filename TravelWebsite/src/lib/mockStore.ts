@@ -325,7 +325,7 @@ export function seedMockData() {
     console.log('🚀 Upgrading to global country database...');
     store.countries.clear();
     globalCountries.forEach((c) => {
-      countryStore.create({ name: c.name, code: c.code });
+      countryStore.create({ name: c.name, code: c.code, continent: c.continent });
     });
   }
 
