@@ -97,7 +97,7 @@ export interface ISuggestion {
 export interface ISuggestionFormatted {
   shortName: string;
   displayName: string;
-  id: number;
+  id: string | number;
   type: string;
   img?: string;
   location?: string;

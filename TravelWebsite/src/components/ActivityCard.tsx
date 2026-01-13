@@ -1,13 +1,26 @@
 import Image from "next/image";
 import { ActivityWithLocation } from "../types/domain";
+import { useRouter } from "next/router";
 
 type Props = {
   activity: ActivityWithLocation;
 };
 
 const ActivityCard = ({ activity }: Props) => {
+  const router = useRouter();
+
+  const handleExplore = () => {
+    router.push({
+      pathname: "/details",
+      query: { id: activity.cityId }
+    });
+  };
+
   return (
-    <div className="flex items-center m-2 space-x-4 rounded-xl cursor-pointer hover:bg-gray-100 hover:scale-105 transition transform duration-200 ease-out p-2 border border-transparent hover:border-orange-200">
+    <div 
+      onClick={handleExplore}
+      className="flex items-center m-2 space-x-4 rounded-xl cursor-pointer hover:bg-gray-100 hover:scale-105 transition transform duration-200 ease-out p-2 border border-transparent hover:border-orange-200"
+    >
       {/* Left side */}
       <div className="relative h-20 w-20 flex-shrink-0">
         <Image

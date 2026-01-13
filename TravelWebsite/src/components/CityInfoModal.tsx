@@ -77,47 +77,50 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-3 gap-4 mb-10">
-                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100">
-                  <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600">
+                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100 group hover:bg-blue-50 transition-colors">
+                  <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                     <ClockIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Timezone</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">CET</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">UTC +1</p>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100">
-                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600">
+                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100 group hover:bg-green-50 transition-colors">
+                  <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
                     <CurrencyDollarIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Currency</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">EUR</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">Global</p>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100">
-                  <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600">
+                <div className="bg-gray-50 p-6 rounded-3xl flex items-center gap-4 border border-gray-100 group hover:bg-purple-50 transition-colors">
+                  <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
                     <LanguageIcon className="w-6 h-6" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Language</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">FRENCH</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">English</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-4">
-                <button className="py-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 hover:scale-[1.02] transition-transform">
-                  City Information
+              <div className="flex gap-4">
+                <button 
+                  onClick={onClose}
+                  className="flex-1 py-5 bg-gray-100 text-gray-900 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-gray-200 transition-all active:scale-95"
+                >
+                  Close
                 </button>
                 <button 
                   onClick={() => onExplore(city)}
-                  className="py-5 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-transform"
+                  className="flex-[2] py-5 bg-gradient-to-r from-[#2563eb] to-[#9333ea] text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 hover:shadow-purple-500/40 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                 >
-                  Explore City
+                  Explore Full City <ChevronRightIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>

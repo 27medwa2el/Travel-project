@@ -36,11 +36,16 @@ const Home = ({
   };
 
   const handleExploreCity = (city: ISuggestionFormatted) => {
+    // Smooth exit animation state could be added here
     setIsModalOpen(false);
-    router.push({
-      pathname: "/details",
-      query: { id: city.id, location: city.shortName }
-    });
+    
+    // Use timeout to allow modal close animation to finish if needed
+    setTimeout(() => {
+      router.push({
+        pathname: "/details",
+        query: { id: city.id }
+      });
+    }, 300);
   };
 
   return (
@@ -99,11 +104,20 @@ const Home = ({
 
       {/* Drawer */}
       <Drawer isOpen={isOpen} setIsOpen={setIsOpen}>
-        <p className="drawer-item border-b pb-2 mb-2 font-semibold">
-          <Link href={"/admin/overview"}>Admin Dashboard</Link>
+        <p className="drawer-item border-b pb-2 mb-2 font-black uppercase tracking-widest text-xs text-purple-600">
+          Main Menu
         </p>
         <p className="drawer-item">
-          <Link href={"/favorites"}>List of Favorites</Link>
+          <Link href={"/dashboard"}>User Dashboard</Link>
+        </p>
+        <p className="drawer-item">
+          <Link href={"/calendar"}>My Itinerary</Link>
+        </p>
+        <p className="drawer-item">
+          <Link href={"/admin/overview"}>Admin Panel</Link>
+        </p>
+        <p className="drawer-item">
+          <Link href={"/favorites"}>My Favorites</Link>
         </p>
         <p className="drawer-item">
           <Link href={"/bookings"}>Your Bookings</Link>
@@ -121,7 +135,7 @@ export const getServerSideProps = async () => {
   const getInspiredCities: ISuggestionFormatted[] = allCities.slice(0, 8).map(city => {
     const country = countryStore.getById(city.countryId);
     return {
-      id: parseInt(city.id.split('-')[0]), // Safe conversion for demo
+      id: city.id,
       displayName: `${city.name}, ${country?.name || 'Global'}`,
       shortName: `${city.name}, ${country?.name || 'Global'}`,
       type: "CITY",

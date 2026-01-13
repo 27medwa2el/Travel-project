@@ -53,11 +53,56 @@ export interface Driver {
   updatedAt: string;
 }
 
+export interface PackingItem {
+  id: string;
+  title: string;
+  isPacked: boolean;
+  category: 'Essentials' | 'Clothing' | 'Electronics' | 'Documents' | 'Other';
+}
+
+export interface TripActivity {
+  id: string;
+  tripId: string;
+  activityId: string;
+  date: string; // ISO date string
+  startTime: string; // e.g. "10:00"
+  endTime?: string; // e.g. "12:00"
+}
+
+export interface Trip {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  status: 'upcoming' | 'active' | 'completed';
+  progress: number; // 0-100
+  cityIds: string[];
+  packingList: PackingItem[];
+  tripActivities: TripActivity[]; // Added this
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Booking {
+  id: string;
+  userId: string;
+  type: 'ACTIVITY' | 'DRIVER';
+  referenceId: string; // activityId or driverId
+  date: string;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  price: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Input types (for create/update operations - without id/timestamps)
 export type CountryInput = Omit<Country, 'id' | 'createdAt' | 'updatedAt'>;
 export type CityInput = Omit<City, 'id' | 'createdAt' | 'updatedAt'>;
 export type ActivityInput = Omit<Activity, 'id' | 'createdAt' | 'updatedAt'>;
 export type DriverInput = Omit<Driver, 'id' | 'createdAt' | 'updatedAt'>;
+export type TripInput = Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>;
+export type BookingInput = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
 
 // Aggregate types (for public API with joined data)
 export interface ActivityWithLocation extends Activity {

@@ -5,11 +5,12 @@ import {
   StarIcon,
 } from "@heroicons/react/24/solid";
 import { format } from "date-fns";
-// Session type removed - travel routes are now public
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { IResult } from "../types/typings";
+import { cn } from "@/lib/utils";
 
 type Props = {
   cityId?: string;
@@ -34,151 +35,93 @@ const InfoCard = ({
 }: Props) => {
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
-  // For now, use anonymous email since travel routes are public
-  // In the future, get from Clerk: const { user } = useUser(); const userEmail = user?.emailAddresses[0]?.emailAddress || "anonymous@user.com";
   const userEmail = "anonymous@user.com";
   const hotelId = item.hotelId;
-  let startDateFormatted: string;
-  let endDateFormatted: string;
-
-  useEffect(() => {
-    if (favorite) setIsFav(true);
-    if (startDate && endDate) {
-      startDateFormatted = format(new Date(startDate as string), "dd MMMM yy");
-      endDateFormatted = format(new Date(endDate as string), "dd MMMM yy");
-    } else {
-      startDateFormatted = item.startDate as string;
-      endDateFormatted = item.endDate as string;
-    }
-  }, []);
 
   const details = () => {
     router.push({
       pathname: "/details",
-      query: {
-        cityId: cityId,
-        favorite: favorite as unknown as string,
-        fromFavPage: fromFavPage as unknown as string,
-        booking: booking as unknown as string,
-        startDate: startDateFormatted,
-        endDate: endDateFormatted,
-        numOfGuests: numOfGuests,
-        hotelId: item.hotelId,
-        img: item.img,
-        location: item.location,
-        title: item.title,
-        description: item.description,
-        star: item.star,
-        price: item.price,
-        total: item.total,
-        long: item.long,
-        lat: item.lat,
-      },
+      query: { id: cityId, hotelId: item.hotelId },
     });
   };
 
-  const submitFavorite = async () => {
-    try {
-      const body = { ...item, cityId };
-      await fetch("/api/post-favorite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const deleteFavorite = async () => {
-    try {
-      const body = { hotelId: hotelId, userEmail: userEmail };
-      await fetch("/api/delete-favorite", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      setIsFav(false);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
-    <div className="flex py-7 px-2 pr-4 border-b cursor-pointer hover:opacity-80 hover:shadow-lg transition duration-200 ease-out first:border-t">
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className="flex flex-col md:flex-row bg-white rounded-[40px] p-6 shadow-xl shadow-black/[0.02] border border-gray-100 cursor-pointer hover:shadow-2xl hover:shadow-blue-500/5 transition-all group"
+      onClick={details}
+    >
       {/* Main Image */}
-      <div className="relative h-40 w-40 md:h-52 md:w-80 flex-shrink-0">
+      <div className="relative h-60 w-full md:w-80 rounded-[32px] overflow-hidden flex-shrink-0">
         <Image
-          className="object-cover rounded-2xl"
+          className="object-cover transition-transform duration-700 group-hover:scale-110"
           src={item.img}
           alt={item.title}
           fill
         />
-      </div>
-      <div className="flex flex-col flex-grow pl-5">
-        <div className="flex justify-between">
-          {/* Hotel Location Info, distance from nearest city center */}
-          <p className="">{item.location}</p>
-          {/* Favorite Heart Icon */}
-          {!booking &&
-            (!isFav ? (
-              <HeartIcon
-                onClick={() => {
-                  submitFavorite();
-                  setIsFav(true);
-                }}
-                className="h-7 cursor-pointer"
-              />
-            ) : (
-              <HeartIconSolid
-                onClick={() => {
-                  deleteFavorite();
-                  setIsFav(false);
-                }}
-                className="h-7 cursor-pointer"
-              />
-            ))}
-        </div>
-        {/* Hotel Title, Description */}
-        <h4 className="text-xl">{item.title}</h4>
-        <div className="border-b w-10 pt-2" />
-        <div className="pt-2 text-sm text-gray-800 flex-grow">
-          <p>{item.description}</p>
-          {booking && (
-            <p className="font-light">
-              Reserved from {item.startDate} to {item.endDate}
-            </p>
+        <div className="absolute top-4 right-4 z-10">
+          {!booking && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsFav(!isFav);
+              }}
+              className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white hover:bg-white transition-all"
+            >
+              {isFav ? <HeartIconSolid className="w-5 h-5 text-red-500" /> : <HeartIcon className="w-5 h-5" />}
+            </button>
           )}
         </div>
-        {/* Hotel Rating, Star Icon */}
-        <div className="flex justify-between items-end pt-5">
-          <p className="flex items-center">
-            <StarIcon className="h-5 text-red-400" /> {item.star}
-          </p>
-          {/* Price per Night */}
-          <div>
-            <p className="text-right text-lg lg:text-xl font-semibold">
-              {`${item.price} / night`}
-            </p>
-            {/* Total Price */}
-            {!fromFavPage && (
-              <p className="text-right font-extralight">{`$${item.total} total (tax incl.)`}</p>
-            )}
-            {/* More Details, go to Details Page */}
-            <div className="justify-end flex items-baseline">
-              <p
-                onClick={details}
-                className="text-right text-base pt-2 lg:text-l font-semibold cursor-pointer hover:text-orange-500"
-              >
-                More details
-              </p>
-              <ChevronRightIcon className="h-2.5" />
-            </div>
+        <div className="absolute bottom-4 left-4">
+          <div className="bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-widest">
+            {item.location}
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="flex flex-col flex-grow md:pl-8 mt-6 md:mt-0">
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <h4 className="text-3xl font-black text-gray-900 uppercase tracking-tighter leading-tight mb-2 group-hover:text-blue-600 transition-colors">
+              {item.title}
+            </h4>
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-1">
+                <StarIcon className="w-4 h-4 text-orange-400" />
+                <span className="text-xs font-black text-gray-900">{item.star}</span>
+              </div>
+              <div className="h-4 w-px bg-gray-100" />
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Superhost</span>
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-3xl font-black text-gray-900 leading-none mb-1">{item.price}</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">per night</p>
+          </div>
+        </div>
+
+        <p className="text-gray-500 text-sm font-medium leading-relaxed line-clamp-2 mb-6 flex-grow">
+          {item.description}
+        </p>
+
+        <div className="flex items-center justify-between pt-6 border-t border-gray-50">
+          <div className="flex gap-2">
+            {['Wifi', 'Parking', 'Kitchen'].map(tag => (
+              <span key={tag} className="bg-gray-50 px-3 py-1 rounded-lg text-[10px] font-black text-gray-400 uppercase tracking-widest border border-gray-100">
+                {tag}
+              </span>
+            ))}
+          </div>
+          
+          <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:gap-3 transition-all">
+            View Availability <ChevronRightIcon className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    </motion.div>
   );
 };
+
+export default InfoCard;
 
 export default InfoCard;

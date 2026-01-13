@@ -1,26 +1,18 @@
-/**
- * Phase B: Mock In-Memory Data Store
- * 
- * This module provides in-memory persistence for CRUD operations.
- * Data is reset on server restart.
- * 
- * MIGRATION TO PRISMA:
- * 1. Create Prisma schema with these models
- * 2. Run migrations: npx prisma migrate dev
- * 3. Replace mockStore calls with Prisma client calls
- * 4. Use the same API route structure
- */
-
 import {
   Country,
   City,
   Activity,
   Driver,
+  Trip,
+  Booking,
   CountryInput,
   CityInput,
   ActivityInput,
   DriverInput,
+  TripInput,
+  BookingInput,
 } from '@/types/domain';
+import { globalCountries } from './countriesData';
 
 // In-memory storage with global persistence for development
 const globalForStore = global as unknown as {
@@ -29,6 +21,8 @@ const globalForStore = global as unknown as {
     cities: Map<string, City>;
     activities: Map<string, Activity>;
     drivers: Map<string, Driver>;
+    trips: Map<string, Trip>;
+    bookings: Map<string, Booking>;
   }
 };
 
@@ -37,19 +31,27 @@ const store = globalForStore.store || {
   cities: new Map<string, City>(),
   activities: new Map<string, Activity>(),
   drivers: new Map<string, Driver>(),
+  trips: new Map<string, Trip>(),
+  bookings: new Map<string, Booking>(),
 };
 
-if (process.env.NODE_ENV !== 'production') globalForStore.store = store;
+// Ensure all expected Maps exist (handles case where store was partially initialized in a previous session)
+if (!store.countries) store.countries = new Map();
+if (!store.cities) store.cities = new Map();
+if (!store.activities) store.activities = new Map();
+if (!store.drivers) store.drivers = new Map();
+if (!store.trips) store.trips = new Map();
+if (!store.bookings) store.bookings = new Map();
 
-// Helper to generate stable IDs
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+if (process.env.NODE_ENV !== 'production') {
+  globalForStore.store = store;
 }
 
-// Helper to get current timestamp
-function timestamp(): string {
-  return new Date().toISOString();
-}
+// Helper to generate a unique ID
+const generateId = () => Math.random().toString(36).substring(2, 11);
+
+// Helper for timestamps
+const timestamp = () => new Date().toISOString();
 
 // ============= COUNTRIES =============
 
@@ -87,15 +89,6 @@ export const countryStore = {
   },
 
   delete(id: string): boolean {
-    // Check if any cities reference this country
-    const citiesInCountry = Array.from(store.cities.values()).filter(
-      (c) => c.countryId === id
-    );
-    if (citiesInCountry.length > 0) {
-      throw new Error(
-        `Cannot delete country: ${citiesInCountry.length} cities still reference it`
-      );
-    }
     return store.countries.delete(id);
   },
 };
@@ -118,11 +111,6 @@ export const cityStore = {
   },
 
   create(input: CityInput): City {
-    // Validate country exists
-    if (!store.countries.has(input.countryId)) {
-      throw new Error(`Country with id ${input.countryId} not found`);
-    }
-
     const city: City = {
       id: generateId(),
       ...input,
@@ -137,11 +125,6 @@ export const cityStore = {
     const existing = store.cities.get(id);
     if (!existing) return null;
 
-    // Validate country if being updated
-    if (input.countryId && !store.countries.has(input.countryId)) {
-      throw new Error(`Country with id ${input.countryId} not found`);
-    }
-
     const updated: City = {
       ...existing,
       ...input,
@@ -152,20 +135,6 @@ export const cityStore = {
   },
 
   delete(id: string): boolean {
-    // Check if any activities or drivers reference this city
-    const activitiesInCity = Array.from(store.activities.values()).filter(
-      (a) => a.cityId === id
-    );
-    const driversInCity = Array.from(store.drivers.values()).filter(
-      (d) => d.cityId === id
-    );
-
-    if (activitiesInCity.length > 0 || driversInCity.length > 0) {
-      throw new Error(
-        `Cannot delete city: ${activitiesInCity.length} activities and ${driversInCity.length} drivers still reference it`
-      );
-    }
-
     return store.cities.delete(id);
   },
 };
@@ -188,11 +157,6 @@ export const activityStore = {
   },
 
   create(input: ActivityInput): Activity {
-    // Validate city exists
-    if (!store.cities.has(input.cityId)) {
-      throw new Error(`City with id ${input.cityId} not found`);
-    }
-
     const activity: Activity = {
       id: generateId(),
       ...input,
@@ -206,11 +170,6 @@ export const activityStore = {
   update(id: string, input: Partial<ActivityInput>): Activity | null {
     const existing = store.activities.get(id);
     if (!existing) return null;
-
-    // Validate city if being updated
-    if (input.cityId && !store.cities.has(input.cityId)) {
-      throw new Error(`City with id ${input.cityId} not found`);
-    }
 
     const updated: Activity = {
       ...existing,
@@ -244,11 +203,6 @@ export const driverStore = {
   },
 
   create(input: DriverInput): Driver {
-    // Validate city exists
-    if (!store.cities.has(input.cityId)) {
-      throw new Error(`City with id ${input.cityId} not found`);
-    }
-
     const driver: Driver = {
       id: generateId(),
       ...input,
@@ -262,11 +216,6 @@ export const driverStore = {
   update(id: string, input: Partial<DriverInput>): Driver | null {
     const existing = store.drivers.get(id);
     if (!existing) return null;
-
-    // Validate city if being updated
-    if (input.cityId && !store.cities.has(input.cityId)) {
-      throw new Error(`City with id ${input.cityId} not found`);
-    }
 
     const updated: Driver = {
       ...existing,
@@ -282,139 +231,349 @@ export const driverStore = {
   },
 };
 
+// ============= TRIPS =============
+
+export const tripStore = {
+  getAll(): Trip[] {
+    return Array.from(store.trips.values());
+  },
+
+  getById(id: string): Trip | undefined {
+    return store.trips.get(id);
+  },
+
+  create(input: TripInput): Trip {
+    const trip: Trip = {
+      id: generateId(),
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
+    store.trips.set(trip.id, trip);
+    return trip;
+  },
+
+  update(id: string, input: Partial<TripInput>): Trip | null {
+    const existing = store.trips.get(id);
+    if (!existing) return null;
+
+    const updated: Trip = {
+      ...existing,
+      ...input,
+      updatedAt: timestamp(),
+    };
+    store.trips.set(id, updated);
+    return updated;
+  },
+
+  delete(id: string): boolean {
+    return store.trips.delete(id);
+  },
+};
+
+// ============= BOOKINGS =============
+
+export const bookingStore = {
+  getAll(): Booking[] {
+    return Array.from(store.bookings.values());
+  },
+
+  getById(id: string): Booking | undefined {
+    return store.bookings.get(id);
+  },
+
+  getByUserId(userId: string): Booking[] {
+    return Array.from(store.bookings.values()).filter(
+      (b) => b.userId === userId
+    );
+  },
+
+  create(input: BookingInput): Booking {
+    const booking: Booking = {
+      id: generateId(),
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
+    store.bookings.set(booking.id, booking);
+    return booking;
+  },
+
+  update(id: string, input: Partial<BookingInput>): Booking | null {
+    const existing = store.bookings.get(id);
+    if (!existing) return null;
+
+    const updated: Booking = {
+      ...existing,
+      ...input,
+      updatedAt: timestamp(),
+    };
+    store.bookings.set(id, updated);
+    return updated;
+  },
+
+  delete(id: string): boolean {
+    return store.bookings.delete(id);
+  },
+};
+
 // ============= SEED DATA =============
 
-// Initialize with sample data
 export function seedMockData() {
-  console.log('🌱 Checking mock store data... current countries size:', store.countries.size);
-  if (store.countries.size > 0) return; // Already seeded
+  // If we only have the 3 original sample countries, let's clear and add the full global list
+  if (store.countries.size < 10) {
+    console.log('🚀 Upgrading to global country database...');
+    store.countries.clear();
+    globalCountries.forEach((c) => {
+      countryStore.create({ name: c.name, code: c.code });
+    });
+  }
 
-  console.log('🚀 Seeding mock data...');
-  const usa = countryStore.create({ name: 'United States', code: 'US' });
-  const canada = countryStore.create({ name: 'Canada', code: 'CA' });
-  const uk = countryStore.create({ name: 'United Kingdom', code: 'GB' });
+  if (store.cities.size === 0) {
+    console.log('🚀 Seeding core mock data...');
+    // Find seeded countries
+    const countries = countryStore.getAll();
+    const usa = countries.find(c => c.code === 'US');
+    const canada = countries.find(c => c.code === 'CA');
+    const uk = countries.find(c => c.code === 'GB');
 
-  // Seed cities
-  const nyc = cityStore.create({ countryId: usa.id, name: 'New York' });
-  const la = cityStore.create({ countryId: usa.id, name: 'Los Angeles' });
-  const toronto = cityStore.create({ countryId: canada.id, name: 'Toronto' });
-  const vancouver = cityStore.create({
-    countryId: canada.id,
-    name: 'Vancouver',
-  });
-  const london = cityStore.create({ countryId: uk.id, name: 'London' });
+    if (usa && canada && uk) {
+      // Seed cities
+      const nyc = cityStore.create({ countryId: usa.id, name: 'New York', lat: 40.7128, lng: -74.0060 });
+      const la = cityStore.create({ countryId: usa.id, name: 'Los Angeles', lat: 34.0522, lng: -118.2437 });
+      const toronto = cityStore.create({ countryId: canada.id, name: 'Toronto', lat: 43.6532, lng: -79.3832 });
+      const vancouver = cityStore.create({ countryId: canada.id, name: 'Vancouver', lat: 49.2827, lng: -123.1207 });
+      const london = cityStore.create({ countryId: uk.id, name: 'London', lat: 51.5074, lng: -0.1278 });
 
-  // Seed activities
-  activityStore.create({
-    cityId: nyc.id,
-    title: 'Statue of Liberty Tour',
-    description: 'Visit the iconic Statue of Liberty and Ellis Island',
-    price: 45,
-    currency: 'USD',
-    lat: 40.6892,
-    lng: -74.0445,
-    images: ['https://images.unsplash.com/photo-1524230572899-a752b3835840?auto=format&fit=crop&w=800&q=80'],
-    tags: ['landmark', 'history', 'outdoor'],
-  });
+      // Seed activities
+      activityStore.create({
+        cityId: nyc.id,
+        title: 'Statue of Liberty Tour',
+        description: 'Visit the iconic Statue of Liberty and Ellis Island',
+        price: 45,
+        currency: 'USD',
+        lat: 40.6892,
+        lng: -74.0445,
+        images: ['https://images.unsplash.com/photo-1524230572899-a752b3835840?auto=format&fit=crop&w=800&q=80'],
+        tags: ['landmark', 'history', 'outdoor'],
+      });
 
-  activityStore.create({
-    cityId: nyc.id,
-    title: 'Central Park Bike Tour',
-    description: 'Explore Central Park on a guided bike tour',
-    price: 35,
-    currency: 'USD',
-    lat: 40.785091,
-    lng: -73.968285,
-    images: ['https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=800&q=80'],
-    tags: ['outdoor', 'family', 'activity'],
-  });
+      activityStore.create({
+        cityId: nyc.id,
+        title: 'Central Park Bike Tour',
+        description: 'Explore Central Park on a guided bike tour',
+        price: 35,
+        currency: 'USD',
+        lat: 40.7812,
+        lng: -73.9665,
+        images: ['https://images.unsplash.com/photo-1519331379826-f10be5486c6f?auto=format&fit=crop&w=800&q=80'],
+        tags: ['outdoor', 'family', 'activity'],
+      });
 
-  activityStore.create({
-    cityId: la.id,
-    title: 'Hollywood Sign Hike',
-    description: 'Hike to the iconic Hollywood Sign with stunning views',
-    price: 25,
-    currency: 'USD',
-    lat: 34.1341,
-    lng: -118.3215,
-    images: ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80'],
-    tags: ['adventure', 'outdoor', 'scenic'],
-  });
+      activityStore.create({
+        cityId: la.id,
+        title: 'Hollywood Sign Hike',
+        description: 'Hike to the iconic Hollywood Sign with stunning views',
+        price: 25,
+        currency: 'USD',
+        lat: 34.1341,
+        lng: -118.3215,
+        images: ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80'],
+        tags: ['adventure', 'outdoor', 'scenic'],
+      });
 
-  activityStore.create({
-    cityId: toronto.id,
-    title: 'CN Tower Experience',
-    description: 'Visit the CN Tower with EdgeWalk adventure',
-    price: 65,
-    currency: 'CAD',
-    lat: 43.6426,
-    lng: -79.3871,
-    images: ['https://images.unsplash.com/photo-1517090504586-fde19ea6066f?auto=format&fit=crop&w=800&q=80'],
-    tags: ['landmark', 'adventure', 'views'],
-  });
+      activityStore.create({
+        cityId: toronto.id,
+        title: 'CN Tower Experience',
+        description: 'Visit the CN Tower with EdgeWalk adventure',
+        price: 65,
+        currency: 'CAD',
+        lat: 43.6426,
+        lng: -79.3871,
+        images: ['https://images.unsplash.com/photo-1517090504586-fde19ea6066f?auto=format&fit=crop&w=800&q=80'],
+        tags: ['landmark', 'adventure', 'views'],
+      });
 
-  activityStore.create({
-    cityId: vancouver.id,
-    title: 'Grouse Mountain Adventure',
-    description: 'Gondola ride and mountain activities',
-    price: 55,
-    currency: 'CAD',
-    lat: 49.3789,
-    lng: -123.0814,
-    images: ['https://images.unsplash.com/photo-1568232562299-fc990748ce0f?auto=format&fit=crop&w=800&q=80'],
-    tags: ['adventure', 'outdoor', 'scenic'],
-  });
+      activityStore.create({
+        cityId: vancouver.id,
+        title: 'Grouse Mountain Adventure',
+        description: 'Gondola ride and mountain activities',
+        price: 55,
+        currency: 'CAD',
+        lat: 49.3789,
+        lng: -123.0814,
+        images: ['https://images.unsplash.com/photo-1568232562299-fc990748ce0f?auto=format&fit=crop&w=800&q=80'],
+        tags: ['adventure', 'outdoor', 'scenic'],
+      });
 
-  activityStore.create({
-    cityId: london.id,
-    title: 'Tower of London Tour',
-    description: 'Explore the historic Tower of London and Crown Jewels',
-    price: 30,
-    currency: 'GBP',
-    lat: 51.5081,
-    lng: -0.0759,
-    images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80'],
-    tags: ['history', 'landmark', 'culture'],
-  });
+      activityStore.create({
+        cityId: london.id,
+        title: 'Tower of London Tour',
+        description: 'Explore the historic Tower of London and Crown Jewels',
+        price: 30,
+        currency: 'GBP',
+        lat: 51.5081,
+        lng: -0.0759,
+        images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80'],
+        tags: ['history', 'landmark', 'culture'],
+      });
 
-  // Seed drivers
-  driverStore.create({
-    cityId: nyc.id,
-    name: 'John Smith',
-    phone: '+1-555-0101',
-    pricePerDay: 150,
-    vehicleType: 'sedan',
-    rating: 4.8,
-  });
+      activityStore.create({
+        cityId: london.id,
+        title: 'London Eye Flight',
+        description: 'Panoramic views of the city from the iconic observation wheel',
+        price: 28,
+        currency: 'GBP',
+        lat: 51.5033,
+        lng: -0.1195,
+        images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80'],
+        tags: ['landmark', 'views'],
+      });
 
-  driverStore.create({
-    cityId: la.id,
-    name: 'Maria Garcia',
-    phone: '+1-555-0202',
-    pricePerDay: 180,
-    vehicleType: 'suv',
-    rating: 4.9,
-  });
+      // Seed drivers
+      driverStore.create({
+        cityId: nyc.id,
+        name: 'John Smith',
+        phone: '+1-555-0101',
+        pricePerDay: 150,
+        vehicleType: 'sedan',
+        rating: 4.8,
+      });
 
-  driverStore.create({
-    cityId: toronto.id,
-    name: 'David Chen',
-    phone: '+1-416-555-0303',
-    pricePerDay: 120,
-    vehicleType: 'van',
-    rating: 4.7,
-  });
+      driverStore.create({
+        cityId: la.id,
+        name: 'Maria Garcia',
+        phone: '+1-555-0202',
+        pricePerDay: 180,
+        vehicleType: 'suv',
+        rating: 4.9,
+      });
 
-  driverStore.create({
-    cityId: london.id,
-    name: 'James Wilson',
-    phone: '+44-20-5550-404',
-    pricePerDay: 100,
-    vehicleType: 'sedan',
-    rating: 4.6,
-  });
+      driverStore.create({
+        cityId: toronto.id,
+        name: 'David Chen',
+        phone: '+1-416-555-0303',
+        pricePerDay: 120,
+        vehicleType: 'van',
+        rating: 4.7,
+      });
 
-  console.log('✅ Mock data seeded successfully');
+      driverStore.create({
+        cityId: london.id,
+        name: 'James Wilson',
+        phone: '+44-20-5550-404',
+        pricePerDay: 100,
+        vehicleType: 'sedan',
+        rating: 4.6,
+      });
+    }
+  }
+
+  if (store.trips.size === 0) {
+    console.log('🚀 Seeding trip mock data...');
+    const nyc = Array.from(store.cities.values()).find(c => c.name === 'New York');
+    const london = Array.from(store.cities.values()).find(c => c.name === 'London');
+
+    if (nyc) {
+      tripStore.create({
+        title: 'Summer in NYC',
+        startDate: '2026-07-15',
+        endDate: '2026-07-22',
+        status: 'upcoming',
+        progress: 0,
+        cityIds: [nyc.id],
+        packingList: [
+          { id: '1', title: 'Passport', isPacked: true, category: 'Documents' },
+          { id: '2', title: 'Sunglasses', isPacked: false, category: 'Essentials' },
+          { id: '3', title: 'Camera', isPacked: false, category: 'Electronics' },
+        ],
+        tripActivities: [],
+      });
+    }
+
+    if (london) {
+      const activeTrip = tripStore.create({
+        title: 'European Adventure',
+        startDate: '2026-01-10',
+        endDate: '2026-01-25',
+        status: 'active',
+        progress: 26,
+        cityIds: [london.id],
+        packingList: [
+          { id: '1', title: 'Winter Coat', isPacked: true, category: 'Clothing' },
+          { id: '2', title: 'Travel Adapter', isPacked: true, category: 'Electronics' },
+          { id: '3', title: 'City Map', isPacked: false, category: 'Essentials' },
+        ],
+        tripActivities: [],
+      });
+
+      // Seed trip activities for the active trip
+      const londonActivities = activityStore.getByCityId(london.id);
+      if (londonActivities.length > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
+        tripStore.update(activeTrip.id, {
+          tripActivities: [
+            {
+              id: 'ta-1',
+              tripId: activeTrip.id,
+              activityId: londonActivities[0].id,
+              date: today,
+              startTime: '10:00',
+              endTime: '13:00'
+            },
+            {
+              id: 'ta-2',
+              tripId: activeTrip.id,
+              activityId: londonActivities[0].id, 
+              date: tomorrow,
+              startTime: '14:30',
+              endTime: '16:00'
+            }
+          ]
+        });
+      }
+    }
+  }
+
+  if (store.bookings.size === 0) {
+    console.log('🚀 Seeding booking mock data...');
+    const nycActivities = Array.from(store.activities.values()).filter(a => {
+      const city = store.cities.get(a.cityId);
+      return city?.name === 'New York';
+    });
+    const laDrivers = Array.from(store.drivers.values()).filter(d => {
+      const city = store.cities.get(d.cityId);
+      return city?.name === 'Los Angeles';
+    });
+
+    if (nycActivities.length > 0) {
+      bookingStore.create({
+        userId: 'user_2mVaS6v7mP9CP9LF0mSd0MLND9v',
+        type: 'ACTIVITY',
+        referenceId: nycActivities[0].id,
+        date: new Date().toISOString(),
+        status: 'confirmed',
+        price: nycActivities[0].price || 0,
+        currency: nycActivities[0].currency || 'USD',
+      });
+    }
+
+    if (laDrivers.length > 0) {
+      bookingStore.create({
+        userId: 'user_demo_123',
+        type: 'DRIVER',
+        referenceId: laDrivers[0].id,
+        date: new Date(Date.now() - 86400000).toISOString(),
+        status: 'confirmed',
+        price: laDrivers[0].pricePerDay || 0,
+        currency: 'USD',
+      });
+    }
+  }
+
+  console.log('✅ Mock data sync complete');
 }
 
 // Seed on module load

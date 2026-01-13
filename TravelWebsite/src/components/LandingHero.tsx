@@ -37,7 +37,7 @@ const LandingHero = () => {
           className="text-7xl md:text-[10rem] font-black text-gray-900 leading-[0.85] mb-10 tracking-tighter"
         >
           Your Next <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 drop-shadow-sm">Adventure</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563eb] via-[#9333ea] to-[#db2777] drop-shadow-sm">Adventure</span>
         </motion.h2>
 
         <motion.p 
@@ -56,7 +56,7 @@ const LandingHero = () => {
           transition={{ delay: 0.6, type: "spring", stiffness: 50 }}
           className="absolute left-20 top-[60%] hidden xl:flex flex-col gap-4 w-[300px] p-8 bg-white/40 backdrop-blur-2xl rounded-[40px] border border-white/50 shadow-2xl shadow-purple-500/10"
         >
-          <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20 mb-2">
+          <div className="w-14 h-14 bg-gradient-to-br from-[#3b82f6] to-[#2563eb] rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/20 mb-2">
             <MapIcon className="w-7 h-7 text-white" />
           </div>
           <h3 className="text-2xl font-black text-gray-900 leading-tight">Smart Trip Planning</h3>

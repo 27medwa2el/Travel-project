@@ -10,135 +10,92 @@ import {
   CardAction,
   CardFooter
 } from '@/components/admin/ui/card';
-import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
+import { IconTrendingUp, IconUsers, IconGlobe, IconActivity, IconCar, IconTicket } from '@tabler/icons-react';
 import { RecentSales } from '@/features/overview/components/recent-sales';
 import { BarGraph } from '@/features/overview/components/bar-graph';
 import { PieGraph } from '@/features/overview/components/pie-graph';
 import { AreaGraph } from '@/features/overview/components/area-graph';
-import { Suspense } from 'react';
+import { countryStore, cityStore, activityStore, driverStore, bookingStore } from '@/lib/mockStore';
 
-export default function OverviewPage() {
+export default function OverviewPage({ stats, recentBookings }: { stats: any, recentBookings: any[] }) {
   return (
     <AdminLayout>
-      <PageContainer scrollable={false}>
-        <div className='flex flex-1 flex-col space-y-2'>
+      <PageContainer scrollable={true}>
+        <div className='flex flex-1 flex-col space-y-4'>
           <div className='flex items-center justify-between space-y-2'>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              Hi, Welcome back 👋
+            <h2 className='text-3xl font-bold tracking-tight'>
+              Admin Overview 👋
             </h2>
           </div>
 
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4'>
-            <Card className='@container/card bg-gradient-to-t from-primary/5 to-card shadow-xs dark:bg-card'>
-              <CardHeader>
-                <CardDescription>Total Revenue</CardDescription>
-                <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                  $1,250.00
-                </CardTitle>
-                <CardAction>
-                  <Badge variant='outline'>
-                    <IconTrendingUp />
-                    +12.5%
-                  </Badge>
-                </CardAction>
+            <Card className='bg-white shadow-sm border-gray-100'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardDescription className="text-sm font-medium">Total Revenue</CardDescription>
+                <IconTrendingUp className="h-4 w-4 text-green-500" />
               </CardHeader>
-              <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-                <div className='line-clamp-1 flex gap-2 font-medium'>
-                  Trending up this month <IconTrendingUp className='size-4' />
-                </div>
-                <div className='text-muted-foreground'>
-                  Visitors for the last 6 months
-                </div>
-              </CardFooter>
+              <CardHeader className="pt-0">
+                <CardTitle className='text-2xl font-black'>
+                  ${stats.revenue.toLocaleString()}
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  From {stats.bookingsCount} confirmed bookings
+                </p>
+              </CardHeader>
             </Card>
-            <Card className='@container/card bg-gradient-to-t from-primary/5 to-card shadow-xs dark:bg-card'>
-              <CardHeader>
-                <CardDescription>New Customers</CardDescription>
-                <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                  1,234
-                </CardTitle>
-                <CardAction>
-                  <Badge variant='outline'>
-                    <IconTrendingDown />
-                    -20%
-                  </Badge>
-                </CardAction>
+
+            <Card className='bg-white shadow-sm border-gray-100'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardDescription className="text-sm font-medium">Global Locations</CardDescription>
+                <IconGlobe className="h-4 w-4 text-blue-500" />
               </CardHeader>
-              <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-                <div className='line-clamp-1 flex gap-2 font-medium'>
-                  Down 20% this period <IconTrendingDown className='size-4' />
-                </div>
-                <div className='text-muted-foreground'>
-                  Acquisition needs attention
-                </div>
-              </CardFooter>
+              <CardHeader className="pt-0">
+                <CardTitle className='text-2xl font-black'>
+                  {stats.countriesCount} Countries
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Across {stats.citiesCount} different cities
+                </p>
+              </CardHeader>
             </Card>
-            <Card className='@container/card bg-gradient-to-t from-primary/5 to-card shadow-xs dark:bg-card'>
-              <CardHeader>
-                <CardDescription>Active Accounts</CardDescription>
-                <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                  45,678
-                </CardTitle>
-                <CardAction>
-                  <Badge variant='outline'>
-                    <IconTrendingUp />
-                    +12.5%
-                  </Badge>
-                </CardAction>
+
+            <Card className='bg-white shadow-sm border-gray-100'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardDescription className="text-sm font-medium">Active Activities</CardDescription>
+                <IconActivity className="h-4 w-4 text-purple-500" />
               </CardHeader>
-              <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-                <div className='line-clamp-1 flex gap-2 font-medium'>
-                  Strong user retention <IconTrendingUp className='size-4' />
-                </div>
-                <div className='text-muted-foreground'>
-                  Engagement exceed targets
-                </div>
-              </CardFooter>
+              <CardHeader className="pt-0">
+                <CardTitle className='text-2xl font-black'>
+                  {stats.activitiesCount} Places
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Curated local experiences
+                </p>
+              </CardHeader>
             </Card>
-            <Card className='@container/card bg-gradient-to-t from-primary/5 to-card shadow-xs dark:bg-card'>
-              <CardHeader>
-                <CardDescription>Growth Rate</CardDescription>
-                <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                  4.5%
-                </CardTitle>
-                <CardAction>
-                  <Badge variant='outline'>
-                    <IconTrendingUp />
-                    +4.5%
-                  </Badge>
-                </CardAction>
+
+            <Card className='bg-white shadow-sm border-gray-100'>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardDescription className="text-sm font-medium">Professional Drivers</CardDescription>
+                <IconCar className="h-4 w-4 text-orange-500" />
               </CardHeader>
-              <CardFooter className='flex-col items-start gap-1.5 text-sm'>
-                <div className='line-clamp-1 flex gap-2 font-medium'>
-                  Steady performance increase{' '}
-                  <IconTrendingUp className='size-4' />
-                </div>
-                <div className='text-muted-foreground'>
-                  Meets growth projections
-                </div>
-              </CardFooter>
+              <CardHeader className="pt-0">
+                <CardTitle className='text-2xl font-black'>
+                  {stats.driversCount} Drivers
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Available for private tours
+                </p>
+              </CardHeader>
             </Card>
           </div>
+          
           <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-7'>
             <div className='col-span-4'>
-              <Suspense fallback={<div>Loading...</div>}>
-                <BarGraph />
-              </Suspense>
+              <BarGraph />
             </div>
             <div className='col-span-4 md:col-span-3'>
-              <Suspense fallback={<div>Loading...</div>}>
-                <RecentSales />
-              </Suspense>
-            </div>
-            <div className='col-span-4'>
-              <Suspense fallback={<div>Loading...</div>}>
-                <AreaGraph />
-              </Suspense>
-            </div>
-            <div className='col-span-4 md:col-span-3'>
-              <Suspense fallback={<div>Loading...</div>}>
-                <PieGraph />
-              </Suspense>
+              <RecentSales bookings={recentBookings} />
             </div>
           </div>
         </div>
@@ -147,4 +104,34 @@ export default function OverviewPage() {
   );
 }
 
-export const getServerSideProps = requireAdmin;
+export const getServerSideProps = async (context: any) => {
+  const adminCheck = await requireAdmin(context);
+  if ('redirect' in adminCheck) return adminCheck;
+
+  const bookings = bookingStore.getAll();
+  const revenue = bookings.reduce((sum, b) => sum + b.price, 0);
+
+  const enrichedBookings = bookings.map(b => {
+    let details = null;
+    if (b.type === 'ACTIVITY') {
+      details = activityStore.getById(b.referenceId);
+    } else if (b.type === 'DRIVER') {
+      details = driverStore.getById(b.referenceId);
+    }
+    return { ...b, details };
+  });
+
+  return {
+    props: {
+      stats: {
+        revenue,
+        bookingsCount: bookings.length,
+        countriesCount: countryStore.getAll().length,
+        citiesCount: cityStore.getAll().length,
+        activitiesCount: activityStore.getAll().length,
+        driversCount: driverStore.getAll().length,
+      },
+      recentBookings: JSON.parse(JSON.stringify(enrichedBookings))
+    }
+  };
+};
