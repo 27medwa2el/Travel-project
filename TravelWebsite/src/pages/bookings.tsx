@@ -19,6 +19,7 @@ import {
   TicketIcon
 } from '@heroicons/react/24/outline';
 import { useUser } from '@clerk/nextjs';
+import { getAuth } from '@clerk/nextjs/server';
 
 const Bookings = ({ initialBookings }: { initialBookings: any[] }) => {
   const router = useRouter();
@@ -148,9 +149,19 @@ const Bookings = ({ initialBookings }: { initialBookings: any[] }) => {
 
 export default Bookings;
 
-export const getServerSideProps = async () => {
-  // For demo, we get all bookings
-  const bookings = bookingStore.getAll();
+export const getServerSideProps = async (context: any) => {
+  const { userId } = getAuth(context.req);
+  
+  if (!userId) {
+    return {
+      redirect: {
+        destination: '/sign-in',
+        permanent: false,
+      },
+    };
+  }
+
+  const bookings = bookingStore.getByUserId(userId);
   
   const enrichedBookings = bookings.map(b => {
     let details = null;

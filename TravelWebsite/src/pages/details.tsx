@@ -31,8 +31,7 @@ import Footer from '../components/Footer';
 import { ISuggestionFormatted } from '../types/typings';
 import { toast } from 'sonner';
 
-import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore, tripStore, seedMockData } from '@/lib/mockStore';
-import { Activity, City, Country, Driver, CityEvent, CityCar, CityTourGuide, CityApplication, CityTip, CityDocument, CityRecommendedItem, Trip } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 import { getAuth } from '@clerk/nextjs/server';
 
 const tabs = [
@@ -822,47 +821,45 @@ export const getServerSideProps = async (context: any) => {
   const { id } = context.query;
   const { userId } = getAuth(context.req);
   
-  seedMockData();
-
-  // Find city by ID or by name if ID is a legacy number
-  let city = null;
-  if (id) {
-    city = cityStore.getById(id as string);
-    // Fallback for legacy numeric IDs
-    if (!city) {
-      city = cityStore.getAll().find(c => c.id.startsWith(id as string));
-    }
+  if (!id) {
+    return { props: { city: null, country: null, activities: [], userTrips: [] } };
   }
+
+  const city = await prisma.city.findUnique({
+    where: { id: id as string },
+    include: {
+      country: true,
+      activities: true,
+      events: true,
+      drivers: true,
+      cars: true,
+      tourGuides: true,
+      applications: true,
+      tips: true,
+      documents: true,
+      recommendedItems: true
+    }
+  });
 
   if (!city) {
     return { props: { city: null, country: null, activities: [], userTrips: [] } };
   }
 
-  const country = countryStore.getById(city.countryId) || null;
-  const activities = activityStore.getByCityId(city.id);
-  const drivers = driverStore.getByCityId(city.id);
-  const events = eventStore.getByCityId(city.id);
-  const cars = carStore.getByCityId(city.id);
-  const tourGuides = tourGuideStore.getByCityId(city.id);
-  const applications = applicationStore.getByCityId(city.id);
-  const tips = tipStore.getByCityId(city.id);
-  const documents = documentStore.getByCityId(city.id);
-  const recommendedItems = itemStore.getByCityId(city.id);
-  const userTrips = userId ? tripStore.getByUserId(userId) : [];
+  const userTrips = userId ? await prisma.trip.findMany({ where: { userId } }) : [];
 
   return {
     props: {
       city: JSON.parse(JSON.stringify(city)),
-      country: JSON.parse(JSON.stringify(country)),
-      activities: JSON.parse(JSON.stringify(activities)),
-      drivers: JSON.parse(JSON.stringify(drivers)),
-      events: JSON.parse(JSON.stringify(events)),
-      cars: JSON.parse(JSON.stringify(cars)),
-      tourGuides: JSON.parse(JSON.stringify(tourGuides)),
-      applications: JSON.parse(JSON.stringify(applications)),
-      tips: JSON.parse(JSON.stringify(tips)),
-      documents: JSON.parse(JSON.stringify(documents)),
-      recommendedItems: JSON.parse(JSON.stringify(recommendedItems)),
+      country: JSON.parse(JSON.stringify(city.country)),
+      activities: JSON.parse(JSON.stringify(city.activities)),
+      drivers: JSON.parse(JSON.stringify(city.drivers)),
+      events: JSON.parse(JSON.stringify(city.events)),
+      cars: JSON.parse(JSON.stringify(city.cars)),
+      tourGuides: JSON.parse(JSON.stringify(city.tourGuides)),
+      applications: JSON.parse(JSON.stringify(city.applications)),
+      tips: JSON.parse(JSON.stringify(city.tips)),
+      documents: JSON.parse(JSON.stringify(city.documents)),
+      recommendedItems: JSON.parse(JSON.stringify(city.recommendedItems)),
       userTrips: JSON.parse(JSON.stringify(userTrips)),
     },
   };

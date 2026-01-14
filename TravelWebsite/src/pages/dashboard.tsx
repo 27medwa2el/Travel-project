@@ -24,9 +24,9 @@ import {
   UserCircleIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon, SparklesIcon as SparklesIconSolid, CheckBadgeIcon, RocketLaunchIcon as RocketLaunchIconSolid } from '@heroicons/react/24/solid';
-import { tripStore, cityStore, activityStore, eventStore, seedMockData, documentStore, itemStore, applicationStore } from '@/lib/mockStore';
-import { Trip, City, Activity, CityEvent, CityDocument, CityRecommendedItem, CityApplication } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 import { getAuth } from '@clerk/nextjs/server';
+import { Trip, Activity, CityEvent } from '@/types/domain';
 import CityMapView from '../components/CityMapView';
 import WeatherWidget from '../components/WeatherWidget';
 import PackingBagModal from '../components/PackingBagModal';
@@ -42,13 +42,13 @@ const Dashboard = ({
   allRecommendedItems = [],
   allApps = []
 }: { 
-  trips: Trip[], 
-  allCities: City[], 
-  allActivities: Activity[],
-  allEvents: CityEvent[],
-  allDocs: CityDocument[],
-  allRecommendedItems: CityRecommendedItem[],
-  allApps: CityApplication[]
+  trips: any[], 
+  allCities: any[], 
+  allActivities: any[],
+  allEvents: any[],
+  allDocs: any[],
+  allRecommendedItems: any[],
+  allApps: any[]
 }) => {
   const router = useRouter();
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(trips[0] || null);
@@ -490,16 +490,25 @@ export const getServerSideProps = async (context: any) => {
     return { redirect: { destination: '/signin', permanent: false } };
   }
 
-  // Ensure mock data is seeded
-  seedMockData();
-
-  const trips = tripStore.getByUserId(userId);
-  const allCities = cityStore.getAll();
-  const allActivities = activityStore.getAll();
-  const allEvents = eventStore.getAll();
-  const allDocs = documentStore.getAll();
-  const allRecommendedItems = itemStore.getAll();
-  const allApps = applicationStore.getAll();
+  const [trips, allCities, allActivities, allEvents, allDocs, allRecommendedItems, allApps] = await Promise.all([
+    prisma.trip.findMany({
+      where: { userId },
+      include: {
+        cities: {
+          include: {
+            items: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.city.findMany({ orderBy: { name: 'asc' } }),
+    prisma.activity.findMany(),
+    prisma.cityEvent.findMany(),
+    prisma.cityDocument.findMany(),
+    prisma.cityRecommendedItem.findMany(),
+    prisma.cityApplication.findMany(),
+  ]);
 
   return {
     props: {

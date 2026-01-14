@@ -1,15 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { cityStore, seedMockData } from '@/lib/mockStore';
-import { CityInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Ensure mock data is seeded
-  seedMockData();
-
   // Protect admin API routes
   const { userId } = getAuth(req);
   if (!userId) {
@@ -20,18 +16,21 @@ export default async function handler(
     switch (req.method) {
       case 'GET':
         const { countryId } = req.query;
-        let cities;
-
-        if (countryId && typeof countryId === 'string') {
-          cities = cityStore.getByCountryId(countryId);
-        } else {
-          cities = cityStore.getAll();
-        }
+        
+        const cities = await prisma.city.findMany({
+          where: countryId ? { countryId: String(countryId) } : {},
+          include: {
+            country: true
+          },
+          orderBy: {
+            name: 'asc'
+          }
+        });
 
         return res.status(200).json(cities);
 
       case 'POST':
-        const input: CityInput = req.body;
+        const input = req.body;
 
         // Basic validation
         if (!input.name || input.name.trim().length === 0) {
@@ -41,7 +40,18 @@ export default async function handler(
           return res.status(400).json({ error: 'Country ID is required' });
         }
 
-        const city = cityStore.create(input);
+        const city = await prisma.city.create({
+          data: {
+            name: input.name,
+            countryId: input.countryId,
+            lat: parseFloat(input.lat),
+            lng: parseFloat(input.lng),
+            images: input.images || [],
+            timezone: input.timezone,
+            currency: input.currency,
+            language: input.language,
+          }
+        });
         return res.status(201).json(city);
 
       default:

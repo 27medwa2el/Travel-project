@@ -9,7 +9,7 @@ import Footer from "../components/Footer";
 import ActivityCard from "../components/ActivityCard";
 import { IStyleData, ISuggestionFormatted } from "../types/typings";
 import { ActivityWithLocation } from "../types/domain";
-import { activityStore, cityStore, countryStore } from "@/lib/mockStore";
+import { prisma } from "@/lib/prisma";
 import { useRouter } from "next/router";
 
 type Props = {
@@ -130,14 +130,22 @@ const Home = ({
 export default Home;
 
 export const getServerSideProps = async () => {
-  // Use our local cityStore for more reliable data and images
-  const allCities = cityStore.getAll();
-  const getInspiredCities: ISuggestionFormatted[] = allCities.slice(0, 8).map(city => {
-    const country = countryStore.getById(city.countryId);
+  const [allCities, allActivities] = await Promise.all([
+    prisma.city.findMany({
+      take: 8,
+      include: { country: true }
+    }),
+    prisma.activity.findMany({
+      take: 6,
+      include: { city: { include: { country: true } } }
+    })
+  ]);
+
+  const getInspiredCities: ISuggestionFormatted[] = allCities.map(city => {
     return {
       id: city.id,
-      displayName: `${city.name}, ${country?.name || 'Global'}`,
-      shortName: `${city.name}, ${country?.name || 'Global'}`,
+      displayName: `${city.name}, ${city.country?.name || 'Global'}`,
+      shortName: `${city.name}, ${city.country?.name || 'Global'}`,
       type: "CITY",
       img: city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80",
       timezone: city.timezone || 'UTC +0',
@@ -152,15 +160,11 @@ export const getServerSideProps = async () => {
     (res) => res.json()
   ).catch(() => []);
 
-  // Fetch activities from our local admin store
-  const allActivities = activityStore.getAll();
   const activities = allActivities.map(activity => {
-    const city = cityStore.getById(activity.cityId);
-    const country = city ? countryStore.getById(city.countryId) : undefined;
     return {
       ...activity,
-      cityName: city?.name || 'Unknown',
-      countryName: country?.name || 'Unknown'
+      cityName: activity.city?.name || 'Unknown',
+      countryName: activity.city?.country?.name || 'Unknown'
     };
   });
 
@@ -168,7 +172,7 @@ export const getServerSideProps = async () => {
     props: {
       citiesData: [], // Placeholder
       stylesData,
-      getInspiredCities,
+      getInspiredCities: JSON.parse(JSON.stringify(getInspiredCities)),
       activities: JSON.parse(JSON.stringify(activities)),
     },
   };

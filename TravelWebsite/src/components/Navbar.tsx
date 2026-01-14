@@ -14,14 +14,17 @@ import {
   Bars3Icon,
   XMarkIcon,
   CalendarDaysIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 import { cityStore } from '@/lib/mockStore';
 import { City } from '@/types/domain';
+import { useAuth, UserButton, SignInButton } from '@clerk/nextjs';
 
 const Navbar = () => {
   const router = useRouter();
+  const { userId } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [destinations, setDestinations] = useState<City[]>([]);
@@ -148,9 +151,32 @@ const Navbar = () => {
           
           <div className="h-10 w-[1px] bg-gray-200 mx-2 hidden sm:block" />
 
-          <Link href="/admin/profile" className="w-12 h-12 bg-[#9333ea] rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition-all">
-            <UserCircleIcon className="w-7 h-7 text-white" />
-          </Link>
+          {userId ? (
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard" className="hidden md:flex flex-col items-end">
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-900 leading-none">My Account</span>
+                <span className="text-[8px] font-bold uppercase tracking-widest text-purple-500">Active Session</span>
+              </Link>
+              <div className="w-12 h-12 rounded-full border-2 border-purple-500 p-0.5 shadow-lg shadow-purple-100 transition-transform hover:scale-105 active:scale-95">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link 
+                href="/sign-in"
+                className="hidden md:flex px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all"
+              >
+                Sign In
+              </Link>
+              <Link 
+                href="/sign-up"
+                className="px-6 py-3 bg-[#9333ea] rounded-2xl text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-purple-500/20 hover:bg-[#a855f7] hover:scale-105 active:scale-95 transition-all"
+              >
+                Join Now
+              </Link>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button 

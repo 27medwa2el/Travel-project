@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { activityStore } from '@/lib/mockStore';
-import { ActivityInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,18 +16,21 @@ export default async function handler(
     switch (req.method) {
       case 'GET':
         const { cityId } = req.query;
-        let activities;
-
-        if (cityId && typeof cityId === 'string') {
-          activities = activityStore.getByCityId(cityId);
-        } else {
-          activities = activityStore.getAll();
-        }
+        
+        const activities = await prisma.activity.findMany({
+          where: cityId ? { cityId: String(cityId) } : {},
+          include: {
+            city: true
+          },
+          orderBy: {
+            title: 'asc'
+          }
+        });
 
         return res.status(200).json(activities);
 
       case 'POST':
-        const input: ActivityInput = req.body;
+        const input = req.body;
 
         // Basic validation
         if (!input.title || input.title.trim().length === 0) {
@@ -37,11 +39,21 @@ export default async function handler(
         if (!input.cityId) {
           return res.status(400).json({ error: 'City ID is required' });
         }
-        if (typeof input.lat !== 'number' || typeof input.lng !== 'number') {
-          return res.status(400).json({ error: 'Valid lat/lng coordinates are required' });
-        }
 
-        const activity = activityStore.create(input);
+        const activity = await prisma.activity.create({
+          data: {
+            title: input.title,
+            cityId: input.cityId,
+            description: input.description,
+            price: input.price !== undefined ? parseFloat(input.price) : undefined,
+            currency: input.currency,
+            lat: parseFloat(input.lat),
+            lng: parseFloat(input.lng),
+            images: input.images || [],
+            tags: input.tags || [],
+            bookingUrl: input.bookingUrl,
+          }
+        });
         return res.status(201).json(activity);
 
       default:

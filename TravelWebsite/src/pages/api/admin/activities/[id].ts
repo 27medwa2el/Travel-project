@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { activityStore } from '@/lib/mockStore';
-import { ActivityInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,31 +20,44 @@ export default async function handler(
   try {
     switch (req.method) {
       case 'GET':
-        const activity = activityStore.getById(id);
+        const activity = await prisma.activity.findUnique({
+          where: { id },
+          include: { city: true }
+        });
         if (!activity) {
           return res.status(404).json({ error: 'Activity not found' });
         }
         return res.status(200).json(activity);
 
       case 'PUT':
-        const input: Partial<ActivityInput> = req.body;
+        const input = req.body;
 
         // Basic validation
         if (input.title && input.title.trim().length === 0) {
           return res.status(400).json({ error: 'Activity title cannot be empty' });
         }
 
-        const updated = activityStore.update(id, input);
-        if (!updated) {
-          return res.status(404).json({ error: 'Activity not found' });
-        }
+        const updated = await prisma.activity.update({
+          where: { id },
+          data: {
+            title: input.title,
+            cityId: input.cityId,
+            description: input.description,
+            price: input.price !== undefined ? parseFloat(input.price) : undefined,
+            currency: input.currency,
+            lat: input.lat !== undefined ? parseFloat(input.lat) : undefined,
+            lng: input.lng !== undefined ? parseFloat(input.lng) : undefined,
+            images: input.images,
+            tags: input.tags,
+            bookingUrl: input.bookingUrl,
+          }
+        });
         return res.status(200).json(updated);
 
       case 'DELETE':
-        const deleted = activityStore.delete(id);
-        if (!deleted) {
-          return res.status(404).json({ error: 'Activity not found' });
-        }
+        await prisma.activity.delete({
+          where: { id }
+        });
         return res.status(204).end();
 
       default:

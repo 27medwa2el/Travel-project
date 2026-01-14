@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { countryStore } from '@/lib/mockStore';
-import { CountryInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -16,18 +15,27 @@ export default async function handler(
   try {
     switch (req.method) {
       case 'GET':
-        const countries = countryStore.getAll();
+        const countries = await prisma.country.findMany({
+          orderBy: { name: 'asc' },
+          include: { _count: { select: { cities: true } } }
+        });
         return res.status(200).json(countries);
 
       case 'POST':
-        const input: CountryInput = req.body;
+        const input = req.body;
 
         // Basic validation
         if (!input.name || input.name.trim().length === 0) {
           return res.status(400).json({ error: 'Country name is required' });
         }
 
-        const country = countryStore.create(input);
+        const country = await prisma.country.create({
+          data: {
+            name: input.name,
+            code: input.code,
+            continent: input.continent,
+          }
+        });
         return res.status(201).json(country);
 
       default:

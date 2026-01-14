@@ -7,6 +7,8 @@ import InfoCard from "../components/InfoCard";
 import MapCard from "../components/MapCard";
 import { IResult, ISuggestionFormatted } from "../types/typings";
 
+import { getAuth } from "@clerk/nextjs/server";
+
 type Props = {
   favorites: IResult[];
 };
@@ -72,9 +74,19 @@ const Favorites = ({ favorites }: Props) => {
 
 export default Favorites;
 
-export const getServerSideProps = async () => {
-  // For now, return empty favorites since travel routes are public
-  // In the future, you can get user email from Clerk and fetch favorites
+export const getServerSideProps = async (context: any) => {
+  const { userId } = getAuth(context.req);
+  
+  if (!userId) {
+    return {
+      redirect: {
+        destination: '/sign-in',
+        permanent: false,
+      },
+    };
+  }
+
+  // In the future, fetch user-specific favorites from your database
   const favorites: IResult[] = [];
 
   return {

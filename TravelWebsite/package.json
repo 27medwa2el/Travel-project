@@ -72,9 +72,9 @@
     "react-dropzone": "^14.3.5",
     "react-hook-form": "^7.54.1",
     "react-map-gl": "^7.0.19",
+    "react-resizable-panels": "^2.1.7",
     "react-responsive": "^10.0.0",
     "react-responsive-carousel": "^3.2.23",
-    "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.1",
     "sharp": "^0.33.5",
     "sonner": "^1.7.1",
@@ -89,20 +89,24 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.3.0",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/micro": "^7.3.7",
-    "@types/node": "18.11.3",
+    "@types/node": "^18.11.3",
     "@types/react": "18.0.21",
     "@types/react-date-range": "^1.4.4",
     "@types/react-dom": "18.0.6",
     "@types/sort-by": "^1.2.3",
     "@types/uuid": "^10.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
     "autoprefixer": "^10.4.12",
     "postcss": "^8.4.18",
     "prisma": "^4.6.1",
     "tailwind-scrollbar": "^2.0.1",
     "tailwindcss": "^4.0.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "4.8.4"
+    "ts-node": "^10.9.2",
+    "typescript": "^4.8.4"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

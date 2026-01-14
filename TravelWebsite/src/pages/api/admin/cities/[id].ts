@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { cityStore } from '@/lib/mockStore';
-import { CityInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,31 +20,49 @@ export default async function handler(
   try {
     switch (req.method) {
       case 'GET':
-        const city = cityStore.getById(id);
+        const city = await prisma.city.findUnique({
+          where: { id },
+          include: {
+            country: true,
+            activities: true,
+            events: true,
+            tips: true,
+            documents: true,
+            recommendedItems: true
+          }
+        });
         if (!city) {
           return res.status(404).json({ error: 'City not found' });
         }
         return res.status(200).json(city);
 
       case 'PUT':
-        const input: Partial<CityInput> = req.body;
+        const input = req.body;
 
         // Basic validation
         if (input.name && input.name.trim().length === 0) {
           return res.status(400).json({ error: 'City name cannot be empty' });
         }
 
-        const updated = cityStore.update(id, input);
-        if (!updated) {
-          return res.status(404).json({ error: 'City not found' });
-        }
+        const updated = await prisma.city.update({
+          where: { id },
+          data: {
+            name: input.name,
+            countryId: input.countryId,
+            lat: input.lat !== undefined ? parseFloat(input.lat) : undefined,
+            lng: input.lng !== undefined ? parseFloat(input.lng) : undefined,
+            images: input.images,
+            timezone: input.timezone,
+            currency: input.currency,
+            language: input.language,
+          }
+        });
         return res.status(200).json(updated);
 
       case 'DELETE':
-        const deleted = cityStore.delete(id);
-        if (!deleted) {
-          return res.status(404).json({ error: 'City not found' });
-        }
+        await prisma.city.delete({
+          where: { id }
+        });
         return res.status(204).end();
 
       default:
