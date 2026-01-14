@@ -61,13 +61,13 @@ const MyApp = ({ Component, pageProps, router }: AppProps) => {
     >
       <ClerkProvider {...pageProps}>
         {isAdminRoute ? (
-          <AdminProviders>
-            <Component {...pageProps} />
-          </AdminProviders>
+            <AdminProviders>
+              <Component {...pageProps} />
+            </AdminProviders>
         ) : (
           <>
             <Navbar />
-            <Component {...pageProps} />
+          <Component {...pageProps} />
           </>
         )}
       </ClerkProvider>

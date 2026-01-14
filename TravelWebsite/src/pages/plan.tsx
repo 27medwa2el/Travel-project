@@ -15,7 +15,7 @@ import {
   TicketIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { cityStore, countryStore, activityStore, eventStore, settingsStore, seedMockData } from '@/lib/mockStore';
+import { cityStore, countryStore, activityStore, eventStore, settingsStore, tripStore, seedMockData } from '@/lib/mockStore';
 import { City, Country, Activity, CityEvent, Trip, TripCity, TripItem, AppSettings } from '@/types/domain';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
@@ -28,16 +28,30 @@ type Props = {
   allEvents: CityEvent[];
 };
 
-const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivities, allEvents }: Props) => {
+const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivities, allEvents, initialTrip }: Props) => {
   const router = useRouter();
-  const { countryId, preselect } = router.query;
+  const { countryId, preselect, tripId } = router.query;
 
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState<Country | null>(initialCountry);
   const [availableCities, setAvailableCities] = useState<City[]>(initialCities);
   const [selectedCities, setSelectedCities] = useState<City[]>([]);
+  const [itinerary, setItinerary] = useState<TripCity[]>(initialTrip?.cities || []);
+  const [settings, setSettings] = useState<AppSettings>(initialSettings);
 
-  // Pre-select city from query param
+  const [selectedDay, setSelectedCityDay] = useState<{ cityId: string, date: string } | null>(null);
+  const [showItemPicker, setShowItemPicker] = useState(false);
+
+  // Initialize from initialTrip if editing
+  useEffect(() => {
+    if (initialTrip && availableCities.length > 0) {
+      const tripCities = initialTrip.cities.map(tc => availableCities.find(c => c.id === tc.cityId)).filter(Boolean) as City[];
+      setSelectedCities(tripCities);
+      setItinerary(initialTrip.cities);
+    }
+  }, [initialTrip, availableCities]);
+
+  // Pre-select city from query param and merge into selection
   useEffect(() => {
     if (preselect && availableCities.length > 0) {
       const city = availableCities.find(c => c.id === preselect);
@@ -46,14 +60,24 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
           if (prev.find(p => p.id === city.id)) return prev;
           return [...prev, city];
         });
+        
+        // If it's a new city not in the itinerary yet, add a placeholder
+        setItinerary(prev => {
+          if (prev.find(i => i.cityId === city.id)) return prev;
+          return [
+            ...prev,
+            {
+              id: Math.random().toString(36).substring(7),
+              cityId: city.id,
+              startDate: initialTrip?.startDate || new Date().toISOString().split('T')[0],
+              endDate: initialTrip?.endDate || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+              items: []
+            }
+          ];
+        });
       }
     }
-  }, [preselect, availableCities]);
-  const [itinerary, setItinerary] = useState<TripCity[]>([]);
-  const [settings, setSettings] = useState<AppSettings>(initialSettings);
-
-  const [selectedDay, setSelectedCityDay] = useState<{ cityId: string, date: string } | null>(null);
-  const [showItemPicker, setShowItemPicker] = useState(false);
+  }, [preselect, availableCities, initialTrip]);
 
   // Sync state if initial props change
   useEffect(() => {
@@ -91,16 +115,21 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
       return;
     }
     
-    // Initialize itinerary
-    const initialItinerary: TripCity[] = selectedCities.map(city => ({
-      id: Math.random().toString(36).substring(7),
-      cityId: city.id,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
-      items: []
-    }));
+    // Merge existing itinerary with selected cities to preserve activities
+    const newItinerary: TripCity[] = selectedCities.map(city => {
+      const existing = itinerary.find(i => i.cityId === city.id);
+      if (existing) return existing;
+
+      return {
+        id: Math.random().toString(36).substring(7),
+        cityId: city.id,
+        startDate: initialTrip?.startDate || new Date().toISOString().split('T')[0],
+        endDate: initialTrip?.endDate || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+        items: []
+      };
+    });
     
-    setItinerary(initialItinerary);
+    setItinerary(newItinerary);
     setStep(2);
   };
 
@@ -354,8 +383,8 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
 
                                 <div className="flex-1 flex flex-wrap gap-4">
                                   {dayItems.map(item => {
-                                    const activity = item.type === 'ACTIVITY' ? allActivities.find(a => a.id === item.referenceId) : null;
-                                    const event = item.type === 'EVENT' ? allEvents.find(e => e.id === item.referenceId) : null;
+                                    const activity = item.type === 'ACTIVITY' ? (allActivities.find(a => a.id === item.referenceId) || allActivities.find(a => a.title.toLowerCase().replace(/\s+/g, '-') === item.referenceId.toLowerCase())) : null;
+                                    const event = item.type === 'EVENT' ? (allEvents.find(e => e.id === item.referenceId) || allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === item.referenceId.toLowerCase())) : null;
                                     const data = activity || event;
 
                                     return (
@@ -449,8 +478,8 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
 
                           <div className="flex flex-wrap gap-3">
                             {item.items.length > 0 ? item.items.map(tripItem => {
-                              const activity = tripItem.type === 'ACTIVITY' ? allActivities.find(a => a.id === tripItem.referenceId) : null;
-                              const event = tripItem.type === 'EVENT' ? allEvents.find(e => e.id === tripItem.referenceId) : null;
+                              const activity = tripItem.type === 'ACTIVITY' ? (allActivities.find(a => a.id === tripItem.referenceId) || allActivities.find(a => a.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
+                              const event = tripItem.type === 'EVENT' ? (allEvents.find(e => e.id === tripItem.referenceId) || allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
                               return (
                                 <div key={tripItem.id} className="bg-gray-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 border border-gray-100">
                                   {activity?.title || event?.title || 'Unknown Item'}

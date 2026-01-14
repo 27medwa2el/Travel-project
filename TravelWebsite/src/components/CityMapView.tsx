@@ -3,18 +3,18 @@ import Map, { Marker, Popup, NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon, CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { Activity } from '@/types/domain';
+import { Activity, CityEvent } from '@/types/domain';
 import { cn } from '@/lib/utils';
 
 type Props = {
-  activities: Activity[];
+  activities: (Activity | CityEvent)[];
   center: { lat: number; lng: number };
 };
 
 const CityMapView = ({ activities, center }: Props) => {
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<(Activity | CityEvent) | null>(null);
   const [viewState, setViewState] = useState({
     longitude: center.lng || 2.3522,
     latitude: center.lat || 48.8566,
@@ -70,9 +70,18 @@ const CityMapView = ({ activities, center }: Props) => {
                 "bg-white px-4 py-2 rounded-2xl shadow-2xl border-2 transition-all flex items-center gap-2",
                 selectedActivity?.id === activity.id ? "border-blue-500 scale-110" : "border-white hover:border-blue-200"
               )}>
-                <span className="text-sm font-black text-gray-900">${activity.price}</span>
-                <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white">
-                  <StarIcon className="w-3.5 h-3.5" />
+                <span className="text-sm font-black text-gray-900">
+                  {'price' in activity ? `$${activity.price}` : 'Event'}
+                </span>
+                <div className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center text-white",
+                  'price' in activity ? "bg-blue-500" : "bg-purple-500"
+                )}>
+                  {'price' in activity ? (
+                    <StarIcon className="w-3.5 h-3.5" />
+                  ) : (
+                    <CalendarDaysIcon className="w-3.5 h-3.5" />
+                  )}
                 </div>
               </div>
               {/* Pointer Triangle */}
@@ -103,7 +112,7 @@ const CityMapView = ({ activities, center }: Props) => {
 
                 <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
                   <Image 
-                    src={selectedActivity.images?.[0] || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80'} 
+                    src={('images' in selectedActivity ? selectedActivity.images?.[0] : selectedActivity.imageUrl) || 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80'} 
                     alt={selectedActivity.title} 
                     fill 
                     className="object-cover"
@@ -117,12 +126,14 @@ const CityMapView = ({ activities, center }: Props) => {
                     </h3>
                     <div className="flex items-center gap-1 text-gray-400 text-[10px] font-black uppercase tracking-widest">
                       <MapPinIcon className="w-3 h-3" />
-                      {selectedActivity.tags?.[0] || 'Activity'}
+                      {'tags' in selectedActivity ? selectedActivity.tags?.[0] : selectedActivity.location}
                     </div>
                   </div>
                   
                   <div className="flex items-center justify-between mt-4">
-                    <span className="text-xl font-black text-blue-600">${selectedActivity.price}</span>
+                    <span className="text-xl font-black text-blue-600">
+                      {'price' in selectedActivity ? `$${selectedActivity.price}` : 'FREE EVENT'}
+                    </span>
                     <button className="text-[10px] font-black uppercase tracking-widest text-gray-900 hover:text-blue-600 transition-colors">Details →</button>
                   </div>
                 </div>

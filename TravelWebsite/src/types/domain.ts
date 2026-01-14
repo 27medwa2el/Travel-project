@@ -35,6 +35,8 @@ export interface CityTip {
   id: string;
   cityId: string;
   content: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityDocument {
@@ -42,6 +44,8 @@ export interface CityDocument {
   cityId: string;
   name: string;
   exampleUrl?: string; // Added for optional document example
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityRecommendedItem {
@@ -49,6 +53,8 @@ export interface CityRecommendedItem {
   cityId: string;
   name: string;
   imageUrl?: string; // Added for optional item photo
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityEvent {
@@ -61,6 +67,8 @@ export interface CityEvent {
   lat: number; // Added for map
   lng: number; // Added for map
   imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityCar {
@@ -73,6 +81,8 @@ export interface CityCar {
   fuel: string;
   contactInfo?: string; // Added
   imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityTourGuide {
@@ -85,6 +95,8 @@ export interface CityTourGuide {
   rating: number;
   contactInfo?: string; // Added
   imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CityApplication {
@@ -95,6 +107,8 @@ export interface CityApplication {
   iconUrl?: string; // Added for app icon
   androidLink?: string;
   iphoneLink?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Activity {
@@ -133,6 +147,19 @@ export interface PackingItem {
   category: 'Essentials' | 'Clothing' | 'Electronics' | 'Documents' | 'Other';
 }
 
+export interface TripPackingItem {
+  id: string;
+  tripId: string;
+  cityId?: string;
+  title: string;
+  description?: string;
+  category: 'document' | 'product' | 'app' | 'custom';
+  isPacked: boolean;
+  referenceId?: string; // ID of the source document/item/app
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Trip {
   id: string;
   userId: string;
@@ -143,6 +170,7 @@ export interface Trip {
   progress: number;
   countryId: string; // The primary country for the trip
   cities: TripCity[]; // Multi-city support
+  packingList: TripPackingItem[];
   createdAt: string;
   updatedAt: string;
 }
@@ -187,15 +215,16 @@ export type CountryInput = Omit<Country, 'id' | 'createdAt' | 'updatedAt'>;
 export type CityInput = Omit<City, 'id' | 'createdAt' | 'updatedAt'>;
 export type ActivityInput = Omit<Activity, 'id' | 'createdAt' | 'updatedAt'>;
 export type DriverInput = Omit<Driver, 'id' | 'createdAt' | 'updatedAt'>;
-export type TripInput = Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>;
+export type TripInput = Omit<Trip, 'id' | 'createdAt' | 'updatedAt' | 'packingList' | 'progress'>;
 export type BookingInput = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
-export type CityEventInput = Omit<CityEvent, 'id'>;
-export type CityCarInput = Omit<CityCar, 'id'>;
-export type CityTourGuideInput = Omit<CityTourGuide, 'id'>;
-export type CityApplicationInput = Omit<CityApplication, 'id'>;
-export type CityTipInput = Omit<CityTip, 'id'>;
-export type CityDocumentInput = Omit<CityDocument, 'id'>;
-export type CityRecommendedItemInput = Omit<CityRecommendedItem, 'id'>;
+export type CityEventInput = Omit<CityEvent, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityCarInput = Omit<CityCar, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityTourGuideInput = Omit<CityTourGuide, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityApplicationInput = Omit<CityApplication, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityTipInput = Omit<CityTip, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityDocumentInput = Omit<CityDocument, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityRecommendedItemInput = Omit<CityRecommendedItem, 'id' | 'createdAt' | 'updatedAt'>;
+export type TripPackingItemInput = Omit<TripPackingItem, 'id' | 'createdAt' | 'updatedAt'>;
 
 // Aggregate types (for public API with joined data)
 export interface ActivityWithLocation extends Activity {

@@ -26,6 +26,8 @@ import {
   CityTipInput,
   CityDocumentInput,
   CityRecommendedItemInput,
+  TripPackingItem,
+  TripPackingItemInput,
 } from '@/types/domain';
 import { globalCountries } from './countriesData';
 
@@ -351,11 +353,12 @@ export const tripStore = {
     );
   },
 
-  create(input: Omit<Trip, 'id' | 'createdAt' | 'updatedAt' | 'progress'>): Trip {
+  create(input: TripInput): Trip {
     const trip: Trip = {
       id: generateId(),
       ...input,
       progress: 0,
+      packingList: [], // Initialize empty packing list
       createdAt: timestamp(),
       updatedAt: timestamp(),
     };
@@ -374,6 +377,67 @@ export const tripStore = {
     };
     store.trips.set(id, updated);
     return updated;
+  },
+
+  updatePackingItem(tripId: string, itemId: string, input: Partial<TripPackingItem>): Trip | null {
+    const trip = store.trips.get(tripId);
+    if (!trip) return null;
+
+    const itemIndex = trip.packingList.findIndex(i => i.id === itemId);
+    if (itemIndex === -1) return null;
+
+    const updatedItem = {
+      ...trip.packingList[itemIndex],
+      ...input,
+      updatedAt: timestamp()
+    };
+
+    const newPackingList = [...trip.packingList];
+    newPackingList[itemIndex] = updatedItem;
+
+    const updatedTrip = {
+      ...trip,
+      packingList: newPackingList,
+      updatedAt: timestamp()
+    };
+
+    store.trips.set(tripId, updatedTrip);
+    return updatedTrip;
+  },
+
+  addPackingItem(tripId: string, input: TripPackingItemInput): Trip | null {
+    const trip = store.trips.get(tripId);
+    if (!trip) return null;
+
+    const newItem: TripPackingItem = {
+      id: generateId(),
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp()
+    };
+
+    const updatedTrip = {
+      ...trip,
+      packingList: [...trip.packingList, newItem],
+      updatedAt: timestamp()
+    };
+
+    store.trips.set(tripId, updatedTrip);
+    return updatedTrip;
+  },
+
+  removePackingItem(tripId: string, itemId: string): Trip | null {
+    const trip = store.trips.get(tripId);
+    if (!trip) return null;
+
+    const updatedTrip = {
+      ...trip,
+      packingList: trip.packingList.filter(i => i.id !== itemId),
+      updatedAt: timestamp()
+    };
+
+    store.trips.set(tripId, updatedTrip);
+    return updatedTrip;
   },
 
   delete(id: string): boolean {
@@ -439,7 +503,12 @@ export const carStore = {
     return Array.from(store.cars.values()).filter(c => c.cityId === cityId);
   },
   create(input: CityCarInput): CityCar {
-    const car = { id: generateId(input.name), ...input };
+    const car: CityCar = { 
+      id: generateId(input.name), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.cars.set(car.id, car);
     return car;
   },
@@ -467,7 +536,12 @@ export const tourGuideStore = {
     return Array.from(store.tourGuides.values()).filter(tg => tg.cityId === cityId);
   },
   create(input: CityTourGuideInput): CityTourGuide {
-    const guide = { id: generateId(input.name), ...input };
+    const guide: CityTourGuide = { 
+      id: generateId(input.name), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.tourGuides.set(guide.id, guide);
     return guide;
   },
@@ -495,7 +569,12 @@ export const applicationStore = {
     return Array.from(store.applications.values()).filter(app => app.cityId === cityId);
   },
   create(input: CityApplicationInput): CityApplication {
-    const app = { id: generateId(input.name), ...input };
+    const app: CityApplication = { 
+      id: generateId(input.name), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.applications.set(app.id, app);
     return app;
   },
@@ -523,7 +602,12 @@ export const tipStore = {
     return Array.from(store.tips.values()).filter(tip => tip.cityId === cityId);
   },
   create(input: CityTipInput): CityTip {
-    const tip = { id: generateId(), ...input };
+    const tip: CityTip = { 
+      id: generateId(), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.tips.set(tip.id, tip);
     return tip;
   },
@@ -551,7 +635,12 @@ export const documentStore = {
     return Array.from(store.documents.values()).filter(doc => doc.cityId === cityId);
   },
   create(input: CityDocumentInput): CityDocument {
-    const doc = { id: generateId(input.name), ...input };
+    const doc: CityDocument = { 
+      id: generateId(input.name), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.documents.set(doc.id, doc);
     return doc;
   },
@@ -579,7 +668,12 @@ export const itemStore = {
     return Array.from(store.items.values()).filter(item => item.cityId === cityId);
   },
   create(input: CityRecommendedItemInput): CityRecommendedItem {
-    const item = { id: generateId(input.name), ...input };
+    const item: CityRecommendedItem = { 
+      id: generateId(input.name), 
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
     store.items.set(item.id, item);
     return item;
   },
