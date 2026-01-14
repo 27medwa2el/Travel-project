@@ -133,27 +133,40 @@ export interface PackingItem {
   category: 'Essentials' | 'Clothing' | 'Electronics' | 'Documents' | 'Other';
 }
 
-export interface TripActivity {
-  id: string;
-  tripId: string;
-  activityId: string;
-  date: string; // ISO date string
-  startTime: string; // e.g. "10:00"
-  endTime?: string; // e.g. "12:00"
-}
-
 export interface Trip {
   id: string;
+  userId: string;
   title: string;
   startDate: string;
   endDate: string;
   status: 'upcoming' | 'active' | 'completed';
-  progress: number; // 0-100
-  cityIds: string[];
-  packingList: PackingItem[];
-  tripActivities: TripActivity[]; // Added this
+  progress: number;
+  countryId: string; // The primary country for the trip
+  cities: TripCity[]; // Multi-city support
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TripCity {
+  id: string;
+  cityId: string;
+  startDate: string;
+  endDate: string;
+  items: TripItem[]; // Day-by-day items
+}
+
+export interface TripItem {
+  id: string;
+  type: 'ACTIVITY' | 'EVENT';
+  referenceId: string; // activityId or eventId
+  date: string; // The specific day assigned
+  startTime?: string;
+  endTime?: string;
+}
+
+export interface AppSettings {
+  standardCityPrice: number;
+  currency: string;
 }
 
 export interface Booking {
@@ -176,6 +189,13 @@ export type ActivityInput = Omit<Activity, 'id' | 'createdAt' | 'updatedAt'>;
 export type DriverInput = Omit<Driver, 'id' | 'createdAt' | 'updatedAt'>;
 export type TripInput = Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>;
 export type BookingInput = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
+export type CityEventInput = Omit<CityEvent, 'id'>;
+export type CityCarInput = Omit<CityCar, 'id'>;
+export type CityTourGuideInput = Omit<CityTourGuide, 'id'>;
+export type CityApplicationInput = Omit<CityApplication, 'id'>;
+export type CityTipInput = Omit<CityTip, 'id'>;
+export type CityDocumentInput = Omit<CityDocument, 'id'>;
+export type CityRecommendedItemInput = Omit<CityRecommendedItem, 'id'>;
 
 // Aggregate types (for public API with joined data)
 export interface ActivityWithLocation extends Activity {

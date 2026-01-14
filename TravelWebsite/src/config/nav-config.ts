@@ -119,6 +119,12 @@ export const navItems: NavItem[] = [
         url: '/admin/billing',
         icon: 'billing',
         shortcut: ['b', 'l']
+      },
+      {
+        title: 'Settings',
+        url: '/admin/settings',
+        icon: 'settings',
+        shortcut: ['s', 's']
       }
     ]
   }

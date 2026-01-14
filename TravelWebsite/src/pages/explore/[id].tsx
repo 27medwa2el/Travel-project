@@ -5,11 +5,12 @@ import {
   MagnifyingGlassIcon, 
   ChevronRightIcon,
   MapPinIcon,
-  ArrowLeftIcon
+  ArrowLeftIcon,
+  SparklesIcon
 } from "@heroicons/react/24/outline";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { countryStore, cityStore } from "@/lib/mockStore";
+import { countryStore, cityStore, seedMockData } from "@/lib/mockStore";
 import { Country, City } from "@/types/domain";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -66,16 +67,24 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
             </p>
           </motion.div>
 
-          <div className="relative w-full md:w-80">
-            <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
-              <MagnifyingGlassIcon className="ml-4 w-5 h-5 text-gray-400" />
-              <input 
-                type="text"
-                placeholder="Search cities..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-3 pr-4 py-3 bg-transparent border-none font-bold text-sm outline-none"
-              />
+          <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+            <button 
+              onClick={() => router.push(`/plan?countryId=${country.id}`)}
+              className="w-full md:w-auto bg-purple-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-purple-200 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+            >
+              <SparklesIcon className="w-4 h-4" /> Plan Multi-City Trip
+            </button>
+            <div className="relative w-full md:w-80">
+              <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
+                <MagnifyingGlassIcon className="ml-4 w-5 h-5 text-gray-400" />
+                <input 
+                  type="text"
+                  placeholder="Search cities..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-3 pr-4 py-3 bg-transparent border-none font-bold text-sm outline-none"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -139,6 +148,10 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
 
 export const getServerSideProps = async (context: any) => {
   const { id } = context.params;
+  
+  // Ensure mock data is seeded
+  seedMockData();
+
   const country = countryStore.getById(id as string);
   
   if (!country) {

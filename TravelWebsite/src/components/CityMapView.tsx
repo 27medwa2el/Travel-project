@@ -33,7 +33,7 @@ const CityMapView = ({ activities, center }: Props) => {
   }, [center]);
 
   return (
-    <div className="relative w-full h-[700px] rounded-[48px] overflow-hidden shadow-2xl border border-white/50">
+    <div className="relative w-full h-full rounded-[48px] overflow-hidden shadow-2xl border border-white/50">
       <Map
         {...viewState}
         onMove={evt => setViewState(idx => ({ ...idx, ...evt.viewState }))}

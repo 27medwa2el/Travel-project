@@ -29,7 +29,7 @@ import HotelSearch from '../components/HotelSearch';
 import Footer from '../components/Footer';
 import { ISuggestionFormatted } from '../types/typings';
 
-import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore } from '@/lib/mockStore';
+import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore, seedMockData } from '@/lib/mockStore';
 import { Activity, City, Country, Driver, CityEvent, CityCar, CityTourGuide, CityApplication, CityTip, CityDocument, CityRecommendedItem } from '@/types/domain';
 
 const tabs = [
@@ -703,6 +703,8 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
 export const getServerSideProps = async (context: any) => {
   const { id } = context.query;
   
+  seedMockData();
+
   // Find city by ID or by name if ID is a legacy number
   let city = null;
   if (id) {

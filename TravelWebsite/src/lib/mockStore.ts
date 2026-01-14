@@ -14,6 +14,18 @@ import {
   CityEvent,
   CityCar,
   CityTourGuide,
+  CityApplication,
+  CityTip,
+  CityDocument,
+  CityRecommendedItem,
+  AppSettings,
+  CityEventInput,
+  CityCarInput,
+  CityTourGuideInput,
+  CityApplicationInput,
+  CityTipInput,
+  CityDocumentInput,
+  CityRecommendedItemInput,
 } from '@/types/domain';
 import { globalCountries } from './countriesData';
 
@@ -33,6 +45,7 @@ const globalForStore = global as unknown as {
     tips: Map<string, CityTip>;
     documents: Map<string, CityDocument>;
     items: Map<string, CityRecommendedItem>;
+    settings: AppSettings;
   }
 };
 
@@ -50,6 +63,10 @@ const store = globalForStore.store || {
   tips: new Map<string, CityTip>(),
   documents: new Map<string, CityDocument>(),
   items: new Map<string, CityRecommendedItem>(),
+  settings: {
+    standardCityPrice: 250,
+    currency: 'USD'
+  }
 };
 
 // Ensure all expected Maps exist (handles case where store was partially initialized in a previous session)
@@ -66,13 +83,17 @@ if (!store.applications) store.applications = new Map();
 if (!store.tips) store.tips = new Map();
 if (!store.documents) store.documents = new Map();
 if (!store.items) store.items = new Map();
+if (!store.settings) store.settings = { standardCityPrice: 250, currency: 'USD' };
 
 if (process.env.NODE_ENV !== 'production') {
   globalForStore.store = store;
 }
 
 // Helper to generate a unique ID
-const generateId = () => Math.random().toString(36).substring(2, 11);
+const generateId = (prefix?: string) => {
+  if (prefix) return prefix.toLowerCase().replace(/\s+/g, '-');
+  return Math.random().toString(36).substring(2, 11);
+};
 
 // Helper for timestamps
 const timestamp = () => new Date().toISOString();
@@ -90,7 +111,7 @@ export const countryStore = {
 
   create(input: CountryInput): Country {
     const country: Country = {
-      id: generateId(),
+      id: generateId(input.code), // Use country code as ID for stability
       ...input,
       createdAt: timestamp(),
       updatedAt: timestamp(),
@@ -136,7 +157,7 @@ export const cityStore = {
 
   create(input: CityInput): City {
     const city: City = {
-      id: generateId(),
+      id: generateId(input.name), // Use city name as ID for stability
       ...input,
       createdAt: timestamp(),
       updatedAt: timestamp(),
@@ -182,7 +203,7 @@ export const activityStore = {
 
   create(input: ActivityInput): Activity {
     const activity: Activity = {
-      id: generateId(),
+      id: generateId(input.title), // Use title as ID for stability
       ...input,
       createdAt: timestamp(),
       updatedAt: timestamp(),
@@ -206,6 +227,52 @@ export const activityStore = {
 
   delete(id: string): boolean {
     return store.activities.delete(id);
+  },
+};
+
+// ============= EVENTS =============
+
+export const eventStore = {
+  getAll(): CityEvent[] {
+    return Array.from(store.events.values());
+  },
+
+  getById(id: string): CityEvent | undefined {
+    return store.events.get(id);
+  },
+
+  getByCityId(cityId: string): CityEvent[] {
+    return Array.from(store.events.values()).filter(
+      (e) => e.cityId === cityId
+    );
+  },
+
+  create(input: CityEventInput): CityEvent {
+    const event: CityEvent = {
+      id: generateId(input.title), // Use title as ID for stability
+      ...input,
+      createdAt: timestamp(),
+      updatedAt: timestamp(),
+    };
+    store.events.set(event.id, event);
+    return event;
+  },
+
+  update(id: string, input: Partial<CityEventInput>): CityEvent | null {
+    const existing = store.events.get(id);
+    if (!existing) return null;
+
+    const updated: CityEvent = {
+      ...existing,
+      ...input,
+      updatedAt: timestamp(),
+    };
+    store.events.set(id, updated);
+    return updated;
+  },
+
+  delete(id: string): boolean {
+    return store.events.delete(id);
   },
 };
 
@@ -245,6 +312,7 @@ export const driverStore = {
       ...existing,
       ...input,
       updatedAt: timestamp(),
+      createdAt: existing.createdAt, // Preserve createdAt
     };
     store.drivers.set(id, updated);
     return updated;
@@ -253,6 +321,17 @@ export const driverStore = {
   delete(id: string): boolean {
     return store.drivers.delete(id);
   },
+};
+
+// ============= SETTINGS =============
+export const settingsStore = {
+  get(): AppSettings {
+    return store.settings;
+  },
+  update(input: Partial<AppSettings>): AppSettings {
+    store.settings = { ...store.settings, ...input };
+    return store.settings;
+  }
 };
 
 // ============= TRIPS =============
@@ -266,10 +345,17 @@ export const tripStore = {
     return store.trips.get(id);
   },
 
-  create(input: TripInput): Trip {
+  getByUserId(userId: string): Trip[] {
+    return Array.from(store.trips.values()).filter(
+      (t) => t.userId === userId
+    );
+  },
+
+  create(input: Omit<Trip, 'id' | 'createdAt' | 'updatedAt' | 'progress'>): Trip {
     const trip: Trip = {
       id: generateId(),
       ...input,
+      progress: 0,
       createdAt: timestamp(),
       updatedAt: timestamp(),
     };
@@ -277,7 +363,7 @@ export const tripStore = {
     return trip;
   },
 
-  update(id: string, input: Partial<TripInput>): Trip | null {
+  update(id: string, input: Partial<Omit<Trip, 'id' | 'createdAt' | 'updatedAt'>>): Trip | null {
     const existing = store.trips.get(id);
     if (!existing) return null;
 
@@ -341,34 +427,6 @@ export const bookingStore = {
   },
 };
 
-// ============= EVENTS =============
-export const eventStore = {
-  getAll(): CityEvent[] {
-    return Array.from(store.events.values());
-  },
-  getById(id: string): CityEvent | undefined {
-    return store.events.get(id);
-  },
-  getByCityId(cityId: string): CityEvent[] {
-    return Array.from(store.events.values()).filter(e => e.cityId === cityId);
-  },
-  create(input: Omit<CityEvent, 'id'>): CityEvent {
-    const event = { id: generateId(), ...input };
-    store.events.set(event.id, event);
-    return event;
-  },
-  update(id: string, input: Partial<Omit<CityEvent, 'id'>>): CityEvent | null {
-    const existing = store.events.get(id);
-    if (!existing) return null;
-    const updated = { ...existing, ...input };
-    store.events.set(id, updated);
-    return updated;
-  },
-  delete(id: string): boolean {
-    return store.events.delete(id);
-  }
-};
-
 // ============= CARS =============
 export const carStore = {
   getAll(): CityCar[] {
@@ -380,12 +438,12 @@ export const carStore = {
   getByCityId(cityId: string): CityCar[] {
     return Array.from(store.cars.values()).filter(c => c.cityId === cityId);
   },
-  create(input: Omit<CityCar, 'id'>): CityCar {
-    const car = { id: generateId(), ...input };
+  create(input: CityCarInput): CityCar {
+    const car = { id: generateId(input.name), ...input };
     store.cars.set(car.id, car);
     return car;
   },
-  update(id: string, input: Partial<Omit<CityCar, 'id'>>): CityCar | null {
+  update(id: string, input: Partial<CityCarInput>): CityCar | null {
     const existing = store.cars.get(id);
     if (!existing) return null;
     const updated = { ...existing, ...input };
@@ -406,14 +464,14 @@ export const tourGuideStore = {
     return store.tourGuides.get(id);
   },
   getByCityId(cityId: string): CityTourGuide[] {
-    return Array.from(store.tourGuides.values()).filter(g => g.cityId === cityId);
+    return Array.from(store.tourGuides.values()).filter(tg => tg.cityId === cityId);
   },
-  create(input: Omit<CityTourGuide, 'id'>): CityTourGuide {
-    const guide = { id: generateId(), ...input };
+  create(input: CityTourGuideInput): CityTourGuide {
+    const guide = { id: generateId(input.name), ...input };
     store.tourGuides.set(guide.id, guide);
     return guide;
   },
-  update(id: string, input: Partial<Omit<CityTourGuide, 'id'>>): CityTourGuide | null {
+  update(id: string, input: Partial<CityTourGuideInput>): CityTourGuide | null {
     const existing = store.tourGuides.get(id);
     if (!existing) return null;
     const updated = { ...existing, ...input };
@@ -434,14 +492,14 @@ export const applicationStore = {
     return store.applications.get(id);
   },
   getByCityId(cityId: string): CityApplication[] {
-    return Array.from(store.applications.values()).filter(a => a.cityId === cityId);
+    return Array.from(store.applications.values()).filter(app => app.cityId === cityId);
   },
-  create(input: Omit<CityApplication, 'id'>): CityApplication {
-    const app = { id: generateId(), ...input };
+  create(input: CityApplicationInput): CityApplication {
+    const app = { id: generateId(input.name), ...input };
     store.applications.set(app.id, app);
     return app;
   },
-  update(id: string, input: Partial<Omit<CityApplication, 'id'>>): CityApplication | null {
+  update(id: string, input: Partial<CityApplicationInput>): CityApplication | null {
     const existing = store.applications.get(id);
     if (!existing) return null;
     const updated = { ...existing, ...input };
@@ -458,13 +516,23 @@ export const tipStore = {
   getAll(): CityTip[] {
     return Array.from(store.tips.values());
   },
-  getByCityId(cityId: string): CityTip[] {
-    return Array.from(store.tips.values()).filter(t => t.cityId === cityId);
+  getById(id: string): CityTip | undefined {
+    return store.tips.get(id);
   },
-  create(input: Omit<CityTip, 'id'>): CityTip {
+  getByCityId(cityId: string): CityTip[] {
+    return Array.from(store.tips.values()).filter(tip => tip.cityId === cityId);
+  },
+  create(input: CityTipInput): CityTip {
     const tip = { id: generateId(), ...input };
     store.tips.set(tip.id, tip);
     return tip;
+  },
+  update(id: string, input: Partial<CityTipInput>): CityTip | null {
+    const existing = store.tips.get(id);
+    if (!existing) return null;
+    const updated = { ...existing, ...input };
+    store.tips.set(id, updated);
+    return updated;
   },
   delete(id: string): boolean {
     return store.tips.delete(id);
@@ -476,15 +544,18 @@ export const documentStore = {
   getAll(): CityDocument[] {
     return Array.from(store.documents.values());
   },
-  getByCityId(cityId: string): CityDocument[] {
-    return Array.from(store.documents.values()).filter(d => d.cityId === cityId);
+  getById(id: string): CityDocument | undefined {
+    return store.documents.get(id);
   },
-  create(input: Omit<CityDocument, 'id'>): CityDocument {
-    const doc = { id: generateId(), ...input };
+  getByCityId(cityId: string): CityDocument[] {
+    return Array.from(store.documents.values()).filter(doc => doc.cityId === cityId);
+  },
+  create(input: CityDocumentInput): CityDocument {
+    const doc = { id: generateId(input.name), ...input };
     store.documents.set(doc.id, doc);
     return doc;
   },
-  update(id: string, input: Partial<Omit<CityDocument, 'id'>>): CityDocument | null {
+  update(id: string, input: Partial<CityDocumentInput>): CityDocument | null {
     const existing = store.documents.get(id);
     if (!existing) return null;
     const updated = { ...existing, ...input };
@@ -496,20 +567,23 @@ export const documentStore = {
   }
 };
 
-// ============= RECOMMENDED ITEMS =============
+// ============= ITEMS =============
 export const itemStore = {
   getAll(): CityRecommendedItem[] {
     return Array.from(store.items.values());
   },
-  getByCityId(cityId: string): CityRecommendedItem[] {
-    return Array.from(store.items.values()).filter(i => i.cityId === cityId);
+  getById(id: string): CityRecommendedItem | undefined {
+    return store.items.get(id);
   },
-  create(input: Omit<CityRecommendedItem, 'id'>): CityRecommendedItem {
-    const item = { id: generateId(), ...input };
+  getByCityId(cityId: string): CityRecommendedItem[] {
+    return Array.from(store.items.values()).filter(item => item.cityId === cityId);
+  },
+  create(input: CityRecommendedItemInput): CityRecommendedItem {
+    const item = { id: generateId(input.name), ...input };
     store.items.set(item.id, item);
     return item;
   },
-  update(id: string, input: Partial<Omit<CityRecommendedItem, 'id'>>): CityRecommendedItem | null {
+  update(id: string, input: Partial<CityRecommendedItemInput>): CityRecommendedItem | null {
     const existing = store.items.get(id);
     if (!existing) return null;
     const updated = { ...existing, ...input };
@@ -524,10 +598,17 @@ export const itemStore = {
 // ============= SEED DATA =============
 
 export function seedMockData() {
-  // If we only have the 3 original sample countries, let's clear and add the full global list
-  if (store.countries.size < 10) {
-    console.log('🚀 Upgrading to global country database...');
+  // Always clear and re-seed in development to ensure stable IDs if IDs are random
+  // Or check if core countries use the new stable ID format (e.g. 'us')
+  const hasStableIds = store.countries.has('us') || store.countries.has('gb');
+  
+  if (!hasStableIds) {
+    console.log('🚀 Seeding with stable IDs...');
     store.countries.clear();
+    store.cities.clear();
+    store.activities.clear();
+    store.events.clear();
+    
     globalCountries.forEach((c) => {
       countryStore.create({ name: c.name, code: c.code, continent: c.continent });
     });
@@ -545,32 +626,16 @@ export function seedMockData() {
     'Sydney': ['https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=1200&q=80'],
   };
 
-  // If cities exist but are missing images, update them
-  if (store.cities.size > 0) {
-    Array.from(store.cities.values()).forEach(city => {
-      if (!city.images || city.images.length === 0 || city.images[0] === '') {
-        const image = cityImages[city.name];
-        if (image) {
-          cityStore.update(city.id, { images: image });
-        } else {
-          // Generic high-quality city fallback
-          cityStore.update(city.id, { images: ['https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80'] });
-        }
-      }
-    });
-  }
-
   if (store.cities.size === 0) {
     console.log('🚀 Seeding core mock data...');
     const countries = countryStore.getAll();
     const usa = countries.find(c => c.code === 'US');
-    const canada = countries.find(c => c.code === 'CA');
     const uk = countries.find(c => c.code === 'GB');
     const france = countries.find(c => c.code === 'FR');
     const uae = countries.find(c => c.code === 'AE');
     const japan = countries.find(c => c.code === 'JP');
 
-    if (usa && canada && uk && france && uae && japan) {
+    if (usa && uk && france && uae && japan) {
       // --- NEW YORK ---
       const nyc = cityStore.create({ 
         countryId: usa.id, name: 'New York', lat: 40.7128, lng: -74.0060,
@@ -676,13 +741,13 @@ export function seedMockData() {
       
       activityStore.create({ cityId: london.id, title: 'London Eye Flight', price: 30, lat: 51.5033, lng: -0.1195, tags: ['landmark', 'views'], bookingUrl: 'https://www.londoneye.com' });
       activityStore.create({ cityId: london.id, title: 'Tower of London', price: 35, lat: 51.5081, lng: -0.0759, tags: ['history', 'landmark'], bookingUrl: 'https://www.hrp.org.uk' });
-
+      
       activityStore.create({ cityId: paris.id, title: 'Eiffel Tower Summit', price: 60, lat: 48.8584, lng: 2.2945, tags: ['landmark', 'views'], bookingUrl: 'https://www.toureiffel.paris' });
       activityStore.create({ cityId: paris.id, title: 'Louvre Museum Tour', price: 50, lat: 48.8606, lng: 2.3376, tags: ['art', 'museum'], bookingUrl: 'https://www.louvre.fr' });
-
+      
       activityStore.create({ cityId: dubai.id, title: 'Burj Khalifa Top', price: 45, lat: 25.1972, lng: 55.2744, tags: ['landmark', 'views'], bookingUrl: 'https://www.burjkhalifa.ae' });
       activityStore.create({ cityId: dubai.id, title: 'Desert Safari Adventure', price: 75, lat: 25.0500, lng: 55.4500, tags: ['adventure', 'desert'], bookingUrl: 'https://www.desertsafari.ae' });
-
+      
       activityStore.create({ cityId: tokyo.id, title: 'Shibuya Crossing Experience', price: 0, lat: 35.6595, lng: 139.7005, tags: ['landmark', 'street'], bookingUrl: '#' });
       activityStore.create({ cityId: tokyo.id, title: 'Senso-ji Temple Visit', price: 0, lat: 35.7148, lng: 139.7967, tags: ['culture', 'temple'], bookingUrl: '#' });
       
@@ -710,64 +775,48 @@ export function seedMockData() {
 
     if (nyc) {
       tripStore.create({
+        userId: 'user_demo_123',
         title: 'Summer in NYC',
         startDate: '2026-07-15',
         endDate: '2026-07-22',
         status: 'upcoming',
-        progress: 0,
-        cityIds: [nyc.id],
-        packingList: [
-          { id: '1', title: 'Passport', isPacked: true, category: 'Documents' },
-          { id: '2', title: 'Sunglasses', isPacked: false, category: 'Essentials' },
-          { id: '3', title: 'Camera', isPacked: false, category: 'Electronics' },
-        ],
-        tripActivities: [],
+        countryId: nyc.countryId,
+        cities: [
+          {
+            id: 'tc-1',
+            cityId: nyc.id,
+            startDate: '2026-07-15',
+            endDate: '2026-07-22',
+            items: [
+              { id: 'ti-1', type: 'ACTIVITY', referenceId: 'statue-of-liberty-tour', date: '2026-07-16' },
+              { id: 'ti-2', type: 'ACTIVITY', referenceId: 'central-park-bike-tour', date: '2026-07-17' }
+            ]
+          }
+        ]
       });
     }
 
     if (london) {
-      const activeTrip = tripStore.create({
-        title: 'European Adventure',
+      tripStore.create({
+        userId: 'user_demo_123',
+        title: 'Winter in London',
         startDate: '2026-01-10',
         endDate: '2026-01-25',
         status: 'active',
-        progress: 26,
-        cityIds: [london.id],
-        packingList: [
-          { id: '1', title: 'Winter Coat', isPacked: true, category: 'Clothing' },
-          { id: '2', title: 'Travel Adapter', isPacked: true, category: 'Electronics' },
-          { id: '3', title: 'City Map', isPacked: false, category: 'Essentials' },
-        ],
-        tripActivities: [],
+        countryId: london.countryId,
+        cities: [
+          {
+            id: 'tc-2',
+            cityId: london.id,
+            startDate: '2026-01-10',
+            endDate: '2026-01-25',
+            items: [
+              { id: 'ti-3', type: 'ACTIVITY', referenceId: 'london-eye-flight', date: '2026-01-12' },
+              { id: 'ti-4', type: 'ACTIVITY', referenceId: 'tower-of-london', date: '2026-01-14' }
+            ]
+          }
+        ]
       });
-
-      // Seed trip activities for the active trip
-      const londonActivities = activityStore.getByCityId(london.id);
-      if (londonActivities.length > 0) {
-        const today = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
-
-        tripStore.update(activeTrip.id, {
-          tripActivities: [
-            {
-              id: 'ta-1',
-              tripId: activeTrip.id,
-              activityId: londonActivities[0].id,
-              date: today,
-              startTime: '10:00',
-              endTime: '13:00'
-            },
-            {
-              id: 'ta-2',
-              tripId: activeTrip.id,
-              activityId: londonActivities[0].id, 
-              date: tomorrow,
-              startTime: '14:30',
-              endTime: '16:00'
-            }
-          ]
-        });
-      }
     }
   }
 
@@ -776,10 +825,6 @@ export function seedMockData() {
     const nycActivities = Array.from(store.activities.values()).filter(a => {
       const city = store.cities.get(a.cityId);
       return city?.name === 'New York';
-    });
-    const laDrivers = Array.from(store.drivers.values()).filter(d => {
-      const city = store.cities.get(d.cityId);
-      return city?.name === 'Los Angeles';
     });
 
     if (nycActivities.length > 0) {
@@ -791,18 +836,6 @@ export function seedMockData() {
         status: 'confirmed',
         price: nycActivities[0].price || 0,
         currency: nycActivities[0].currency || 'USD',
-      });
-    }
-
-    if (laDrivers.length > 0) {
-      bookingStore.create({
-        userId: 'user_demo_123',
-        type: 'DRIVER',
-        referenceId: laDrivers[0].id,
-        date: new Date(Date.now() - 86400000).toISOString(),
-        status: 'confirmed',
-        price: laDrivers[0].pricePerDay || 0,
-        currency: 'USD',
       });
     }
   }

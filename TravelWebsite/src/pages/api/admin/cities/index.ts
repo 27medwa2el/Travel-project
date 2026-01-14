@@ -1,12 +1,15 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { cityStore } from '@/lib/mockStore';
+import { cityStore, seedMockData } from '@/lib/mockStore';
 import { CityInput } from '@/types/domain';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Ensure mock data is seeded
+  seedMockData();
+
   // Protect admin API routes
   const { userId } = getAuth(req);
   if (!userId) {
