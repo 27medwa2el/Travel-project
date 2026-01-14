@@ -126,7 +126,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             transition={{ delay: 0.5, duration: 0.8 }}
             className="absolute top-10 left-10 z-20"
           >
-            <WeatherWidget />
+            <WeatherWidget lat={city.lat} lng={city.lng} cityName={city.name} />
           </motion.div>
 
           {/* Top Right: Actions */}
@@ -412,7 +412,18 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                         <MapIcon className="w-3 h-3" /> {event.location}
                       </p>
                       <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-6">{event.description}</p>
-                      <button className="w-full py-4 bg-purple-50 text-purple-600 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-purple-600 hover:text-white transition-all">Interested</button>
+                      {event.bookingUrl ? (
+                        <a 
+                          href={event.bookingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-4 bg-[#9333ea] text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-[#a855f7] transition-all shadow-lg flex items-center justify-center gap-2"
+                        >
+                          <ShoppingBagIcon className="w-4 h-4" /> Book Tickets
+                        </a>
+                      ) : (
+                        <button className="w-full py-4 bg-purple-50 text-purple-600 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-purple-600 hover:text-white transition-all">Interested</button>
+                      )}
                     </div>
                   </motion.div>
                 )) : (

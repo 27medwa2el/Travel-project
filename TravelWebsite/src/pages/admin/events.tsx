@@ -60,6 +60,7 @@ export default function EventsPage() {
     lat: '',
     lng: '',
     imageUrl: '',
+    bookingUrl: '',
   });
 
   const [viewState, setViewState] = useState({
@@ -107,7 +108,7 @@ export default function EventsPage() {
 
   const handleCreate = () => {
     setEditingEvent(null);
-    setFormData({ title: '', description: '', cityId: '', date: '', location: '', lat: '', lng: '', imageUrl: '' });
+    setFormData({ title: '', description: '', cityId: '', date: '', location: '', lat: '', lng: '', imageUrl: '', bookingUrl: '' });
     setDialogOpen(true);
   };
 
@@ -122,6 +123,7 @@ export default function EventsPage() {
       lat: event.lat?.toString() || '',
       lng: event.lng?.toString() || '',
       imageUrl: event.imageUrl || '',
+      bookingUrl: event.bookingUrl || '',
     });
     setDialogOpen(true);
   };
@@ -247,7 +249,11 @@ export default function EventsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Image URL</Label>
-                    <Input className="h-14 rounded-2xl" value={formData.imageUrl} onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} />
+                    <Input className="h-14 rounded-2xl border-gray-100" value={formData.imageUrl} onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Booking URL (Optional)</Label>
+                    <Input className="h-14 rounded-2xl border-gray-100" value={formData.bookingUrl} onChange={e => setFormData({ ...formData, bookingUrl: e.target.value })} placeholder="https://..." />
                   </div>
                 </div>
 

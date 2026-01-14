@@ -28,6 +28,7 @@ import { tripStore, cityStore, activityStore, eventStore, seedMockData, document
 import { Trip, City, Activity, CityEvent, CityDocument, CityRecommendedItem, CityApplication } from '@/types/domain';
 import { getAuth } from '@clerk/nextjs/server';
 import CityMapView from '../components/CityMapView';
+import WeatherWidget from '../components/WeatherWidget';
 import PackingBagModal from '../components/PackingBagModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -55,6 +56,7 @@ const Dashboard = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isBagOpen, setIsBagOpen] = useState(false);
+  const [showWeather, setShowWeather] = useState(false);
 
   const handleCancelTrip = async () => {
     if (!selectedTrip) return;
@@ -119,6 +121,11 @@ const Dashboard = ({
     return allEvents.find(e => e.id === id) || 
            allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === id.toLowerCase());
   }, [allEvents]);
+
+  const selectedCity = React.useMemo(() => {
+    if (!selectedTrip || selectedTrip.cities.length === 0) return null;
+    return getCityById(selectedTrip.cities[0].cityId);
+  }, [selectedTrip, getCityById]);
 
   return (
     <div className="bg-[#f8faff] min-h-screen">
@@ -214,12 +221,32 @@ const Dashboard = ({
                       <div className="absolute top-10 right-10 flex items-center gap-3">
                         {/* High-end Floating Menu from mockup */}
                         <div className="flex items-center gap-2 bg-white/80 backdrop-blur-2xl p-2 rounded-[28px] shadow-2xl border border-white/50">
-                          <button 
-                            className="w-12 h-12 rounded-[22px] bg-orange-50 text-orange-500 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm"
-                            title="Weather"
-                          >
-                            <SunIcon className="w-6 h-6" />
-                          </button>
+                          <div className="relative">
+                            <button 
+                              onClick={() => setShowWeather(!showWeather)}
+                              className={cn(
+                                "w-12 h-12 rounded-[22px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm",
+                                showWeather ? "bg-orange-500 text-white shadow-orange-200" : "bg-orange-50 text-orange-500"
+                              )}
+                              title="Weather"
+                            >
+                              <SunIcon className="w-6 h-6" />
+                            </button>
+                            <AnimatePresence>
+                              {showWeather && selectedCity && (
+                                <motion.div 
+                                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                                  className="absolute top-16 right-0 z-50 pointer-events-none"
+                                >
+                                  <div className="pointer-events-auto">
+                                    <WeatherWidget lat={selectedCity.lat} lng={selectedCity.lng} cityName={selectedCity.name} />
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                           <button 
                             onClick={() => setIsBagOpen(true)}
                             className="w-12 h-12 rounded-[22px] bg-purple-600 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-purple-200"
@@ -326,9 +353,22 @@ const Dashboard = ({
                                             <ClockIcon className="w-4 h-4" />
                                             <span className="text-[10px] font-black uppercase tracking-widest">Flexible Time</span>
                                           </div>
-                                          <button className="text-purple-600 hover:text-purple-800 transition-all">
-                                            <ArrowRightIcon className="w-4 h-4" />
-                                          </button>
+                                          {data && 'bookingUrl' in data && data.bookingUrl ? (
+                                            <a 
+                                              href={data.bookingUrl} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-purple-600 hover:text-purple-800 transition-all flex items-center gap-1"
+                                              title="Book Now"
+                                            >
+                                              <span className="text-[8px] font-black uppercase tracking-widest">Book</span>
+                                              <ArrowRightIcon className="w-4 h-4" />
+                                            </a>
+                                          ) : (
+                                            <button className="text-purple-600 hover:text-purple-800 transition-all">
+                                              <ArrowRightIcon className="w-4 h-4" />
+                                            </button>
+                                          )}
                                         </div>
                                       </div>
                                     );

@@ -69,6 +69,7 @@ export interface CityEvent {
   lat: number; // Added for map
   lng: number; // Added for map
   imageUrl?: string;
+  bookingUrl?: string; // Added for external booking
   createdAt: string;
   updatedAt: string;
 }
