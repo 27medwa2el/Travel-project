@@ -18,9 +18,10 @@ import {
   InformationCircleIcon,
   UserGroupIcon as UserGroupIconOutline,
   IdentificationIcon,
-  ChatBubbleLeftRightIcon
+  ChatBubbleLeftRightIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
-import { StarIcon, SparklesIcon, CheckBadgeIcon } from '@heroicons/react/24/solid';
+import { StarIcon, SparklesIcon, CheckBadgeIcon, RocketLaunchIcon } from '@heroicons/react/24/solid';
 import WeatherWidget from '../components/WeatherWidget';
 import StatsCard from '../components/StatsCard';
 import CityMapView from '../components/CityMapView';
@@ -28,9 +29,11 @@ import FlightSearch from '../components/FlightSearch';
 import HotelSearch from '../components/HotelSearch';
 import Footer from '../components/Footer';
 import { ISuggestionFormatted } from '../types/typings';
+import { toast } from 'sonner';
 
-import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore, seedMockData } from '@/lib/mockStore';
-import { Activity, City, Country, Driver, CityEvent, CityCar, CityTourGuide, CityApplication, CityTip, CityDocument, CityRecommendedItem } from '@/types/domain';
+import { activityStore, cityStore, countryStore, driverStore, eventStore, carStore, tourGuideStore, applicationStore, tipStore, documentStore, itemStore, tripStore, seedMockData } from '@/lib/mockStore';
+import { Activity, City, Country, Driver, CityEvent, CityCar, CityTourGuide, CityApplication, CityTip, CityDocument, CityRecommendedItem, Trip } from '@/types/domain';
+import { getAuth } from '@clerk/nextjs/server';
 
 const tabs = [
   'Places', 'Map', 'Events', 'Travel Document', 'Recommended Items', 'Applications',
@@ -49,11 +52,14 @@ type Props = {
   tips: CityTip[];
   documents: CityDocument[];
   recommendedItems: CityRecommendedItem[];
+  userTrips: Trip[];
 };
 
-const Details = ({ city, country, activities, drivers, events, cars, tourGuides, applications, tips, documents, recommendedItems }: Props) => {
+const Details = ({ city, country, activities, drivers, events, cars, tourGuides, applications, tips, documents, recommendedItems, userTrips }: Props) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('Places');
+  const [showTripModal, setShowTripModal] = useState(false);
+  const [isAddingToTrip, setIsAddingToTrip] = useState(false);
 
   if (!city) {
     return (
@@ -68,6 +74,19 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
 
   const cityName = city.name;
   const countryName = country?.name || 'Global';
+
+  const relevantTrips = userTrips.filter(t => t.countryId === city.countryId && (t.status === 'upcoming' || t.status === 'active'));
+
+  const handleAddToTrip = async (tripId?: string) => {
+    if (!tripId) {
+      // Start New Trip
+      router.push(`/plan?countryId=${city.countryId}&preselect=${city.id}`);
+      return;
+    }
+
+    // Redirect to Plan page to edit existing trip with this new city
+    router.push(`/plan?tripId=${tripId}&preselect=${city.id}`);
+  };
 
   return (
     <motion.div 
@@ -115,13 +134,22 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="absolute top-10 right-10 z-20 flex flex-col gap-4"
+            className="absolute top-10 right-10 z-20 flex flex-col gap-4 items-end"
           >
-            <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
-              <HeartIcon className="w-6 h-6" />
-            </button>
-            <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
-              <ShareIcon className="w-6 h-6" />
+            <div className="flex gap-4">
+              <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+                <HeartIcon className="w-6 h-6" />
+              </button>
+              <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+                <ShareIcon className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <button 
+              onClick={() => setShowTripModal(true)}
+              className="mt-4 px-10 py-5 bg-[#9333ea] text-white rounded-[25px] font-black uppercase tracking-[0.2em] text-sm shadow-2xl shadow-purple-500/40 hover:bg-[#a855f7] hover:scale-105 transition-all flex items-center gap-3"
+            >
+              <RocketLaunchIcon className="w-5 h-5" /> Book This City
             </button>
           </motion.div>
 
@@ -187,6 +215,82 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             </div>
           </div>
         </div>
+
+        {/* Trip Selection Modal */}
+        <AnimatePresence>
+          {showTripModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setShowTripModal(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-2xl bg-white rounded-[50px] shadow-2xl overflow-hidden p-12"
+              >
+                <div className="mb-10 text-center">
+                  <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <RocketLaunchIcon className="w-10 h-10 text-purple-600" />
+                  </div>
+                  <h2 className="text-4xl font-black text-gray-900 uppercase tracking-tighter mb-2">Plan Your Visit to {city.name}</h2>
+                  <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">How would you like to book this city?</p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Option: Start New Trip */}
+                  <button 
+                    onClick={() => handleAddToTrip()}
+                    className="w-full p-8 rounded-[35px] border-2 border-[#9333ea] bg-purple-50/30 flex items-center justify-between group hover:bg-[#9333ea] transition-all"
+                  >
+                    <div className="text-left">
+                      <h3 className="text-xl font-black text-[#9333ea] uppercase tracking-tight group-hover:text-white transition-colors">Start New Journey</h3>
+                      <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest group-hover:text-purple-100 transition-colors">Create a fresh itinerary for {countryName}</p>
+                    </div>
+                    <PlusIcon className="w-8 h-8 text-[#9333ea] group-hover:text-white transition-colors" />
+                  </button>
+
+                  {/* Section: Existing Trips */}
+                  {relevantTrips.length > 0 && (
+                    <div className="pt-6 space-y-4">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] px-4">Add to Existing Trip</p>
+                      {relevantTrips.map(trip => (
+                        <button 
+                          key={trip.id}
+                          disabled={isAddingToTrip}
+                          onClick={() => handleAddToTrip(trip.id)}
+                          className="w-full p-6 rounded-[30px] border-2 border-gray-100 flex items-center justify-between hover:border-purple-200 hover:bg-purple-50/20 transition-all disabled:opacity-50"
+                        >
+                          <div className="flex items-center gap-6">
+                            <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-400">
+                              <CalendarDaysIcon className="w-6 h-6" />
+                            </div>
+                            <div className="text-left">
+                              <h4 className="text-lg font-black text-gray-900 uppercase tracking-tight">{trip.title}</h4>
+                              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{trip.startDate} — {trip.endDate}</p>
+                            </div>
+                          </div>
+                          <ChevronDownIcon className="w-6 h-6 text-gray-300 -rotate-90" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  onClick={() => setShowTripModal(false)}
+                  className="mt-10 w-full text-center text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-colors"
+                >
+                  Maybe later
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
 
         {/* Tab Navigation */}
         <div className="sticky top-[68px] z-40 bg-white border-b border-gray-100 shadow-sm overflow-x-auto no-scrollbar">
@@ -702,6 +806,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
 
 export const getServerSideProps = async (context: any) => {
   const { id } = context.query;
+  const { userId } = getAuth(context.req);
   
   seedMockData();
 
@@ -716,7 +821,7 @@ export const getServerSideProps = async (context: any) => {
   }
 
   if (!city) {
-    return { props: { city: null, country: null, activities: [] } };
+    return { props: { city: null, country: null, activities: [], userTrips: [] } };
   }
 
   const country = countryStore.getById(city.countryId) || null;
@@ -729,6 +834,7 @@ export const getServerSideProps = async (context: any) => {
   const tips = tipStore.getByCityId(city.id);
   const documents = documentStore.getByCityId(city.id);
   const recommendedItems = itemStore.getByCityId(city.id);
+  const userTrips = userId ? tripStore.getByUserId(userId) : [];
 
   return {
     props: {
@@ -743,6 +849,7 @@ export const getServerSideProps = async (context: any) => {
       tips: JSON.parse(JSON.stringify(tips)),
       documents: JSON.parse(JSON.stringify(documents)),
       recommendedItems: JSON.parse(JSON.stringify(recommendedItems)),
+      userTrips: JSON.parse(JSON.stringify(userTrips)),
     },
   };
 };

@@ -30,12 +30,25 @@ type Props = {
 
 const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivities, allEvents }: Props) => {
   const router = useRouter();
-  const { countryId } = router.query;
+  const { countryId, preselect } = router.query;
 
   const [step, setStep] = useState(1);
   const [country, setCountry] = useState<Country | null>(initialCountry);
   const [availableCities, setAvailableCities] = useState<City[]>(initialCities);
   const [selectedCities, setSelectedCities] = useState<City[]>([]);
+
+  // Pre-select city from query param
+  useEffect(() => {
+    if (preselect && availableCities.length > 0) {
+      const city = availableCities.find(c => c.id === preselect);
+      if (city) {
+        setSelectedCities(prev => {
+          if (prev.find(p => p.id === city.id)) return prev;
+          return [...prev, city];
+        });
+      }
+    }
+  }, [preselect, availableCities]);
   const [itinerary, setItinerary] = useState<TripCity[]>([]);
   const [settings, setSettings] = useState<AppSettings>(initialSettings);
 
@@ -457,36 +470,39 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   <button onClick={() => setStep(3)} className="text-gray-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:text-gray-900 transition-all">
                     <ChevronLeftIcon className="w-4 h-4" /> Back to Planning
                   </button>
-                  <button 
-                    onClick={async () => {
-                      try {
-                        const tripData = {
-                          title: `My Trip to ${country?.name}`,
-                          startDate: itinerary[0].startDate,
-                          endDate: itinerary[itinerary.length - 1].endDate,
-                          status: 'upcoming',
-                          countryId: country?.id,
-                          cities: itinerary
-                        };
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const tripData = {
+                            title: initialTrip?.title || `My Trip to ${country?.name}`,
+                            startDate: itinerary[0].startDate,
+                            endDate: itinerary[itinerary.length - 1].endDate,
+                            status: initialTrip?.status || 'upcoming',
+                            countryId: country?.id,
+                            cities: itinerary
+                          };
 
-                        const res = await fetch('/api/trips', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(tripData)
-                        });
+                          const url = tripId ? `/api/trips/${tripId}` : '/api/trips';
+                          const method = tripId ? 'PUT' : 'POST';
 
-                        if (!res.ok) throw new Error('Failed to save trip');
+                          const res = await fetch(url, {
+                            method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(tripData)
+                          });
 
-                        toast.success('Itinerary created! Redirecting to dashboard...');
-                        setTimeout(() => router.push('/dashboard'), 2000);
-                      } catch (err) {
-                        toast.error('Could not save trip. Please try again.');
-                      }
-                    }}
-                    className="bg-purple-600 text-white px-16 py-8 rounded-[35px] font-black uppercase tracking-[0.2em] text-sm hover:bg-purple-700 transition-all flex items-center gap-4 shadow-2xl shadow-purple-200 scale-110"
-                  >
-                    Confirm & Book Trip <SparklesIcon className="w-5 h-5 animate-pulse" />
-                  </button>
+                          if (!res.ok) throw new Error('Failed to save trip');
+
+                          toast.success(tripId ? 'Itinerary updated!' : 'Itinerary created! Redirecting to dashboard...');
+                          setTimeout(() => router.push('/dashboard'), 2000);
+                        } catch (err) {
+                          toast.error('Could not save trip. Please try again.');
+                        }
+                      }}
+                      className="bg-purple-600 text-white px-16 py-8 rounded-[35px] font-black uppercase tracking-[0.2em] text-sm hover:bg-purple-700 transition-all flex items-center gap-4 shadow-2xl shadow-purple-200 scale-110"
+                    >
+                      {tripId ? 'Update Trip Plan' : 'Confirm & Book Trip'} <SparklesIcon className="w-5 h-5 animate-pulse" />
+                    </button>
                 </div>
               </motion.div>
             )}
@@ -595,15 +611,23 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
 };
 
 export const getServerSideProps = async (context: any) => {
-  const { countryId } = context.query;
+  const { countryId, tripId } = context.query;
   
   // Ensure mock data is seeded
   seedMockData();
 
   let country = null;
   let cities: City[] = [];
+  let initialTrip = null;
 
-  if (countryId) {
+  if (tripId) {
+    initialTrip = tripStore.getById(tripId as string) || null;
+    if (initialTrip) {
+      country = countryStore.getById(initialTrip.countryId) || null;
+    }
+  }
+
+  if (countryId && !country) {
     const allCountries = countryStore.getAll();
     country = countryStore.getById(countryId as string);
     
@@ -618,10 +642,10 @@ export const getServerSideProps = async (context: any) => {
         c.name.toLowerCase().includes(searchStr)
       ) || null;
     }
+  }
 
-    if (country) {
-      cities = cityStore.getByCountryId(country.id);
-    }
+  if (country) {
+    cities = cityStore.getByCountryId(country.id);
   }
 
   const settings = settingsStore.get();
@@ -635,6 +659,7 @@ export const getServerSideProps = async (context: any) => {
       initialSettings: JSON.parse(JSON.stringify(settings)),
       allActivities: JSON.parse(JSON.stringify(allActivities)),
       allEvents: JSON.parse(JSON.stringify(allEvents)),
+      initialTrip: JSON.parse(JSON.stringify(initialTrip)),
     },
   };
 };
