@@ -46,6 +46,8 @@ export default function CitiesPage() {
     lat: 0, 
     lng: 0, 
     timezone: 'UTC',
+    currency: 'USD',
+    language: 'English',
     images: [] as string[]
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -115,7 +117,7 @@ export default function CitiesPage() {
     }
   };
 
-  const selectSearchResult = (feature: any) => {
+  const selectSearchResult = async (feature: any) => {
     // Priority: 1. Forced English text (text_en) 2. Default text
     const cityName = feature.text_en || feature.text;
     const [lng, lat] = feature.center;
@@ -126,6 +128,9 @@ export default function CitiesPage() {
     const countryShortCode = countryContext?.short_code?.toUpperCase();
     
     let matchedCountryId = '';
+    let fetchedCurrency = 'USD';
+    let fetchedLanguage = 'English';
+    let fetchedTimezone = 'UTC';
     
     if (countryName || countryShortCode) {
       // 1. Try exact ISO code match (highest accuracy)
@@ -147,6 +152,35 @@ export default function CitiesPage() {
       if (found) {
         matchedCountryId = found.id;
       }
+
+      // Fetch extra data from REST Countries API
+      if (countryShortCode) {
+        try {
+          const countryRes = await fetch(`https://restcountries.com/v3.1/alpha/${countryShortCode}`);
+          if (countryRes.ok) {
+            const [countryData] = await countryRes.json();
+            
+            // Extract Currency
+            if (countryData.currencies) {
+              const currencyCode = Object.keys(countryData.currencies)[0];
+              fetchedCurrency = currencyCode;
+            }
+            
+            // Extract Language
+            if (countryData.languages) {
+              const langName = Object.values(countryData.languages)[0] as string;
+              fetchedLanguage = langName;
+            }
+            
+            // Extract Timezone (usually returns an array, pick the first one)
+            if (countryData.timezones && countryData.timezones.length > 0) {
+              fetchedTimezone = countryData.timezones[0];
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch country details:', error);
+        }
+      }
     }
 
     setFormData({
@@ -155,6 +189,9 @@ export default function CitiesPage() {
       lat,
       lng,
       countryId: matchedCountryId,
+      currency: fetchedCurrency,
+      language: fetchedLanguage,
+      timezone: fetchedTimezone,
       images: [`https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1000&q=80`]
     });
     setSearchResults([]);
@@ -162,7 +199,7 @@ export default function CitiesPage() {
     
     if (matchedCountryId) {
       const country = countries.find(c => c.id === matchedCountryId);
-      toast.success(`Autofilled: ${cityName}, ${country?.name}`);
+      toast.success(`Autofilled: ${cityName}, ${country?.name}. Fetched ${fetchedCurrency} & ${fetchedLanguage}.`);
     } else {
       toast.warning(`Autofilled ${cityName}, but country "${countryName || 'Unknown'}" not found in database. Please select manually.`);
     }
@@ -170,7 +207,16 @@ export default function CitiesPage() {
 
   const handleCreate = () => {
     setEditingCity(null);
-    setFormData({ name: '', countryId: '', lat: 0, lng: 0, timezone: 'UTC', images: [] });
+    setFormData({ 
+      name: '', 
+      countryId: '', 
+      lat: 0, 
+      lng: 0, 
+      timezone: 'UTC', 
+      currency: 'USD',
+      language: 'English',
+      images: [] 
+    });
     setDialogOpen(true);
   };
 
@@ -182,6 +228,8 @@ export default function CitiesPage() {
       lat: city.lat || 0,
       lng: city.lng || 0,
       timezone: city.timezone || 'UTC',
+      currency: city.currency || 'USD',
+      language: city.language || 'English',
       images: city.images || []
     });
     setDialogOpen(true);
@@ -275,6 +323,7 @@ export default function CitiesPage() {
                   <TableRow>
                     <TableHead className="font-black uppercase tracking-[0.2em] text-[10px] px-6">Name</TableHead>
                     <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Country</TableHead>
+                    <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Info</TableHead>
                     <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Coordinates</TableHead>
                     <TableHead className="font-black uppercase tracking-[0.2em] text-[10px]">Status</TableHead>
                     <TableHead className="text-right font-black uppercase tracking-[0.2em] text-[10px] px-6">Actions</TableHead>
@@ -283,7 +332,7 @@ export default function CitiesPage() {
                 <TableBody>
                   {cities.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-20 text-muted-foreground font-medium">
+                      <TableCell colSpan={6} className="text-center py-20 text-muted-foreground font-medium">
                         No cities found. Create one to get started.
                       </TableCell>
                     </TableRow>
@@ -297,6 +346,19 @@ export default function CitiesPage() {
                           <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
                             {getCountryName(city.countryId)}
                           </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                              🕒 {city.timezone || 'N/A'}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                              💰 {city.currency || 'N/A'}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-1">
+                              🗣️ {city.language || 'N/A'}
+                            </span>
+                          </div>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-gray-400">
                           {city.lat?.toFixed(4)}, {city.lng?.toFixed(4)}
@@ -457,6 +519,45 @@ export default function CitiesPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, lng: parseFloat(e.target.value) })
                     }
+                    className="rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="timezone" className="text-xs font-black uppercase tracking-widest">Timezone</Label>
+                  <Input
+                    id="timezone"
+                    value={formData.timezone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, timezone: e.target.value })
+                    }
+                    placeholder="e.g. UTC +1"
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="currency" className="text-xs font-black uppercase tracking-widest">Currency</Label>
+                  <Input
+                    id="currency"
+                    value={formData.currency}
+                    onChange={(e) =>
+                      setFormData({ ...formData, currency: e.target.value })
+                    }
+                    placeholder="e.g. EUR"
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="language" className="text-xs font-black uppercase tracking-widest">Language</Label>
+                  <Input
+                    id="language"
+                    value={formData.language}
+                    onChange={(e) =>
+                      setFormData({ ...formData, language: e.target.value })
+                    }
+                    placeholder="e.g. French"
                     className="rounded-xl"
                   />
                 </div>

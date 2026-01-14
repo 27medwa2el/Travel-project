@@ -185,10 +185,13 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                 <StarIcon className="w-5 h-5" /> {activities.length} Places
               </div>
               <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-blue-500/30 text-blue-400 font-black uppercase tracking-tighter">
-                📍 {countryName}
+                📍 {city.lat}, {city.lng}
+              </div>
+              <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-purple-500/30 text-purple-400 font-black uppercase tracking-tighter">
+                <CalendarDaysIcon className="w-5 h-5" /> {city.timezone || 'UTC +0'}
               </div>
               <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-green-500/30 text-green-400 font-black uppercase tracking-tighter">
-                <CurrencyDollarIcon className="w-5 h-5" /> {activities[0]?.currency || 'EUR'}
+                <CurrencyDollarIcon className="w-5 h-5" /> {city.currency || 'USD'}
               </div>
             </motion.div>
           </div>

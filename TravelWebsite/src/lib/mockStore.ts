@@ -733,7 +733,10 @@ export function seedMockData() {
       // --- NEW YORK ---
       const nyc = cityStore.create({ 
         countryId: usa.id, name: 'New York', lat: 40.7128, lng: -74.0060,
-        images: ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80']
+        images: ['https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80'],
+        timezone: 'UTC -5',
+        currency: 'USD',
+        language: 'English'
       });
       tipStore.create({ cityId: nyc.id, content: 'Tipping 20% is standard in restaurants and bars.' });
       tipStore.create({ cityId: nyc.id, content: 'The subway is the fastest way to get around Manhattan.' });
@@ -760,7 +763,10 @@ export function seedMockData() {
       // --- LONDON ---
       const london = cityStore.create({ 
         countryId: uk.id, name: 'London', lat: 51.5074, lng: -0.1278,
-        images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80']
+        images: ['https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80'],
+        timezone: 'UTC +0',
+        currency: 'GBP',
+        language: 'English'
       });
       tipStore.create({ cityId: london.id, content: 'Stand on the right on Tube escalators.' });
       tipStore.create({ cityId: london.id, content: 'Pack an umbrella—the weather changes fast.' });
@@ -787,7 +793,10 @@ export function seedMockData() {
       // --- PARIS ---
       const paris = cityStore.create({ 
         countryId: france.id, name: 'Paris', lat: 48.8566, lng: 2.3522,
-        images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80']
+        images: ['https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80'],
+        timezone: 'UTC +1',
+        currency: 'EUR',
+        language: 'French'
       });
       tipStore.create({ cityId: paris.id, content: 'Learn basic French greetings like "Bonjour" and "Merci".' });
       tipStore.create({ cityId: paris.id, content: 'Validate your RER/Metro tickets before boarding.' });
@@ -802,7 +811,10 @@ export function seedMockData() {
       // --- DUBAI ---
       const dubai = cityStore.create({ 
         countryId: uae.id, name: 'Dubai', lat: 25.2048, lng: 55.2708,
-        images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80']
+        images: ['https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1200&q=80'],
+        timezone: 'UTC +4',
+        currency: 'AED',
+        language: 'Arabic'
       });
       tipStore.create({ cityId: dubai.id, content: 'Dress modestly in public malls and cultural sites.' });
       tipStore.create({ cityId: dubai.id, content: 'Friday is a holy day; some shops open later.' });
@@ -817,7 +829,10 @@ export function seedMockData() {
       // --- TOKYO ---
       const tokyo = cityStore.create({ 
         countryId: japan.id, name: 'Tokyo', lat: 35.6762, lng: 139.6503,
-        images: ['https://images.unsplash.com/photo-1540959733332-e94e270b4d82?auto=format&fit=crop&w=1200&q=80']
+        images: ['https://images.unsplash.com/photo-1540959733332-e94e270b4d82?auto=format&fit=crop&w=1200&q=80'],
+        timezone: 'UTC +9',
+        currency: 'JPY',
+        language: 'Japanese'
       });
       tipStore.create({ cityId: tokyo.id, content: 'No tipping is required in Japan; it can be seen as rude.' });
       tipStore.create({ cityId: tokyo.id, content: 'Carry a trash bag; public bins are rare.' });

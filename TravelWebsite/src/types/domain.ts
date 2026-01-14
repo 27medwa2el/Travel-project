@@ -27,6 +27,8 @@ export interface City {
   lng: number;
   images?: string[];
   timezone?: string;
+  currency?: string;
+  language?: string;
   createdAt: string;
   updatedAt: string;
 }

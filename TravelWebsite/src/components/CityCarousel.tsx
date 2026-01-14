@@ -127,12 +127,12 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
                         <div className="flex gap-10 text-[10px] opacity-80 mb-10">
                           <div className="flex flex-col items-center">
                             <span className="font-black uppercase tracking-tighter mb-1 text-gray-400">Timezone</span>
-                            <span className="font-bold">UTC+5:30</span>
+                            <span className="font-bold">{city.timezone || 'UTC +0'}</span>
                           </div>
                           <div className="w-[1px] h-8 bg-white/20" />
                           <div className="flex flex-col items-center">
                             <span className="font-black uppercase tracking-tighter mb-1 text-gray-400">Currency</span>
-                            <span className="font-bold">INR</span>
+                            <span className="font-bold">{city.currency || 'USD'}</span>
                           </div>
                         </div>
                         

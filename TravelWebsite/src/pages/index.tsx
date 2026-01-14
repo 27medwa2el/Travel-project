@@ -139,7 +139,12 @@ export const getServerSideProps = async () => {
       displayName: `${city.name}, ${country?.name || 'Global'}`,
       shortName: `${city.name}, ${country?.name || 'Global'}`,
       type: "CITY",
-      img: city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80"
+      img: city.images?.[0] || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80",
+      timezone: city.timezone || 'UTC +0',
+      currency: city.currency || 'Global',
+      language: city.language || 'English',
+      lat: city.lat,
+      lng: city.lng
     };
   });
 

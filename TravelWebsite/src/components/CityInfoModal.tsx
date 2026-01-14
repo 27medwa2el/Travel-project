@@ -61,7 +61,7 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
               
               <div className="absolute bottom-10 left-10 text-white">
                 <div className="bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-sm font-bold w-fit mb-4 border border-white/20">
-                  📍 48.86, 2.35
+                  📍 {city.lat}, {city.lng}
                 </div>
                 <h2 className="text-7xl font-black uppercase tracking-tighter leading-none mb-2">
                   {cityName}
@@ -72,7 +72,7 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
             {/* Content Section */}
             <div className="p-10 -mt-6 relative bg-white rounded-t-[40px]">
               <p className="text-gray-500 text-lg leading-relaxed font-medium mb-10 max-w-2xl">
-                {cityName}, the "City of Light and Love," is a captivating capital that blends rich history with modern art and fashion. Situated on the banks of the Seine, it is famous for world-renowned landmarks such as the Eiffel Tower.
+                {cityName} is a captivating destination that blends rich history with modern culture and lifestyle. Explore its world-renowned landmarks and unique local experiences.
               </p>
 
               {/* Stats Grid */}
@@ -83,7 +83,7 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Timezone</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">UTC +1</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">{city.timezone}</p>
                   </div>
                 </div>
 
@@ -93,7 +93,7 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Currency</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">Global</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">{city.currency}</p>
                   </div>
                 </div>
 
@@ -103,7 +103,7 @@ const CityInfoModal = ({ city, isOpen, onClose, onExplore }: Props) => {
                   </div>
                   <div>
                     <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Language</p>
-                    <p className="text-xl font-black text-gray-900 leading-none">English</p>
+                    <p className="text-xl font-black text-gray-900 leading-none">{city.language}</p>
                   </div>
                 </div>
               </div>

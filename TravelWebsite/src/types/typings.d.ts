@@ -102,6 +102,11 @@ export interface ISuggestionFormatted {
   img?: string;
   location?: string;
   province?: string;
+  timezone?: string;
+  currency?: string;
+  language?: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface provider {
