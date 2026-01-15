@@ -9,14 +9,14 @@ import {
 } from "@heroicons/react/24/outline";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { countryStore } from "@/lib/mockStore";
+import { prisma } from "@/lib/prisma";
 import { Country } from "@/types/domain";
 import { cn } from "@/lib/utils";
 import Link from 'next/link';
 
 const continents = ["All", "Africa", "Asia", "Europe", "North America", "South America", "Oceania"];
 
-const ExplorePage = ({ initialCountries }: { initialCountries: Country[] }) => {
+const ExplorePage = ({ initialCountries }: { initialCountries: any[] }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContinent, setSelectedContinent] = useState('All');
 
@@ -153,7 +153,9 @@ const ExplorePage = ({ initialCountries }: { initialCountries: Country[] }) => {
 };
 
 export const getServerSideProps = async () => {
-  const initialCountries = countryStore.getAll().sort((a, b) => a.name.localeCompare(b.name));
+  const initialCountries = await prisma.country.findMany({
+    orderBy: { name: 'asc' }
+  });
   
   return {
     props: {

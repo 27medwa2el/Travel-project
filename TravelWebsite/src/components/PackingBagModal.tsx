@@ -29,7 +29,28 @@ type Props = {
 
 const PackingBagModal = ({ isOpen, onClose, trip, allCities, allDocs, allRecommendedItems, allApps }: Props) => {
   const [items, setItems] = useState<TripPackingItem[]>(trip.packingList || []);
+  const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'document' | 'product' | 'app' | 'custom'>('all');
+
+  // Load items when modal opens or trip changes
+  useEffect(() => {
+    if (isOpen && trip.id) {
+      const fetchItems = async () => {
+        setIsLoading(true);
+        try {
+          const res = await fetch(`/api/trips/${trip.id}/packing-list`);
+          if (res.ok) {
+            setItems(await res.json());
+          }
+        } catch (error) {
+          console.error('Failed to fetch packing list:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchItems();
+    }
+  }, [isOpen, trip.id]);
   const [search, setSearch] = useState('');
   const [selectedCityId, setSelectedCityId] = useState<string>(trip.cities[0]?.cityId || '');
   const [isAddingCustom, setIsAddingCustom] = useState(false);
@@ -246,7 +267,12 @@ const PackingBagModal = ({ isOpen, onClose, trip, allCities, allDocs, allRecomme
 
           {/* Items List */}
           <div className="space-y-4">
-            {filteredItems.length > 0 ? (
+            {isLoading ? (
+              <div className="py-20 text-center">
+                <div className="w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Loading your bag...</p>
+              </div>
+            ) : filteredItems.length > 0 ? (
               filteredItems.map((item) => (
                 <motion.div 
                   key={item.id}

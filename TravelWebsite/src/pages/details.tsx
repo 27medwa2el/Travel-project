@@ -845,7 +845,26 @@ export const getServerSideProps = async (context: any) => {
     return { props: { city: null, country: null, activities: [], userTrips: [] } };
   }
 
-  const userTrips = userId ? await prisma.trip.findMany({ where: { userId } }) : [];
+  const userTrips = userId ? await prisma.trip.findMany({ 
+    where: { userId },
+    include: {
+      cities: {
+        include: {
+          items: true
+        }
+      }
+    }
+  }) : [];
+
+  // Map for frontend compatibility
+  userTrips.forEach((trip: any) => {
+    trip.cities.forEach((c: any) => {
+      c.items = c.items.map((item: any) => ({
+        ...item,
+        referenceId: item.activityId || item.eventId
+      }));
+    });
+  });
 
   return {
     props: {

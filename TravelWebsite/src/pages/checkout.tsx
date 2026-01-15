@@ -6,7 +6,6 @@ import Image from 'next/image';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { cn } from '@/lib/utils';
-import { activityStore, driverStore, bookingStore } from '@/lib/mockStore';
 import { Activity, Driver } from '@/types/domain';
 import { 
   ChevronLeftIcon,
@@ -30,11 +29,17 @@ const Checkout = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
-    if (type === 'activity' && id) {
-      setItem(activityStore.getById(id as string) || null);
-    } else if (type === 'driver' && id) {
-      setItem(driverStore.getById(id as string) || null);
-    }
+    const fetchItem = async () => {
+      if (!id || !type) return;
+      
+      const endpoint = type === 'activity' ? `/api/admin/activities/${id}` : `/api/admin/drivers/${id}`;
+      const res = await fetch(endpoint);
+      if (res.ok) {
+        setItem(await res.json());
+      }
+    };
+    
+    fetchItem();
   }, [type, id]);
 
   const handleConfirmBooking = async () => {
@@ -42,22 +47,28 @@ const Checkout = () => {
     
     setIsProcessing(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      bookingStore.create({
-        userId: user.id,
-        type: type === 'activity' ? 'ACTIVITY' : 'DRIVER',
-        referenceId: item.id,
-        date: new Date().toISOString(),
-        status: 'confirmed',
-        price: type === 'activity' ? (item as Activity).price || 0 : 
-               (item as Driver).pricePerDay || 0,
-        currency: item.currency || 'USD',
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: type === 'activity' ? 'ACTIVITY' : 'DRIVER',
+          referenceId: item.id,
+          date: new Date().toISOString(),
+          price: type === 'activity' ? (item as Activity).price || 0 : 
+                 (item as Driver).pricePerDay || 0,
+          currency: item.currency || 'USD',
+        })
       });
+
+      if (!res.ok) throw new Error('Failed to book');
       
-      setIsProcessing(false);
       setIsSuccess(true);
-    }, 2000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!item) return null;

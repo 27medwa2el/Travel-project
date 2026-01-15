@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { settingsStore } from '@/lib/mockStore';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,14 +9,23 @@ export default async function handler(
   try {
     switch (req.method) {
       case 'GET':
-        return res.status(200).json(settingsStore.get());
+        const settings = await prisma.appSettings.findFirst() || { standardCityPrice: 250, currency: 'USD' };
+        return res.status(200).json(settings);
 
       case 'PUT':
         const { userId } = getAuth(req);
         if (!userId) {
           return res.status(401).json({ error: 'Unauthorized' });
         }
-        const updated = settingsStore.update(req.body);
+        
+        const { standardCityPrice, currency } = req.body;
+        
+        const updated = await prisma.appSettings.upsert({
+          where: { id: 1 },
+          update: { standardCityPrice, currency },
+          create: { id: 1, standardCityPrice, currency }
+        });
+        
         return res.status(200).json(updated);
 
       default:
@@ -24,6 +33,7 @@ export default async function handler(
         return res.status(405).json({ error: `Method ${req.method} not allowed` });
     }
   } catch (error: any) {
+    console.error('Settings API Error:', error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }

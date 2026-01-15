@@ -48,10 +48,15 @@ export default async function handler(
                 items: {
                   create: c.items?.map((item: any) => ({
                     type: item.type,
-                    referenceId: item.referenceId,
                     date: item.date,
-                    startTime: item.startTime,
-                    endTime: item.endTime
+                    startTime: item.startTime || null,
+                    endTime: item.endTime || null,
+                    ...(item.type === 'ACTIVITY' && item.referenceId ? {
+                      activity: { connect: { id: item.referenceId } }
+                    } : {}),
+                    ...(item.type === 'EVENT' && item.referenceId ? {
+                      event: { connect: { id: item.referenceId } }
+                    } : {})
                   }))
                 }
               }))

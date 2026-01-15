@@ -510,6 +510,16 @@ export const getServerSideProps = async (context: any) => {
     prisma.cityApplication.findMany(),
   ]);
 
+  // Map for frontend compatibility
+  trips.forEach((trip: any) => {
+    trip.cities.forEach((c: any) => {
+      c.items = c.items.map((item: any) => ({
+        ...item,
+        referenceId: item.activityId || item.eventId
+      }));
+    });
+  });
+
   return {
     props: {
       trips: JSON.parse(JSON.stringify(trips)),

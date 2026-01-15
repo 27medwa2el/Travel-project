@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { cn } from '@/lib/utils';
-import { bookingStore, activityStore, driverStore } from '@/lib/mockStore';
+import { prisma } from '@/lib/prisma';
 import { Booking } from '@/types/domain';
 import { 
   ShoppingBagIcon,
@@ -155,22 +155,35 @@ export const getServerSideProps = async (context: any) => {
   if (!userId) {
     return {
       redirect: {
-        destination: '/sign-in',
+        destination: '/signin',
         permanent: false,
       },
     };
   }
 
-  const bookings = bookingStore.getByUserId(userId);
+  const bookings = await prisma.booking.findMany({
+    where: { userId },
+    include: {
+      activity: {
+        include: {
+          city: true
+        }
+      },
+      driver: {
+        include: {
+          city: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
   
   const enrichedBookings = bookings.map(b => {
-    let details = null;
-    if (b.type === 'ACTIVITY') {
-      details = activityStore.getById(b.referenceId);
-    } else {
-      details = driverStore.getById(b.referenceId);
-    }
-    return { ...b, details };
+    return { 
+      ...b, 
+      details: b.activity || b.driver,
+      location: b.activity?.city?.name || b.driver?.city?.name || 'Unknown'
+    };
   });
 
   return {

@@ -15,17 +15,19 @@ import {
   TicketIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { cityStore, countryStore, activityStore, eventStore, settingsStore, tripStore, seedMockData } from '@/lib/mockStore';
+import { prisma } from '@/lib/prisma';
 import { City, Country, Activity, CityEvent, Trip, TripCity, TripItem, AppSettings } from '@/types/domain';
 import Footer from '../components/Footer';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 type Props = {
   initialCountry: Country | null;
   initialCities: City[];
-  initialSettings: AppSettings;
+  initialSettings: any;
   allActivities: Activity[];
   allEvents: CityEvent[];
+  initialTrip: Trip | null;
 };
 
 const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivities, allEvents, initialTrip }: Props) => {
@@ -33,6 +35,7 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
   const { countryId, preselect, tripId } = router.query;
 
   const [step, setStep] = useState(1);
+  const [isSaving, setIsSaving] = useState(false);
   const [country, setCountry] = useState<Country | null>(initialCountry);
   const [availableCities, setAvailableCities] = useState<City[]>(initialCities);
   const [selectedCities, setSelectedCities] = useState<City[]>([]);
@@ -85,21 +88,6 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
     setAvailableCities(initialCities);
     setSettings(initialSettings);
   }, [initialCountry, initialCities, initialSettings]);
-
-  // Additional client-side check if country is still null but we have a countryId
-  useEffect(() => {
-    if (!country && countryId) {
-      const c = countryStore.getById(countryId as string) || 
-                countryStore.getAll().find(cc => 
-                  cc.name.toLowerCase() === countryId.toString().toLowerCase() ||
-                  cc.code.toLowerCase() === countryId.toString().toLowerCase()
-                );
-      if (c) {
-        setCountry(c);
-        setAvailableCities(cityStore.getByCountryId(c.id));
-      }
-    }
-  }, [countryId, country]);
 
   const toggleCity = (city: City) => {
     if (selectedCities.find(c => c.id === city.id)) {
@@ -501,6 +489,8 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   </button>
                     <button 
                       onClick={async () => {
+                        if (isSaving) return;
+                        setIsSaving(true);
                         try {
                           const tripData = {
                             title: initialTrip?.title || `My Trip to ${country?.name}`,
@@ -526,11 +516,25 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                           setTimeout(() => router.push('/dashboard'), 2000);
                         } catch (err) {
                           toast.error('Could not save trip. Please try again.');
+                          setIsSaving(false);
                         }
                       }}
-                      className="bg-purple-600 text-white px-16 py-8 rounded-[35px] font-black uppercase tracking-[0.2em] text-sm hover:bg-purple-700 transition-all flex items-center gap-4 shadow-2xl shadow-purple-200 scale-110"
+                      disabled={isSaving}
+                      className={cn(
+                        "bg-purple-600 text-white px-16 py-8 rounded-[35px] font-black uppercase tracking-[0.2em] text-sm transition-all flex items-center gap-4 shadow-2xl shadow-purple-200 scale-110",
+                        isSaving ? "opacity-70 cursor-not-allowed grayscale" : "hover:bg-purple-700"
+                      )}
                     >
-                      {tripId ? 'Update Trip Plan' : 'Confirm & Book Trip'} <SparklesIcon className="w-5 h-5 animate-pulse" />
+                      {isSaving ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          {tripId ? 'Update Trip Plan' : 'Confirm & Book Trip'} <SparklesIcon className="w-5 h-5 animate-pulse" />
+                        </>
+                      )}
                     </button>
                 </div>
               </motion.div>
@@ -642,50 +646,74 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
 export const getServerSideProps = async (context: any) => {
   const { countryId, tripId } = context.query;
   
-  // Ensure mock data is seeded
-  seedMockData();
-
   let country = null;
-  let cities: City[] = [];
+  let cities: any[] = [];
   let initialTrip = null;
 
   if (tripId) {
-    initialTrip = tripStore.getById(tripId as string) || null;
+    initialTrip = await prisma.trip.findUnique({
+      where: { id: tripId as string },
+      include: {
+        cities: {
+          include: {
+            items: true
+          }
+        }
+      }
+    });
+
     if (initialTrip) {
-      country = countryStore.getById(initialTrip.countryId) || null;
+      // Map for frontend compatibility
+      initialTrip.cities.forEach((c: any) => {
+        c.items = c.items.map((item: any) => ({
+          ...item,
+          referenceId: item.activityId || item.eventId
+        }));
+      });
+
+      country = await prisma.country.findUnique({
+        where: { id: initialTrip.countryId }
+      });
     }
   }
 
   if (countryId && !country) {
-    const allCountries = countryStore.getAll();
-    country = countryStore.getById(countryId as string);
+    // Try by ID first
+    country = await prisma.country.findUnique({
+      where: { id: countryId as string }
+    });
     
-    // If ID not found, try to find by name (slug match) or code
+    // If ID not found, try to find by name or code
     if (!country) {
       const searchStr = countryId.toString().toLowerCase().trim();
-      country = allCountries.find(c => 
-        c.id === searchStr ||
-        c.name.toLowerCase().replace(/\s+/g, '-') === searchStr ||
-        c.name.toLowerCase() === searchStr ||
-        c.code.toLowerCase() === searchStr ||
-        c.name.toLowerCase().includes(searchStr)
-      ) || null;
+      country = await prisma.country.findFirst({
+        where: {
+          OR: [
+            { name: { contains: searchStr, mode: 'insensitive' } },
+            { code: { equals: searchStr, mode: 'insensitive' } }
+          ]
+        }
+      });
     }
   }
 
   if (country) {
-    cities = cityStore.getByCountryId(country.id);
+    cities = await prisma.city.findMany({
+      where: { countryId: country.id }
+    });
   }
 
-  const settings = settingsStore.get();
-  const allActivities = activityStore.getAll();
-  const allEvents = eventStore.getAll();
+  const [allActivities, allEvents, settings] = await Promise.all([
+    prisma.activity.findMany(),
+    prisma.cityEvent.findMany(),
+    prisma.appSettings.findFirst()
+  ]);
 
   return {
     props: {
       initialCountry: JSON.parse(JSON.stringify(country)),
       initialCities: JSON.parse(JSON.stringify(cities)),
-      initialSettings: JSON.parse(JSON.stringify(settings)),
+      initialSettings: JSON.parse(JSON.stringify(settings || { standardCityPrice: 250, currency: 'USD' })),
       allActivities: JSON.parse(JSON.stringify(allActivities)),
       allEvents: JSON.parse(JSON.stringify(allEvents)),
       initialTrip: JSON.parse(JSON.stringify(initialTrip)),

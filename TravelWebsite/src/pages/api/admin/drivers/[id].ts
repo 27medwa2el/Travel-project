@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { driverStore } from '@/lib/mockStore';
-import { DriverInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -21,31 +20,36 @@ export default async function handler(
   try {
     switch (req.method) {
       case 'GET':
-        const driver = driverStore.getById(id);
+        const driver = await prisma.driver.findUnique({
+          where: { id },
+          include: { city: true }
+        });
         if (!driver) {
           return res.status(404).json({ error: 'Driver not found' });
         }
         return res.status(200).json(driver);
 
       case 'PUT':
-        const input: Partial<DriverInput> = req.body;
+        const { name, phone, contactInfo, pricePerDay, vehicleType, rating, cityId } = req.body;
 
-        // Basic validation
-        if (input.name && input.name.trim().length === 0) {
-          return res.status(400).json({ error: 'Driver name cannot be empty' });
-        }
-
-        const updated = driverStore.update(id, input);
-        if (!updated) {
-          return res.status(404).json({ error: 'Driver not found' });
-        }
+        const updated = await prisma.driver.update({
+          where: { id },
+          data: {
+            name,
+            phone,
+            contactInfo,
+            pricePerDay,
+            vehicleType,
+            rating,
+            cityId
+          }
+        });
         return res.status(200).json(updated);
 
       case 'DELETE':
-        const deleted = driverStore.delete(id);
-        if (!deleted) {
-          return res.status(404).json({ error: 'Driver not found' });
-        }
+        await prisma.driver.delete({
+          where: { id }
+        });
         return res.status(204).end();
 
       default:

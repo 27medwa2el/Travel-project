@@ -10,14 +10,14 @@ import {
 } from "@heroicons/react/24/outline";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { countryStore, cityStore, seedMockData } from "@/lib/mockStore";
+import { prisma } from "@/lib/prisma";
 import { Country, City } from "@/types/domain";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 type Props = {
-  country: Country;
-  cities: City[];
+  country: any;
+  cities: any[];
 };
 
 const CountryCitiesPage = ({ country, cities }: Props) => {
@@ -149,16 +149,17 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
 export const getServerSideProps = async (context: any) => {
   const { id } = context.params;
   
-  // Ensure mock data is seeded
-  seedMockData();
-
-  const country = countryStore.getById(id as string);
+  const country = await prisma.country.findUnique({
+    where: { id: id as string }
+  });
   
   if (!country) {
     return { notFound: true };
   }
 
-  const cities = cityStore.getByCountryId(country.id);
+  const cities = await prisma.city.findMany({
+    where: { countryId: country.id }
+  });
 
   return {
     props: {

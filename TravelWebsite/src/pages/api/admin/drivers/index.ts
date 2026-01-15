@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
-import { driverStore } from '@/lib/mockStore';
-import { DriverInput } from '@/types/domain';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,28 +16,31 @@ export default async function handler(
     switch (req.method) {
       case 'GET':
         const { cityId } = req.query;
-        let drivers;
-
-        if (cityId && typeof cityId === 'string') {
-          drivers = driverStore.getByCityId(cityId);
-        } else {
-          drivers = driverStore.getAll();
-        }
-
+        const drivers = await prisma.driver.findMany({
+          where: cityId ? { cityId: cityId as string } : {},
+          include: { city: true },
+          orderBy: { name: 'asc' }
+        });
         return res.status(200).json(drivers);
 
       case 'POST':
-        const input: DriverInput = req.body;
-
-        // Basic validation
-        if (!input.name || input.name.trim().length === 0) {
-          return res.status(400).json({ error: 'Driver name is required' });
-        }
-        if (!input.cityId) {
-          return res.status(400).json({ error: 'City ID is required' });
+        const { name, phone, contactInfo, pricePerDay, vehicleType, rating, cityId: newCityId } = req.body;
+        
+        if (!name || !newCityId) {
+          return res.status(400).json({ error: 'Name and cityId are required' });
         }
 
-        const driver = driverStore.create(input);
+        const driver = await prisma.driver.create({
+          data: {
+            name,
+            phone,
+            contactInfo,
+            pricePerDay,
+            vehicleType,
+            rating,
+            cityId: newCityId
+          }
+        });
         return res.status(201).json(driver);
 
       default:

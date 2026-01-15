@@ -115,11 +115,12 @@ exports.Prisma.BookingScalarFieldEnum = makeEnum({
   id: 'id',
   userId: 'userId',
   type: 'type',
-  referenceId: 'referenceId',
   date: 'date',
   status: 'status',
   price: 'price',
   currency: 'currency',
+  activityId: 'activityId',
+  driverId: 'driverId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 });
@@ -270,10 +271,11 @@ exports.Prisma.TripItemScalarFieldEnum = makeEnum({
   id: 'id',
   tripCityId: 'tripCityId',
   type: 'type',
-  referenceId: 'referenceId',
   date: 'date',
   startTime: 'startTime',
-  endTime: 'endTime'
+  endTime: 'endTime',
+  activityId: 'activityId',
+  eventId: 'eventId'
 });
 
 exports.Prisma.TripPackingItemScalarFieldEnum = makeEnum({

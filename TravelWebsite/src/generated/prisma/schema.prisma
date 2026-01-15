@@ -197,14 +197,16 @@ model TripItem {
   tripCityId  String
   tripCity    TripCity   @relation(fields: [tripCityId], references: [id], onDelete: Cascade)
   type        String // ACTIVITY or EVENT
-  referenceId String // activityId or eventId
   date        String
   startTime   String?
   endTime     String?
-  activity    Activity?  @relation(fields: [referenceId], references: [id], map: "TripItem_activityId_fkey")
-  event       CityEvent? @relation(fields: [referenceId], references: [id], map: "TripItem_eventId_fkey")
+  activityId  String?
+  activity    Activity?  @relation(fields: [activityId], references: [id])
+  eventId     String?
+  event       CityEvent? @relation(fields: [eventId], references: [id])
 
-  @@index([referenceId])
+  @@index([activityId])
+  @@index([eventId])
 }
 
 model TripPackingItem {
@@ -225,17 +227,19 @@ model Booking {
   id          String    @id @default(cuid())
   userId      String // Clerk User ID
   type        String // ACTIVITY or DRIVER
-  referenceId String // activityId or driverId
   date        String
   status      String // confirmed, pending, cancelled
   price       Float
   currency    String
-  activity    Activity? @relation(fields: [referenceId], references: [id], map: "Booking_activityId_fkey")
-  driver      Driver?   @relation(fields: [referenceId], references: [id], map: "Booking_driverId_fkey")
+  activityId  String?
+  activity    Activity? @relation(fields: [activityId], references: [id])
+  driverId    String?
+  driver      Driver?   @relation(fields: [driverId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@index([referenceId])
+  @@index([activityId])
+  @@index([driverId])
 }
 
 model AppSettings {

@@ -226,10 +226,11 @@ export type TripItem = {
   id: string
   tripCityId: string
   type: string
-  referenceId: string
   date: string
   startTime: string | null
   endTime: string | null
+  activityId: string | null
+  eventId: string | null
 }
 
 /**
@@ -257,11 +258,12 @@ export type Booking = {
   id: string
   userId: string
   type: string
-  referenceId: string
   date: string
   status: string
   price: number
   currency: string
+  activityId: string | null
+  driverId: string | null
   createdAt: Date
   updatedAt: Date
 }
@@ -14343,30 +14345,33 @@ export namespace Prisma {
     id: string | null
     tripCityId: string | null
     type: string | null
-    referenceId: string | null
     date: string | null
     startTime: string | null
     endTime: string | null
+    activityId: string | null
+    eventId: string | null
   }
 
   export type TripItemMaxAggregateOutputType = {
     id: string | null
     tripCityId: string | null
     type: string | null
-    referenceId: string | null
     date: string | null
     startTime: string | null
     endTime: string | null
+    activityId: string | null
+    eventId: string | null
   }
 
   export type TripItemCountAggregateOutputType = {
     id: number
     tripCityId: number
     type: number
-    referenceId: number
     date: number
     startTime: number
     endTime: number
+    activityId: number
+    eventId: number
     _all: number
   }
 
@@ -14375,30 +14380,33 @@ export namespace Prisma {
     id?: true
     tripCityId?: true
     type?: true
-    referenceId?: true
     date?: true
     startTime?: true
     endTime?: true
+    activityId?: true
+    eventId?: true
   }
 
   export type TripItemMaxAggregateInputType = {
     id?: true
     tripCityId?: true
     type?: true
-    referenceId?: true
     date?: true
     startTime?: true
     endTime?: true
+    activityId?: true
+    eventId?: true
   }
 
   export type TripItemCountAggregateInputType = {
     id?: true
     tripCityId?: true
     type?: true
-    referenceId?: true
     date?: true
     startTime?: true
     endTime?: true
+    activityId?: true
+    eventId?: true
     _all?: true
   }
 
@@ -14484,10 +14492,11 @@ export namespace Prisma {
     id: string
     tripCityId: string
     type: string
-    referenceId: string
     date: string
     startTime: string | null
     endTime: string | null
+    activityId: string | null
+    eventId: string | null
     _count: TripItemCountAggregateOutputType | null
     _min: TripItemMinAggregateOutputType | null
     _max: TripItemMaxAggregateOutputType | null
@@ -14512,11 +14521,12 @@ export namespace Prisma {
     tripCityId?: boolean
     tripCity?: boolean | TripCityArgs
     type?: boolean
-    referenceId?: boolean
     date?: boolean
     startTime?: boolean
     endTime?: boolean
+    activityId?: boolean
     activity?: boolean | ActivityArgs
+    eventId?: boolean
     event?: boolean | CityEventArgs
   }
 
@@ -16263,11 +16273,12 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     type: string | null
-    referenceId: string | null
     date: string | null
     status: string | null
     price: number | null
     currency: string | null
+    activityId: string | null
+    driverId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16276,11 +16287,12 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     type: string | null
-    referenceId: string | null
     date: string | null
     status: string | null
     price: number | null
     currency: string | null
+    activityId: string | null
+    driverId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16289,11 +16301,12 @@ export namespace Prisma {
     id: number
     userId: number
     type: number
-    referenceId: number
     date: number
     status: number
     price: number
     currency: number
+    activityId: number
+    driverId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -16312,11 +16325,12 @@ export namespace Prisma {
     id?: true
     userId?: true
     type?: true
-    referenceId?: true
     date?: true
     status?: true
     price?: true
     currency?: true
+    activityId?: true
+    driverId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -16325,11 +16339,12 @@ export namespace Prisma {
     id?: true
     userId?: true
     type?: true
-    referenceId?: true
     date?: true
     status?: true
     price?: true
     currency?: true
+    activityId?: true
+    driverId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -16338,11 +16353,12 @@ export namespace Prisma {
     id?: true
     userId?: true
     type?: true
-    referenceId?: true
     date?: true
     status?: true
     price?: true
     currency?: true
+    activityId?: true
+    driverId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -16444,11 +16460,12 @@ export namespace Prisma {
     id: string
     userId: string
     type: string
-    referenceId: string
     date: string
     status: string
     price: number
     currency: string
+    activityId: string | null
+    driverId: string | null
     createdAt: Date
     updatedAt: Date
     _count: BookingCountAggregateOutputType | null
@@ -16476,12 +16493,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     type?: boolean
-    referenceId?: boolean
     date?: boolean
     status?: boolean
     price?: boolean
     currency?: boolean
+    activityId?: boolean
     activity?: boolean | ActivityArgs
+    driverId?: boolean
     driver?: boolean | DriverArgs
     createdAt?: boolean
     updatedAt?: boolean
@@ -18172,11 +18190,12 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     type: 'type',
-    referenceId: 'referenceId',
     date: 'date',
     status: 'status',
     price: 'price',
     currency: 'currency',
+    activityId: 'activityId',
+    driverId: 'driverId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -18372,10 +18391,11 @@ export namespace Prisma {
     id: 'id',
     tripCityId: 'tripCityId',
     type: 'type',
-    referenceId: 'referenceId',
     date: 'date',
     startTime: 'startTime',
-    endTime: 'endTime'
+    endTime: 'endTime',
+    activityId: 'activityId',
+    eventId: 'eventId'
   };
 
   export type TripItemScalarFieldEnum = (typeof TripItemScalarFieldEnum)[keyof typeof TripItemScalarFieldEnum]
@@ -19286,11 +19306,12 @@ export namespace Prisma {
     tripCityId?: StringFilter | string
     tripCity?: XOR<TripCityRelationFilter, TripCityWhereInput>
     type?: StringFilter | string
-    referenceId?: StringFilter | string
     date?: StringFilter | string
     startTime?: StringNullableFilter | string | null
     endTime?: StringNullableFilter | string | null
+    activityId?: StringNullableFilter | string | null
     activity?: XOR<ActivityRelationFilter, ActivityWhereInput> | null
+    eventId?: StringNullableFilter | string | null
     event?: XOR<CityEventRelationFilter, CityEventWhereInput> | null
   }
 
@@ -19299,11 +19320,12 @@ export namespace Prisma {
     tripCityId?: SortOrder
     tripCity?: TripCityOrderByWithRelationInput
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    activityId?: SortOrder
     activity?: ActivityOrderByWithRelationInput
+    eventId?: SortOrder
     event?: CityEventOrderByWithRelationInput
   }
 
@@ -19315,10 +19337,11 @@ export namespace Prisma {
     id?: SortOrder
     tripCityId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    activityId?: SortOrder
+    eventId?: SortOrder
     _count?: TripItemCountOrderByAggregateInput
     _max?: TripItemMaxOrderByAggregateInput
     _min?: TripItemMinOrderByAggregateInput
@@ -19331,10 +19354,11 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter | string
     tripCityId?: StringWithAggregatesFilter | string
     type?: StringWithAggregatesFilter | string
-    referenceId?: StringWithAggregatesFilter | string
     date?: StringWithAggregatesFilter | string
     startTime?: StringNullableWithAggregatesFilter | string | null
     endTime?: StringNullableWithAggregatesFilter | string | null
+    activityId?: StringNullableWithAggregatesFilter | string | null
+    eventId?: StringNullableWithAggregatesFilter | string | null
   }
 
   export type TripPackingItemWhereInput = {
@@ -19411,12 +19435,13 @@ export namespace Prisma {
     id?: StringFilter | string
     userId?: StringFilter | string
     type?: StringFilter | string
-    referenceId?: StringFilter | string
     date?: StringFilter | string
     status?: StringFilter | string
     price?: FloatFilter | number
     currency?: StringFilter | string
+    activityId?: StringNullableFilter | string | null
     activity?: XOR<ActivityRelationFilter, ActivityWhereInput> | null
+    driverId?: StringNullableFilter | string | null
     driver?: XOR<DriverRelationFilter, DriverWhereInput> | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
@@ -19426,12 +19451,13 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     status?: SortOrder
     price?: SortOrder
     currency?: SortOrder
+    activityId?: SortOrder
     activity?: ActivityOrderByWithRelationInput
+    driverId?: SortOrder
     driver?: DriverOrderByWithRelationInput
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -19445,11 +19471,12 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     status?: SortOrder
     price?: SortOrder
     currency?: SortOrder
+    activityId?: SortOrder
+    driverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BookingCountOrderByAggregateInput
@@ -19466,11 +19493,12 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter | string
     userId?: StringWithAggregatesFilter | string
     type?: StringWithAggregatesFilter | string
-    referenceId?: StringWithAggregatesFilter | string
     date?: StringWithAggregatesFilter | string
     status?: StringWithAggregatesFilter | string
     price?: FloatWithAggregatesFilter | number
     currency?: StringWithAggregatesFilter | string
+    activityId?: StringNullableWithAggregatesFilter | string | null
+    driverId?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
@@ -20667,10 +20695,11 @@ export namespace Prisma {
     id?: string
     tripCityId: string
     type: string
-    referenceId: string
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
+    eventId?: string | null
   }
 
   export type TripItemUpdateInput = {
@@ -20688,20 +20717,22 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tripCityId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TripItemCreateManyInput = {
     id?: string
     tripCityId: string
     type: string
-    referenceId: string
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
+    eventId?: string | null
   }
 
   export type TripItemUpdateManyMutationInput = {
@@ -20716,10 +20747,11 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tripCityId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TripPackingItemCreateInput = {
@@ -20830,11 +20862,12 @@ export namespace Prisma {
     id?: string
     userId: string
     type: string
-    referenceId: string
     date: string
     status: string
     price: number
     currency: string
+    activityId?: string | null
+    driverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20857,11 +20890,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20870,11 +20904,12 @@ export namespace Prisma {
     id?: string
     userId: string
     type: string
-    referenceId: string
     date: string
     status: string
     price: number
     currency: string
+    activityId?: string | null
+    driverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20895,11 +20930,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21795,30 +21831,33 @@ export namespace Prisma {
     id?: SortOrder
     tripCityId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    activityId?: SortOrder
+    eventId?: SortOrder
   }
 
   export type TripItemMaxOrderByAggregateInput = {
     id?: SortOrder
     tripCityId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    activityId?: SortOrder
+    eventId?: SortOrder
   }
 
   export type TripItemMinOrderByAggregateInput = {
     id?: SortOrder
     tripCityId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     startTime?: SortOrder
     endTime?: SortOrder
+    activityId?: SortOrder
+    eventId?: SortOrder
   }
 
   export type BoolFilter = {
@@ -21882,11 +21921,12 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     status?: SortOrder
     price?: SortOrder
     currency?: SortOrder
+    activityId?: SortOrder
+    driverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21899,11 +21939,12 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     status?: SortOrder
     price?: SortOrder
     currency?: SortOrder
+    activityId?: SortOrder
+    driverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21912,11 +21953,12 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     type?: SortOrder
-    referenceId?: SortOrder
     date?: SortOrder
     status?: SortOrder
     price?: SortOrder
     currency?: SortOrder
+    activityId?: SortOrder
+    driverId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24407,6 +24449,7 @@ export namespace Prisma {
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
   }
 
   export type TripItemCreateOrConnectWithoutEventInput = {
@@ -24493,10 +24536,11 @@ export namespace Prisma {
     id?: StringFilter | string
     tripCityId?: StringFilter | string
     type?: StringFilter | string
-    referenceId?: StringFilter | string
     date?: StringFilter | string
     startTime?: StringNullableFilter | string | null
     endTime?: StringNullableFilter | string | null
+    activityId?: StringNullableFilter | string | null
+    eventId?: StringNullableFilter | string | null
   }
 
   export type CityCreateWithoutCarsInput = {
@@ -24873,6 +24917,7 @@ export namespace Prisma {
     date: string
     startTime?: string | null
     endTime?: string | null
+    eventId?: string | null
   }
 
   export type TripItemCreateOrConnectWithoutActivityInput = {
@@ -24906,6 +24951,7 @@ export namespace Prisma {
     status: string
     price: number
     currency: string
+    driverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25010,11 +25056,12 @@ export namespace Prisma {
     id?: StringFilter | string
     userId?: StringFilter | string
     type?: StringFilter | string
-    referenceId?: StringFilter | string
     date?: StringFilter | string
     status?: StringFilter | string
     price?: FloatFilter | number
     currency?: StringFilter | string
+    activityId?: StringNullableFilter | string | null
+    driverId?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
   }
@@ -25091,6 +25138,7 @@ export namespace Prisma {
     status: string
     price: number
     currency: string
+    activityId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25377,10 +25425,11 @@ export namespace Prisma {
   export type TripItemUncheckedCreateWithoutTripCityInput = {
     id?: string
     type: string
-    referenceId: string
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
+    eventId?: string | null
   }
 
   export type TripItemCreateOrConnectWithoutTripCityInput = {
@@ -26410,6 +26459,7 @@ export namespace Prisma {
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
   }
 
   export type TripItemUpdateWithoutEventInput = {
@@ -26429,6 +26479,7 @@ export namespace Prisma {
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TripItemUncheckedUpdateManyWithoutTripItemsInput = {
@@ -26438,6 +26489,7 @@ export namespace Prisma {
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TripItemCreateManyActivityInput = {
@@ -26447,6 +26499,7 @@ export namespace Prisma {
     date: string
     startTime?: string | null
     endTime?: string | null
+    eventId?: string | null
   }
 
   export type BookingCreateManyActivityInput = {
@@ -26457,6 +26510,7 @@ export namespace Prisma {
     status: string
     price: number
     currency: string
+    driverId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26478,6 +26532,7 @@ export namespace Prisma {
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BookingUpdateWithoutActivityInput = {
@@ -26501,6 +26556,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26513,6 +26569,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
+    driverId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26525,6 +26582,7 @@ export namespace Prisma {
     status: string
     price: number
     currency: string
+    activityId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -26550,6 +26608,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     price?: FloatFieldUpdateOperationsInput | number
     currency?: StringFieldUpdateOperationsInput | string
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -26635,10 +26694,11 @@ export namespace Prisma {
   export type TripItemCreateManyTripCityInput = {
     id?: string
     type: string
-    referenceId: string
     date: string
     startTime?: string | null
     endTime?: string | null
+    activityId?: string | null
+    eventId?: string | null
   }
 
   export type TripItemUpdateWithoutTripCityInput = {
@@ -26654,19 +26714,21 @@ export namespace Prisma {
   export type TripItemUncheckedUpdateWithoutTripCityInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TripItemUncheckedUpdateManyWithoutItemsInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    referenceId?: StringFieldUpdateOperationsInput | string
     date?: StringFieldUpdateOperationsInput | string
     startTime?: NullableStringFieldUpdateOperationsInput | string | null
     endTime?: NullableStringFieldUpdateOperationsInput | string | null
+    activityId?: NullableStringFieldUpdateOperationsInput | string | null
+    eventId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
 
