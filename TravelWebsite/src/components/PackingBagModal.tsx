@@ -52,11 +52,18 @@ const PackingBagModal = ({ isOpen, onClose, trip, allCities, allDocs, allRecomme
     }
   }, [isOpen, trip.id]);
   const [search, setSearch] = useState('');
-  const [selectedCityId, setSelectedCityId] = useState<string>(trip.cities[0]?.cityId || '');
+  const [selectedCityId, setSelectedCityId] = useState<string>(trip?.cities?.[0]?.cityId || '');
   const [isAddingCustom, setIsAddingCustom] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [customItemTitle, setCustomItemTitle] = useState('');
   const [customItemDesc, setCustomItemDesc] = useState('');
+
+  // Update selected city if trip changes and current selection is invalid
+  useEffect(() => {
+    if (trip?.cities?.length > 0 && (!selectedCityId || !trip.cities.find(c => c.cityId === selectedCityId))) {
+      setSelectedCityId(trip.cities[0].cityId);
+    }
+  }, [trip, selectedCityId]);
 
   // Fetch or find city data
   const selectedCity = useMemo(() => allCities.find(c => c.id === selectedCityId), [allCities, selectedCityId]);

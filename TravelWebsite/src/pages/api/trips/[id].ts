@@ -42,52 +42,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       case 'PUT':
         const { title, startDate, endDate, status, cities } = req.body;
+        console.log('PUT Trip Request:', { id, title, startDate, endDate, status, cityCount: cities?.length });
         
         // Update basic trip info
-        const updatedTrip = await prisma.$transaction(async (tx) => {
-          // Delete all existing cities and items to recreate them
-          // (Simplest way to sync complex nested structures)
-          await tx.tripCity.deleteMany({
-            where: { tripId: id as string }
-          });
+        // First delete existing cities/items (cascade will handle items)
+        await prisma.tripCity.deleteMany({
+          where: { tripId: id as string }
+        });
 
-          return await tx.trip.update({
-            where: { id: id as string },
-            data: {
-              title,
-              startDate,
-              endDate,
-              status,
-              cities: {
-                create: cities?.map((c: any) => ({
-                  cityId: c.cityId,
-                  startDate: c.startDate,
-                  endDate: c.endDate,
-                  items: {
-                    create: c.items?.map((item: any) => ({
-                      type: item.type,
-                      date: item.date,
-                      startTime: item.startTime || null,
-                      endTime: item.endTime || null,
-                      ...(item.type === 'ACTIVITY' && (item.activityId || item.referenceId) ? {
-                        activity: { connect: { id: item.activityId || item.referenceId } }
-                      } : {}),
-                      ...(item.type === 'EVENT' && (item.eventId || item.referenceId) ? {
-                        event: { connect: { id: item.eventId || item.referenceId } }
-                      } : {})
-                    }))
-                  }
-                }))
-              }
-            },
-            include: {
-              cities: {
-                include: {
-                  items: true
+        // Then update trip and recreate cities/items
+        const updatedTrip = await prisma.trip.update({
+          where: { id: id as string },
+          data: {
+            title,
+            startDate,
+            endDate,
+            status,
+            cities: {
+              create: cities?.map((c: any) => ({
+                cityId: c.cityId,
+                startDate: c.startDate,
+                endDate: c.endDate,
+                items: {
+                  create: c.items?.map((item: any) => ({
+                    type: item.type,
+                    date: item.date,
+                    startTime: item.startTime || null,
+                    endTime: item.endTime || null,
+                    ...(item.type === 'ACTIVITY' && (item.activityId || item.referenceId) ? {
+                      activity: { connect: { id: item.activityId || item.referenceId } }
+                    } : {}),
+                    ...(item.type === 'EVENT' && (item.eventId || item.referenceId) ? {
+                      event: { connect: { id: item.eventId || item.referenceId } }
+                    } : {})
+                  }))
                 }
+              }))
+            }
+          },
+          include: {
+            cities: {
+              include: {
+                items: true
               }
             }
-          });
+          }
         });
 
         return res.status(200).json(updatedTrip);
@@ -103,7 +102,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error: any) {
-    console.error('Failed to handle trip request:', error);
+    console.error('Detailed Trip API Error:', {
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body,
+      query: req.query
+    });
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }

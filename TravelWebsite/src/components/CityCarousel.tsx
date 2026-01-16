@@ -144,7 +144,7 @@ const CityCarousel = ({ cities, onExplore }: Props) => {
                               className="group/btn relative w-full overflow-hidden bg-gradient-to-r from-[#2563eb] to-[#9333ea] text-white py-5 rounded-[24px] font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-blue-500/20 active:scale-95 hover:shadow-purple-500/40"
                             >
                               <span className="relative z-10 flex items-center justify-center gap-2">
-                                Explore City <ChevronRightIcon className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
+                                About City <ChevronRightIcon className="h-4 w-4 transition-transform group-hover/btn:translate-x-1" />
                               </span>
                             </button>
                       </motion.div>

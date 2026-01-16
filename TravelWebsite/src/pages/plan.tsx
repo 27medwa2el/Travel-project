@@ -444,7 +444,7 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   </h3>
                   
                   <div className="space-y-12">
-                    {itinerary.map((item, i) => {
+                    {itinerary && itinerary.length > 0 ? itinerary.map((item, i) => {
                       const city = selectedCities.find(c => c.id === item.cityId);
                       return (
                         <div key={item.id} className="relative pl-12">
@@ -465,7 +465,7 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                           </div>
 
                           <div className="flex flex-wrap gap-3">
-                            {item.items.length > 0 ? item.items.map(tripItem => {
+                            {item.items && item.items.length > 0 ? item.items.map(tripItem => {
                               const activity = tripItem.type === 'ACTIVITY' ? (allActivities.find(a => a.id === tripItem.referenceId) || allActivities.find(a => a.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
                               const event = tripItem.type === 'EVENT' ? (allEvents.find(e => e.id === tripItem.referenceId) || allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
                               return (
@@ -479,7 +479,11 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                           </div>
                         </div>
                       );
-                    })}
+                    }) : (
+                      <div className="py-10 text-center">
+                        <p className="text-gray-300 font-black uppercase tracking-widest text-xs">Itinerary is empty</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -494,8 +498,8 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                         try {
                           const tripData = {
                             title: initialTrip?.title || `My Trip to ${country?.name}`,
-                            startDate: itinerary[0].startDate,
-                            endDate: itinerary[itinerary.length - 1].endDate,
+                            startDate: itinerary.length > 0 ? itinerary[0].startDate : new Date().toISOString().split('T')[0],
+                            endDate: itinerary.length > 0 ? itinerary[itinerary.length - 1].endDate : new Date().toISOString().split('T')[0],
                             status: initialTrip?.status || 'upcoming',
                             countryId: country?.id,
                             cities: itinerary

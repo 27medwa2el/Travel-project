@@ -31,6 +31,7 @@ export default async function handler(
 
       case 'POST':
         const { title, startDate, endDate, countryId, cities } = req.body;
+        console.log('POST Trip Request:', { title, startDate, endDate, countryId, cityCount: cities?.length });
         
         const trip = await prisma.trip.create({
           data: {
@@ -77,7 +78,11 @@ export default async function handler(
         return res.status(405).json({ error: `Method ${req.method} not allowed` });
     }
   } catch (error: any) {
-    console.error('Trip API Error:', error);
+    console.error('Detailed Trip POST Error:', {
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body
+    });
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }

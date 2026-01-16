@@ -51,7 +51,11 @@ export default async function handler(
         return res.status(405).json({ error: `Method ${req.method} not allowed` });
     }
   } catch (error: any) {
-    console.error('Booking API Error:', error);
+    console.error('Detailed Booking Error:', {
+      message: error.message,
+      stack: error.stack,
+      requestBody: req.body
+    });
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }
