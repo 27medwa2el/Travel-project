@@ -59,7 +59,7 @@ const Home = ({
       <LandingHero />
 
       {/* 3D City Carousel Section */}
-      <div className="max-w-7xl mx-auto -mt-40 relative z-30">
+      <div className="max-w-7xl mx-auto -mt-20 md:-mt-40 relative z-30">
         <CityCarousel cities={getInspiredCities} onExplore={handleOpenModal} />
       </div>
 
@@ -71,17 +71,17 @@ const Home = ({
         onExplore={handleExploreCity}
       />
 
-      <main className="max-w-7xl mx-auto px-8 sm:px-16 pb-20">
+      <main className="max-w-7xl mx-auto px-6 sm:px-16 pb-20">
         {/* Local Activities Section */}
-        <section className="pt-20">
-          <div className="flex items-center justify-between mb-10">
+        <section className="pt-10 md:pt-20">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
             <div>
-              <h2 className="text-5xl font-black text-gray-900 mb-2">
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 mb-2 uppercase tracking-tighter">
                 Local Activities
               </h2>
-              <p className="text-gray-500 text-xl font-medium">Discover unique experiences curated by our experts</p>
+              <p className="text-gray-500 text-base md:text-xl font-medium">Discover unique experiences curated by our experts</p>
             </div>
-            <Link href="/admin/overview" className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-purple-600 hover:shadow-md transition-all font-bold">
+            <Link href="/admin/overview" className="w-full md:w-auto text-center bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-purple-600 hover:shadow-md transition-all font-bold text-sm uppercase tracking-widest">
               Manage in Admin →
             </Link>
           </div>

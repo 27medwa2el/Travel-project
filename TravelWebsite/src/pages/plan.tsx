@@ -174,22 +174,26 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
         <title>Plan Your Trip - {country?.name}</title>
       </Head>
 
-      <main className="pt-32 pb-20 px-10">
+      <main className="pt-24 md:pt-32 pb-20 px-4 md:px-10">
         <div className="max-w-7xl mx-auto">
           {/* Progress Header */}
-          <div className="flex items-center justify-between mb-16">
-            <div className="flex gap-4 items-center">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all ${step >= 1 ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-300'}`}>1</div>
-              <div className="w-12 h-0.5 bg-gray-200 rounded-full" />
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all ${step >= 2 ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-300'}`}>2</div>
-              <div className="w-12 h-0.5 bg-gray-200 rounded-full" />
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all ${step >= 3 ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-300'}`}>3</div>
-              <div className="w-12 h-0.5 bg-gray-200 rounded-full" />
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black transition-all ${step >= 4 ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-300'}`}>4</div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 md:mb-16">
+            <div className="flex gap-2 md:gap-4 items-center">
+              {[1, 2, 3, 4].map((s) => (
+                <React.Fragment key={s}>
+                  <div className={cn(
+                    "w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center text-xs md:text-sm font-black transition-all",
+                    step >= s ? 'bg-purple-600 text-white shadow-lg shadow-purple-200' : 'bg-white text-gray-300'
+                  )}>
+                    {s}
+                  </div>
+                  {s < 4 && <div className="w-6 md:w-12 h-0.5 bg-gray-200 rounded-full" />}
+                </React.Fragment>
+              ))}
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Planning trip to</p>
-              <h1 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">
+            <div className="text-center md:text-right">
+              <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-gray-400">Planning trip to</p>
+              <h1 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">
                 {country ? country.name : (router.isReady ? 'Country Not Found' : 'Loading...')}
               </h1>
             </div>
@@ -202,15 +206,15 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-10"
+                className="space-y-8 md:space-y-10"
               >
                 <div>
-                  <h2 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Choose your cities</h2>
-                  <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Select one or more cities to create your personalized tour.</p>
+                  <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Choose your cities</h2>
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">Select one or more cities to create your personalized tour.</p>
                 </div>
 
                 {availableCities.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {availableCities.map((city) => {
                       const isSelected = selectedCities.find(c => c.id === city.id);
                       return (
@@ -218,17 +222,17 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                           key={city.id}
                           whileHover={{ y: -5 }}
                           onClick={() => toggleCity(city)}
-                          className={`group relative h-[400px] rounded-[40px] overflow-hidden cursor-pointer border-4 transition-all ${isSelected ? 'border-purple-600 shadow-2xl shadow-purple-100' : 'border-transparent shadow-xl'}`}
+                          className={`group relative h-[300px] md:h-[400px] rounded-[32px] md:rounded-[40px] overflow-hidden cursor-pointer border-4 transition-all ${isSelected ? 'border-purple-600 shadow-2xl shadow-purple-100' : 'border-transparent shadow-xl'}`}
                         >
                           <Image src={city.images?.[0] || ""} alt={city.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                          <div className="absolute bottom-8 left-8 right-8">
-                            <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-2">{city.name}</h3>
+                          <div className="absolute bottom-6 md:bottom-8 left-6 md:left-8 right-6 md:right-8">
+                            <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter mb-2">{city.name}</h3>
                             <div className="flex items-center justify-between">
-                              <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black text-white uppercase tracking-widest">Explore</span>
+                              <span className="bg-white/20 backdrop-blur-md px-3 md:px-4 py-1.5 rounded-full text-[8px] md:text-[10px] font-black text-white uppercase tracking-widest">Explore</span>
                               {isSelected && (
-                                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg">
-                                  <CheckIcon className="w-5 h-5 stroke-[3]" />
+                                <div className="w-7 h-7 md:w-8 md:h-8 bg-purple-600 rounded-full flex items-center justify-center text-white shadow-lg">
+                                  <CheckIcon className="w-4 h-4 md:w-5 md:h-5 stroke-[3]" />
                                 </div>
                               )}
                             </div>
@@ -238,16 +242,16 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                     })}
                   </div>
                 ) : (
-                  <div className="py-32 text-center border-4 border-dashed border-gray-100 rounded-[60px] flex flex-col items-center gap-6">
-                    <MapPinIcon className="w-16 h-16 text-gray-200" />
-                    <p className="text-gray-300 font-black uppercase tracking-[0.3em] text-sm">
+                  <div className="py-20 md:py-32 text-center border-4 border-dashed border-gray-100 rounded-[40px] md:rounded-[60px] flex flex-col items-center gap-6 px-6">
+                    <MapPinIcon className="w-12 h-12 md:w-16 md:h-16 text-gray-200" />
+                    <p className="text-gray-300 font-black uppercase tracking-[0.3em] text-xs md:text-sm text-center">
                       {country ? `No cities found for ${country.name}` : 'Country not found or ID expired'}
                     </p>
                     <div className="flex flex-col items-center gap-4">
-                      <p className="text-gray-400 text-xs font-medium max-w-md">Your link might be using an outdated ID. Please select a country from the list to continue planning.</p>
+                      <p className="text-gray-400 text-[10px] md:text-xs font-medium max-w-md">Your link might be using an outdated ID. Please select a country from the list to continue planning.</p>
                       <button 
                         onClick={() => router.push('/explore')}
-                        className="bg-purple-600 text-white px-10 py-5 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl shadow-purple-200 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all"
+                        className="bg-purple-600 text-white px-8 md:px-10 py-4 md:py-5 rounded-2xl md:rounded-3xl font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl shadow-purple-200 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all"
                       >
                         Go to Explore Countries
                       </button>
@@ -255,10 +259,10 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   </div>
                 )}
 
-                <div className="flex justify-end pt-10">
+                <div className="flex justify-end pt-6 md:pt-10">
                   <button 
                     onClick={startPlanning}
-                    className="bg-gray-900 text-white px-12 py-6 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-purple-600 transition-all flex items-center gap-4 shadow-xl"
+                    className="w-full md:w-auto bg-gray-900 text-white px-10 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-purple-600 transition-all flex items-center justify-center gap-4 shadow-xl"
                   >
                     Next: Set Dates <ChevronRightIcon className="w-4 h-4" />
                   </button>
@@ -272,46 +276,46 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-10"
+                className="space-y-8 md:space-y-10"
               >
                 <div>
-                  <h2 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Set your stay</h2>
-                  <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Define how many days you want to spend in each city.</p>
+                  <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Set your stay</h2>
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">Define how many days you want to spend in each city.</p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4 md:space-y-6">
                   {itinerary.map((item) => {
                     const city = selectedCities.find(c => c.id === item.cityId);
                     return (
-                      <div key={item.id} className="bg-white p-8 rounded-[40px] shadow-xl border border-gray-100 flex items-center justify-between">
-                        <div className="flex items-center gap-8">
-                          <div className="w-24 h-24 rounded-3xl overflow-hidden relative">
+                      <div key={item.id} className="bg-white p-6 md:p-8 rounded-[32px] md:rounded-[40px] shadow-xl border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex items-center gap-4 md:gap-8">
+                          <div className="w-16 h-16 md:w-24 md:h-24 rounded-2xl md:rounded-3xl overflow-hidden relative flex-shrink-0">
                             <Image src={city?.images?.[0] || ""} alt={city?.name || ""} fill className="object-cover" />
                           </div>
                           <div>
-                            <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h3>
-                            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Destination {itinerary.indexOf(item) + 1}</p>
+                            <h3 className="text-xl md:text-2xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h3>
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Destination {itinerary.indexOf(item) + 1}</p>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-10">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block ml-2">Arrive</label>
+                        <div className="flex items-center justify-between md:justify-end gap-4 md:gap-10">
+                          <div className="flex-1 md:flex-none space-y-1 md:space-y-2">
+                            <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 block ml-2">Arrive</label>
                             <input 
                               type="date" 
                               value={item.startDate} 
                               onChange={(e) => updateCityDates(item.cityId, 'startDate', e.target.value)}
-                              className="bg-gray-50 border-none rounded-2xl py-4 px-6 text-sm font-black focus:ring-2 focus:ring-purple-500"
+                              className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm font-black focus:ring-2 focus:ring-purple-500"
                             />
                           </div>
-                          <div className="w-6 h-0.5 bg-gray-200 rounded-full mt-6" />
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 block ml-2">Depart</label>
+                          <div className="w-4 md:w-6 h-0.5 bg-gray-200 rounded-full mt-6 flex-shrink-0" />
+                          <div className="flex-1 md:flex-none space-y-1 md:space-y-2">
+                            <label className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 block ml-2">Depart</label>
                             <input 
                               type="date" 
                               value={item.endDate} 
                               onChange={(e) => updateCityDates(item.cityId, 'endDate', e.target.value)}
-                              className="bg-gray-50 border-none rounded-2xl py-4 px-6 text-sm font-black focus:ring-2 focus:ring-purple-500"
+                              className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-4 md:px-6 text-xs md:text-sm font-black focus:ring-2 focus:ring-purple-500"
                             />
                           </div>
                         </div>
@@ -320,13 +324,13 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   })}
                 </div>
 
-                <div className="flex justify-between pt-10">
-                  <button onClick={() => setStep(1)} className="text-gray-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:text-gray-900 transition-all">
+                <div className="flex flex-col-reverse md:flex-row justify-between gap-4 pt-6 md:pt-10">
+                  <button onClick={() => setStep(1)} className="w-full md:w-auto text-gray-400 font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center justify-center gap-2 hover:text-gray-900 transition-all py-4">
                     <ChevronLeftIcon className="w-4 h-4" /> Back to Cities
                   </button>
                   <button 
                     onClick={() => setStep(3)}
-                    className="bg-gray-900 text-white px-12 py-6 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-purple-600 transition-all flex items-center gap-4 shadow-xl"
+                    className="w-full md:w-auto bg-gray-900 text-white px-10 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-purple-600 transition-all flex items-center justify-center gap-4 shadow-xl"
                   >
                     Next: Plan Activities <ChevronRightIcon className="w-4 h-4" />
                   </button>
@@ -340,22 +344,22 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-10"
+                className="space-y-8 md:space-y-10"
               >
                 <div>
-                  <h2 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Plan your days</h2>
-                  <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Assign activities and events to each day of your stay.</p>
+                  <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Plan your days</h2>
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">Assign activities and events to each day of your stay.</p>
                 </div>
 
-                <div className="space-y-12">
+                <div className="space-y-8 md:space-y-12">
                   {itinerary.map((cityTrip) => {
                     const city = selectedCities.find(c => c.id === cityTrip.cityId);
                     const days = getDaysArray(cityTrip.startDate, cityTrip.endDate);
                     
                     return (
-                      <div key={cityTrip.id} className="space-y-6">
+                      <div key={cityTrip.id} className="space-y-4 md:space-y-6">
                         <div className="flex items-center gap-4">
-                          <h3 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h3>
+                          <h3 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h3>
                           <div className="h-px flex-1 bg-gray-100" />
                         </div>
 
@@ -363,35 +367,38 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                           {days.map((date, idx) => {
                             const dayItems = cityTrip.items.filter(i => i.date === date);
                             return (
-                              <div key={date} className="bg-white p-6 rounded-[30px] border border-gray-100 shadow-sm flex items-start gap-8">
-                                <div className="w-24 text-center">
-                                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Day {idx + 1}</p>
-                                  <p className="text-lg font-black text-gray-900">{new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</p>
+                              <div key={date} className="bg-white p-4 md:p-6 rounded-2xl md:rounded-[30px] border border-gray-100 shadow-sm flex flex-col sm:flex-row items-start gap-4 md:gap-8">
+                                <div className="w-full sm:w-24 text-left sm:text-center flex sm:flex-col justify-between sm:justify-start items-center">
+                                  <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Day {idx + 1}</p>
+                                  <p className="text-base md:text-lg font-black text-gray-900">{new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}</p>
                                 </div>
 
-                                <div className="flex-1 flex flex-wrap gap-4">
+                                <div className="flex-1 flex flex-wrap gap-2 md:gap-4 w-full">
                                   {dayItems.map(item => {
                                     const activity = item.type === 'ACTIVITY' ? (allActivities.find(a => a.id === item.referenceId) || allActivities.find(a => a.title.toLowerCase().replace(/\s+/g, '-') === item.referenceId.toLowerCase())) : null;
                                     const event = item.type === 'EVENT' ? (allEvents.find(e => e.id === item.referenceId) || allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === item.referenceId.toLowerCase())) : null;
                                     const data = activity || event;
 
                                     return (
-                                      <div key={item.id} className="bg-gray-50 px-4 py-3 rounded-2xl flex items-center gap-3 border border-gray-100 group">
-                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white ${item.type === 'ACTIVITY' ? 'bg-blue-500' : 'bg-purple-500'}`}>
-                                          {item.type === 'ACTIVITY' ? <SparklesIcon className="w-4 h-4" /> : <CalendarIcon className="w-4 h-4" />}
+                                      <div key={item.id} className="bg-gray-50 px-3 md:px-4 py-2 md:py-3 rounded-xl md:rounded-2xl flex items-center gap-2 md:gap-3 border border-gray-100 group max-w-full">
+                                        <div className={cn(
+                                          "w-6 h-6 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-white flex-shrink-0",
+                                          item.type === 'ACTIVITY' ? 'bg-blue-500' : 'bg-purple-500'
+                                        )}>
+                                          {item.type === 'ACTIVITY' ? <SparklesIcon className="w-3 h-3 md:w-4 md:h-4" /> : <CalendarIcon className="w-3 h-3 md:w-4 md:h-4" />}
                                         </div>
-                                        <span className="text-xs font-black uppercase tracking-tight text-gray-700">{data?.title || 'Unknown Item'}</span>
-                                        <button onClick={() => removeItemFromItinerary(cityTrip.cityId, item.id)} className="text-gray-300 hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
-                                          <TrashIcon className="w-4 h-4" />
+                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-tight text-gray-700 truncate">{data?.title || 'Unknown Item'}</span>
+                                        <button onClick={() => removeItemFromItinerary(cityTrip.cityId, item.id)} className="text-gray-300 hover:text-red-500 transition-all sm:opacity-0 group-hover:opacity-100 p-1">
+                                          <TrashIcon className="w-3 h-3 md:w-4 md:h-4" />
                                         </button>
                                       </div>
                                     );
                                   })}
                                   <button 
                                     onClick={() => { setSelectedCityDay({ cityId: cityTrip.cityId, date }); setShowItemPicker(true); }}
-                                    className="border-2 border-dashed border-gray-100 text-gray-300 hover:border-purple-200 hover:text-purple-500 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                                    className="w-full sm:w-auto border-2 border-dashed border-gray-100 text-gray-300 hover:border-purple-200 hover:text-purple-500 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                                   >
-                                    <PlusIcon className="w-4 h-4" /> Add Activity
+                                    <PlusIcon className="w-3 h-3 md:w-4 md:h-4" /> Add Activity
                                   </button>
                                 </div>
                               </div>
@@ -403,13 +410,13 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   })}
                 </div>
 
-                <div className="flex justify-between pt-10">
-                  <button onClick={() => setStep(2)} className="text-gray-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:text-gray-900 transition-all">
+                <div className="flex flex-col-reverse md:flex-row justify-between gap-4 pt-6 md:pt-10">
+                  <button onClick={() => setStep(2)} className="w-full md:w-auto text-gray-400 font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center justify-center gap-2 hover:text-gray-900 transition-all py-4">
                     <ChevronLeftIcon className="w-4 h-4" /> Back to Dates
                   </button>
                   <button 
                     onClick={() => setStep(4)}
-                    className="bg-gray-900 text-white px-12 py-6 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-purple-600 transition-all flex items-center gap-4 shadow-xl"
+                    className="w-full md:w-auto bg-gray-900 text-white px-10 md:px-12 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-purple-600 transition-all flex items-center justify-center gap-4 shadow-xl"
                   >
                     Next: Final Review <ChevronRightIcon className="w-4 h-4" />
                   </button>
@@ -423,58 +430,58 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="space-y-10"
+                className="space-y-8 md:space-y-10"
               >
-                <div className="flex items-end justify-between">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 md:gap-8">
                   <div>
-                    <h2 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Review & Confirm</h2>
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Total for your {selectedCities.length}-city experience.</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4">Review & Confirm</h2>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] md:text-xs">Total for your {selectedCities.length}-city experience.</p>
                   </div>
-                  <div className="bg-purple-600 p-8 rounded-[40px] text-white shadow-2xl shadow-purple-200 min-w-[300px]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-80">Total Booking Price</p>
+                  <div className="bg-purple-600 p-6 md:p-8 rounded-[32px] md:rounded-[40px] text-white shadow-2xl shadow-purple-200 min-w-full lg:min-w-[300px]">
+                    <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-80">Total Booking Price</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black">{settings?.currency} {calculateTotalPrice()}</span>
+                      <span className="text-4xl md:text-5xl font-black">{settings?.currency} {calculateTotalPrice()}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-[50px] p-12 shadow-2xl border border-gray-50">
-                  <h3 className="text-xl font-black text-gray-900 uppercase tracking-widest mb-10 pb-6 border-b border-gray-100 flex items-center gap-4">
-                    <SparklesIcon className="w-6 h-6 text-purple-600" /> Itinerary Summary
+                <div className="bg-white rounded-[32px] md:rounded-[50px] p-6 md:p-12 shadow-2xl border border-gray-50">
+                  <h3 className="text-base md:text-xl font-black text-gray-900 uppercase tracking-widest mb-8 md:mb-10 pb-6 border-b border-gray-100 flex items-center gap-4">
+                    <SparklesIcon className="w-5 h-5 md:w-6 md:h-6 text-purple-600" /> Itinerary Summary
                   </h3>
                   
-                  <div className="space-y-12">
+                  <div className="space-y-8 md:space-y-12">
                     {itinerary && itinerary.length > 0 ? itinerary.map((item, i) => {
                       const city = selectedCities.find(c => c.id === item.cityId);
                       return (
-                        <div key={item.id} className="relative pl-12">
-                          {i !== itinerary.length - 1 && <div className="absolute left-[19px] top-10 bottom-[-60px] w-0.5 bg-gray-100" />}
-                          <div className="absolute left-0 top-1.5 w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 font-black border-4 border-white shadow-sm">{i + 1}</div>
+                        <div key={item.id} className="relative pl-10 md:pl-12">
+                          {i !== itinerary.length - 1 && <div className="absolute left-[15px] md:left-[19px] top-8 md:top-10 bottom-[-40px] md:bottom-[-60px] w-0.5 bg-gray-100" />}
+                          <div className="absolute left-0 top-0.5 w-8 h-8 md:w-10 md:h-10 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 text-xs md:text-base font-black border-4 border-white shadow-sm">{i + 1}</div>
                           
-                          <div className="flex justify-between items-start mb-6">
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4 md:mb-6">
                             <div>
-                              <h4 className="text-3xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h4>
-                              <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] flex items-center gap-2 mt-1">
+                              <h4 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter">{city?.name}</h4>
+                              <p className="text-gray-400 font-bold uppercase tracking-widest text-[8px] md:text-[10px] flex items-center gap-2 mt-1">
                                 <CalendarIcon className="w-3 h-3" /> {item.startDate} — {item.endDate}
                               </p>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black text-gray-900">{settings?.currency} {settings?.standardCityPrice}</p>
-                              <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Base City Fee</p>
+                            <div className="text-left sm:text-right">
+                              <p className="text-base md:text-lg font-black text-gray-900">{settings?.currency} {settings?.standardCityPrice}</p>
+                              <p className="text-[8px] md:text-[10px] font-black uppercase text-gray-400 tracking-widest">Base City Fee</p>
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap gap-3">
+                          <div className="flex flex-wrap gap-2 md:gap-3">
                             {item.items && item.items.length > 0 ? item.items.map(tripItem => {
                               const activity = tripItem.type === 'ACTIVITY' ? (allActivities.find(a => a.id === tripItem.referenceId) || allActivities.find(a => a.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
                               const event = tripItem.type === 'EVENT' ? (allEvents.find(e => e.id === tripItem.referenceId) || allEvents.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === tripItem.referenceId.toLowerCase())) : null;
                               return (
-                                <div key={tripItem.id} className="bg-gray-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-500 border border-gray-100">
+                                <div key={tripItem.id} className="bg-gray-50 px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest text-gray-500 border border-gray-100">
                                   {activity?.title || event?.title || 'Unknown Item'}
                                 </div>
                               );
                             }) : (
-                              <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">No activities added</p>
+                              <p className="text-[8px] md:text-[10px] font-bold text-gray-300 uppercase tracking-widest italic">No activities added</p>
                             )}
                           </div>
                         </div>
@@ -487,8 +494,8 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                   </div>
                 </div>
 
-                <div className="flex justify-between pt-10">
-                  <button onClick={() => setStep(3)} className="text-gray-400 font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:text-gray-900 transition-all">
+                <div className="flex flex-col-reverse md:flex-row justify-between gap-4 pt-6 md:pt-10">
+                  <button onClick={() => setStep(3)} className="w-full md:w-auto text-gray-400 font-black uppercase tracking-widest text-[10px] md:text-xs flex items-center justify-center gap-2 hover:text-gray-900 transition-all py-4">
                     <ChevronLeftIcon className="w-4 h-4" /> Back to Planning
                   </button>
                     <button 
@@ -525,18 +532,18 @@ const PlanPage = ({ initialCountry, initialCities, initialSettings, allActivitie
                       }}
                       disabled={isSaving}
                       className={cn(
-                        "bg-purple-600 text-white px-16 py-8 rounded-[35px] font-black uppercase tracking-[0.2em] text-sm transition-all flex items-center gap-4 shadow-2xl shadow-purple-200 scale-110",
+                        "bg-purple-600 text-white px-10 md:px-16 py-5 md:py-8 rounded-[25px] md:rounded-[35px] font-black uppercase tracking-[0.2em] text-[10px] md:text-sm transition-all flex items-center justify-center gap-4 shadow-2xl shadow-purple-200 w-full md:w-auto md:scale-110",
                         isSaving ? "opacity-70 cursor-not-allowed grayscale" : "hover:bg-purple-700"
                       )}
                     >
                       {isSaving ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           Processing...
                         </>
                       ) : (
                         <>
-                          {tripId ? 'Update Trip Plan' : 'Confirm & Book Trip'} <SparklesIcon className="w-5 h-5 animate-pulse" />
+                          {tripId ? 'Update Trip Plan' : 'Confirm & Book Trip'} <SparklesIcon className="w-4 h-4 md:w-5 md:h-5 animate-pulse" />
                         </>
                       )}
                     </button>

@@ -36,36 +36,36 @@ const ExplorePage = ({ initialCountries }: { initialCountries: any[] }) => {
 
       <Navbar />
 
-      <main className="pt-32 pb-20 px-6 md:px-10 max-w-7xl mx-auto">
+      <main className="pt-24 md:pt-32 pb-20 px-6 md:px-10 max-w-7xl mx-auto">
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-16">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-4">
+            <h1 className="text-4xl md:text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-4">
               Select a <span className="text-purple-600">Country</span>
             </h1>
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] md:text-xs">
               Choose a country to explore its cities and attractions
             </p>
           </motion.div>
 
           <div className="flex flex-col gap-4 w-full md:w-auto">
-            <div className="flex gap-2 bg-white p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
+            <div className="flex gap-2 bg-white p-1.5 md:p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
               <div className="relative flex-1 md:w-80">
-                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-400" />
                 <input 
                   type="text"
                   placeholder="Search countries..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50/50 border-none focus:ring-2 focus:ring-purple-500/20 font-bold text-sm outline-none transition-all"
+                  className="w-full pl-10 md:pl-12 pr-4 py-2 md:py-3 rounded-xl bg-gray-50/50 border-none focus:ring-2 focus:ring-purple-500/20 font-bold text-xs md:text-sm outline-none transition-all"
                 />
               </div>
-              <button className="bg-gray-900 text-white p-3 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">
-                <AdjustmentsHorizontalIcon className="w-6 h-6" />
+              <button className="bg-gray-900 text-white p-2 md:p-3 rounded-xl shadow-lg hover:scale-105 active:scale-95 transition-all">
+                <AdjustmentsHorizontalIcon className="w-5 md:w-6 h-5 md:h-6" />
               </button>
             </div>
           </div>
@@ -92,7 +92,7 @@ const ExplorePage = ({ initialCountries }: { initialCountries: any[] }) => {
         {/* Countries Grid */}
         <motion.div 
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filteredCountries.map((country, i) => (
@@ -101,11 +101,11 @@ const ExplorePage = ({ initialCountries }: { initialCountries: any[] }) => {
                 layout
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, opacity: 0 }}
+                exit={{ scale: 0.9, opacity: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.02 }}
               >
                 <Link href={`/explore/${country.id}`}>
-                  <div className="group relative bg-white p-8 rounded-[32px] border border-gray-100 shadow-xl shadow-black/[0.02] hover:shadow-2xl hover:shadow-purple-500/5 transition-all hover:-translate-y-1 cursor-pointer overflow-hidden h-40 flex flex-col justify-between">
+                  <div className="group relative bg-white p-6 md:p-8 rounded-[24px] md:rounded-[32px] border border-gray-100 shadow-xl shadow-black/[0.02] hover:shadow-2xl hover:shadow-purple-500/5 transition-all hover:-translate-y-1 cursor-pointer overflow-hidden h-36 md:h-40 flex flex-col justify-between">
                     {/* Decorative Patterns */}
                     <div className="absolute top-4 right-4 opacity-10">
                       <div className="w-2 h-2 bg-purple-600 rounded-full mb-1" />

@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { 
   HeartIcon, 
   ShareIcon, 
@@ -123,7 +124,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className="absolute top-10 left-10 z-20"
+            className="absolute top-6 md:top-10 left-6 md:left-10 z-20 scale-75 md:scale-100 origin-top-left"
           >
             <WeatherWidget lat={city.lat} lng={city.lng} cityName={city.name} />
           </motion.div>
@@ -133,35 +134,35 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="absolute top-10 right-10 z-20 flex flex-col gap-4 items-end"
+            className="absolute top-6 md:top-10 right-6 md:right-10 z-20 flex flex-col gap-3 md:gap-4 items-end"
           >
-            <div className="flex gap-4">
-              <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
-                <HeartIcon className="w-6 h-6" />
+            <div className="flex gap-3 md:gap-4">
+              <button className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+                <HeartIcon className="w-5 h-5 md:w-6 md:h-6" />
               </button>
-              <button className="p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
-                <ShareIcon className="w-6 h-6" />
+              <button className="p-3 md:p-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 transition-all shadow-xl">
+                <ShareIcon className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
             
             <button 
               onClick={() => setShowTripModal(true)}
-              className="mt-4 px-10 py-5 bg-[#9333ea] text-white rounded-[25px] font-black uppercase tracking-[0.2em] text-sm shadow-2xl shadow-purple-500/40 hover:bg-[#a855f7] hover:scale-105 transition-all flex items-center gap-3"
+              className="mt-2 md:mt-4 px-6 md:px-10 py-3 md:py-5 bg-[#9333ea] text-white rounded-2xl md:rounded-[25px] font-black uppercase tracking-widest md:tracking-[0.2em] text-[10px] md:text-sm shadow-2xl shadow-purple-500/40 hover:bg-[#a855f7] hover:scale-105 transition-all flex items-center gap-2 md:gap-3"
             >
-              <RocketLaunchIcon className="w-5 h-5" /> Book This City
+              <RocketLaunchIcon className="w-4 h-4 md:w-5 md:h-5" /> <span className="whitespace-nowrap">Book This City</span>
             </button>
           </motion.div>
 
           {/* Bottom Left: Title and Badges */}
-          <div className="absolute bottom-20 left-10 z-20">
+          <div className="absolute bottom-16 md:bottom-20 left-6 md:left-10 right-6 md:right-10 z-20">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.8 }}
-              className="flex gap-3 mb-6"
+              className="flex gap-3 mb-4 md:mb-6"
             >
-              <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-full flex items-center gap-2 border border-white/20 text-white text-sm font-bold shadow-lg">
-                <MapIcon className="w-4 h-4 text-purple-400" /> {countryName}
+              <div className="bg-white/10 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center gap-2 border border-white/20 text-white text-[10px] md:text-sm font-bold shadow-lg">
+                <MapIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-400" /> {countryName}
               </div>
             </motion.div>
             
@@ -169,7 +170,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8, duration: 1, ease: "easeOut" }}
-              className="text-7xl md:text-[12rem] font-black text-white leading-none uppercase tracking-tighter drop-shadow-2xl"
+              className="text-5xl sm:text-7xl md:text-[12rem] font-black text-white leading-none uppercase tracking-tighter drop-shadow-2xl line-clamp-2 md:line-clamp-none"
             >
               {cityName}
             </motion.h1>
@@ -178,19 +179,19 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.8 }}
-              className="flex gap-4 mt-8 flex-wrap"
+              className="flex gap-2 md:gap-4 mt-6 md:mt-8 flex-wrap"
             >
-              <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-yellow-500/30 text-yellow-400 font-black">
-                <StarIcon className="w-5 h-5" /> {activities.length} Places
+              <div className="flex items-center gap-1.5 md:gap-2 bg-yellow-500/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl border border-yellow-500/30 text-yellow-400 font-black text-[10px] md:text-sm">
+                <StarIcon className="w-4 h-4 md:w-5 md:h-5" /> {activities.length} Places
               </div>
-              <div className="flex items-center gap-2 bg-blue-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-blue-500/30 text-blue-400 font-black uppercase tracking-tighter">
-                📍 {city.lat}, {city.lng}
+              <div className="flex items-center gap-1.5 md:gap-2 bg-blue-500/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl border border-blue-500/30 text-blue-400 font-black uppercase tracking-tighter text-[10px] md:text-sm">
+                📍 {city.lat.toFixed(2)}, {city.lng.toFixed(2)}
               </div>
-              <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-purple-500/30 text-purple-400 font-black uppercase tracking-tighter">
-                <CalendarDaysIcon className="w-5 h-5" /> {city.timezone || 'UTC +0'}
+              <div className="flex items-center gap-1.5 md:gap-2 bg-purple-500/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl border border-purple-500/30 text-purple-400 font-black uppercase tracking-tighter text-[10px] md:text-sm">
+                <CalendarDaysIcon className="w-4 h-4 md:w-5 md:h-5" /> {city.timezone || 'UTC +0'}
               </div>
-              <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-md px-4 py-2 rounded-xl border border-green-500/30 text-green-400 font-black uppercase tracking-tighter">
-                <CurrencyDollarIcon className="w-5 h-5" /> {city.currency || 'USD'}
+              <div className="flex items-center gap-1.5 md:gap-2 bg-green-500/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl border border-green-500/30 text-green-400 font-black uppercase tracking-tighter text-[10px] md:text-sm">
+                <CurrencyDollarIcon className="w-4 h-4 md:w-5 md:h-5" /> {city.currency || 'USD'}
               </div>
             </motion.div>
           </div>
@@ -200,7 +201,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="absolute bottom-20 right-10 z-20"
+            className="absolute bottom-20 right-10 z-20 hidden lg:block"
           >
             <StatsCard />
           </motion.div>
@@ -296,12 +297,12 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
 
         {/* Tab Navigation */}
         <div className="sticky top-[68px] z-40 bg-white border-b border-gray-100 shadow-sm overflow-x-auto no-scrollbar">
-          <div className="max-w-7xl mx-auto px-10 flex gap-8">
+          <div className="max-w-7xl mx-auto px-6 md:px-10 flex gap-4 md:gap-8">
             {tabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`py-6 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border-b-2 transition-all ${
+                className={`py-4 md:py-6 text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap border-b-2 transition-all ${
                   activeTab === tab 
                     ? 'border-[#9333ea] text-[#9333ea]' 
                     : 'border-transparent text-gray-400 hover:text-gray-600'
@@ -314,7 +315,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
         </div>
 
         {/* Content Based on Tab */}
-        <div className="max-w-7xl mx-auto py-20 px-10">
+        <div className="max-w-7xl mx-auto py-10 md:py-20 px-6 md:px-10">
           <AnimatePresence mode="wait">
             {activeTab === 'Places' && (
               <motion.div 
@@ -322,7 +323,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-10"
+                className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10"
               >
                 {activities.length > 0 ? activities.map((activity, i) => (
                   <motion.div 
@@ -331,7 +332,7 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: i * 0.1 }}
-                    className="group relative h-[500px] rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 bg-white cursor-pointer"
+                    className="group relative h-[400px] md:h-[500px] rounded-[32px] md:rounded-[40px] overflow-hidden shadow-2xl border border-gray-100 bg-white cursor-pointer"
                   >
                     <Image
                       src={activity.images?.[0] || "https://images.unsplash.com/photo-1543349689-9a4d426bee8e?auto=format&fit=crop&w=1000&q=80"}
@@ -340,32 +341,32 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute top-6 left-6 flex gap-2">
+                    <div className="absolute top-4 md:top-6 left-4 md:left-6 flex gap-2">
                       {activity.tags?.map(tag => (
-                        <span key={tag} className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">{tag}</span>
+                        <span key={tag} className="bg-blue-600 text-white px-3 md:px-4 py-1 md:py-1.5 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest">{tag}</span>
                       ))}
                     </div>
-                    <div className="absolute bottom-10 left-10 right-10 text-white">
-                      <h3 className="text-4xl font-black mb-4 uppercase tracking-tighter">{activity.title}</h3>
-                      <p className="text-gray-200 font-medium leading-relaxed line-clamp-2">
+                    <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 text-white">
+                      <h3 className="text-2xl md:text-4xl font-black mb-2 md:mb-4 uppercase tracking-tighter">{activity.title}</h3>
+                      <p className="text-gray-200 text-sm md:text-base font-medium leading-relaxed line-clamp-2">
                         {activity.description}
                       </p>
-                      <div className="mt-6 flex items-center justify-between">
-                        <span className="text-2xl font-black">{activity.price} {activity.currency}</span>
-                        <div className="flex gap-4">
+                      <div className="mt-4 md:mt-6 flex items-center justify-between">
+                        <span className="text-xl md:text-2xl font-black">{activity.price} {activity.currency}</span>
+                        <div className="flex gap-2 md:gap-4">
                           {activity.bookingUrl ? (
                             <a 
                               href={activity.bookingUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-600 hover:text-white transition-all shadow-xl flex items-center gap-2"
+                              className="bg-white text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-blue-600 hover:text-white transition-all shadow-xl flex items-center gap-2"
                             >
-                              <ShoppingBagIcon className="w-4 h-4" /> Book Tickets
+                              <ShoppingBagIcon className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Book Tickets</span><span className="sm:hidden">Book</span>
                             </a>
                           ) : (
                             <button 
                               onClick={() => router.push(`/checkout?type=activity&id=${activity.id}`)}
-                              className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-blue-500 hover:text-white transition-all shadow-xl"
+                              className="bg-white text-gray-900 px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[10px] md:text-xs hover:bg-blue-500 hover:text-white transition-all shadow-xl"
                             >
                               Book Now
                             </button>
@@ -375,8 +376,8 @@ const Details = ({ city, country, activities, drivers, events, cars, tourGuides,
                     </div>
                   </motion.div>
                 )) : (
-                  <div className="col-span-2 py-20 text-center border-2 border-dashed border-gray-100 rounded-[40px]">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest">No places added for this city yet.</p>
+                  <div className="col-span-full py-20 text-center border-2 border-dashed border-gray-100 rounded-[32px] md:rounded-[40px]">
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] md:text-sm">No places added for this city yet.</p>
                   </div>
                 )}
               </motion.div>

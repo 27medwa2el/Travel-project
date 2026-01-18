@@ -34,7 +34,7 @@ const LandingHero = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="text-7xl md:text-[10rem] font-black text-gray-900 leading-[0.85] mb-10 tracking-tighter"
+          className="text-5xl sm:text-7xl md:text-8xl lg:text-[10rem] font-black text-gray-900 leading-[0.85] mb-10 tracking-tighter px-4"
         >
           Your Next <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2563eb] via-[#9333ea] to-[#db2777] drop-shadow-sm">Adventure</span>

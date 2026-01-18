@@ -196,19 +196,19 @@ const Dashboard = ({
 
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-6 md:px-10 pt-32 pb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <main className="max-w-7xl mx-auto px-4 md:px-10 pt-24 md:pt-32 pb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
           
           {/* Left Column: My Trips List */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-6 md:space-y-8">
             <div>
-              <h1 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-2">My Journeys</h1>
+              <h1 className="text-4xl md:text-5xl font-black text-gray-900 uppercase tracking-tighter mb-2">My Journeys</h1>
               <div className="flex items-center gap-2">
                 <p className="text-gray-400 font-bold uppercase tracking-widest text-[8px]">Today: {new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 <div className="w-1 h-1 rounded-full bg-gray-300" />
                 <p className="text-gray-400 font-bold uppercase tracking-widest text-[8px]">{trips.length} adventures</p>
               </div>
-              <div className="flex gap-4 mt-6 p-1.5 bg-gray-100 rounded-2xl">
+              <div className="flex gap-2 md:gap-4 mt-6 p-1 bg-gray-100 rounded-2xl overflow-x-auto no-scrollbar">
                 {(['active', 'upcoming', 'completed'] as const).map((tab) => (
                   <button
                     key={tab}
@@ -218,7 +218,7 @@ const Dashboard = ({
                       if (filtered.length > 0) setSelectedTrip(filtered[0]);
                     }}
                     className={cn(
-                      "flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                      "flex-1 py-2 md:py-2.5 px-4 rounded-xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                       activeTab === tab 
                         ? "bg-white text-purple-600 shadow-sm" 
                         : "text-gray-400 hover:text-gray-600"
@@ -230,7 +230,7 @@ const Dashboard = ({
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[400px] lg:max-h-none overflow-y-auto lg:overflow-visible pr-2 no-scrollbar">
               {currentTrips.map((trip) => (
                 <motion.div
                   key={trip.id}
@@ -328,8 +328,8 @@ const Dashboard = ({
                 >
                   {/* Hero Header */}
                   <div className={cn(
-                    "relative rounded-[50px] overflow-hidden shadow-2xl transition-all duration-500",
-                    selectedTrip.status === 'active' ? "h-[400px] ring-4 ring-purple-500/20" : "h-[300px]"
+                    "relative rounded-[32px] md:rounded-[50px] overflow-hidden shadow-2xl transition-all duration-500",
+                    selectedTrip.status === 'active' ? "h-[300px] md:h-[400px] ring-4 ring-purple-500/20" : "h-[200px] md:h-[300px]"
                   )}>
                     {selectedTrip.cities && selectedTrip.cities.length > 0 && (
                       <Image 
@@ -344,25 +344,25 @@ const Dashboard = ({
                       selectedTrip.status === 'active' ? "from-purple-900/90" : "from-black/80"
                     )} />
                     
-                      <div className="absolute top-10 right-10 flex items-center gap-3">
+                      <div className="absolute top-6 md:top-10 right-6 md:right-10 flex flex-wrap justify-end items-center gap-2 md:gap-3">
                         {/* High-end Floating Menu from mockup */}
-                        <div className="flex items-center gap-2 bg-white/80 backdrop-blur-2xl p-2 rounded-[28px] shadow-2xl border border-white/50">
+                        <div className="flex items-center gap-1.5 md:gap-2 bg-white/80 backdrop-blur-2xl p-1.5 md:p-2 rounded-[24px] md:rounded-[28px] shadow-2xl border border-white/50">
                           {selectedTrip.status === 'active' && (
-                            <div className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-2xl animate-pulse shadow-lg shadow-purple-500/40">
-                              <SparklesIconSolid className="w-4 h-4" />
-                              <span className="text-[10px] font-black uppercase tracking-widest">Active Journey</span>
+                            <div className="hidden sm:flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 bg-purple-600 text-white rounded-xl md:rounded-2xl animate-pulse shadow-lg shadow-purple-500/40">
+                              <SparklesIconSolid className="w-3 h-3 md:w-4 md:h-4" />
+                              <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest">Active</span>
                             </div>
                           )}
                           <div className="relative">
                             <button 
                               onClick={() => setShowWeather(!showWeather)}
                               className={cn(
-                                "w-12 h-12 rounded-[22px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm",
+                                "w-10 h-10 md:w-12 md:h-12 rounded-[18px] md:rounded-[22px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm",
                                 showWeather ? "bg-orange-500 text-white shadow-orange-200" : "bg-orange-50 text-orange-500"
                               )}
                               title="Weather"
                             >
-                              <SunIcon className="w-6 h-6" />
+                              <SunIcon className="w-5 h-5 md:w-6 md:h-6" />
                             </button>
                             <AnimatePresence>
                               {showWeather && selectedCity && (
@@ -370,7 +370,7 @@ const Dashboard = ({
                                   initial={{ opacity: 0, scale: 0.9, y: 10 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                                  className="absolute top-16 right-0 z-50 pointer-events-none"
+                                  className="absolute top-14 md:top-16 right-0 z-50 pointer-events-none"
                                 >
                                   <div className="pointer-events-auto">
                                     <WeatherWidget lat={selectedCity.lat} lng={selectedCity.lng} cityName={selectedCity.name} />
@@ -381,62 +381,62 @@ const Dashboard = ({
                           </div>
                           <button 
                             onClick={() => setIsBagOpen(true)}
-                            className="w-12 h-12 rounded-[22px] bg-purple-600 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-purple-200"
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-[18px] md:rounded-[22px] bg-purple-600 text-white flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-purple-200"
                             title="My Bag"
                           >
-                            <ShoppingBagIcon className="w-6 h-6" />
+                            <ShoppingBagIcon className="w-5 h-5 md:w-6 md:h-6" />
                           </button>
                           <button 
                             onClick={() => setView('map')}
                             className={cn(
-                              "w-12 h-12 rounded-[22px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm",
+                              "w-10 h-10 md:w-12 md:h-12 rounded-[18px] md:rounded-[22px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-sm",
                               view === 'map' ? "bg-blue-600 text-white shadow-blue-200" : "bg-blue-50 text-blue-500"
                             )}
                             title="Map View"
                           >
-                            <MapPinIcon className="w-6 h-6" />
+                            <MapPinIcon className="w-5 h-5 md:w-6 md:h-6" />
                           </button>
                         </div>
 
                         <button 
                           onClick={() => setShowCancelConfirm(true)}
-                          className="px-6 py-4 rounded-[28px] bg-red-500 text-white shadow-xl shadow-red-200 font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-red-600 hover:scale-105 active:scale-95 transition-all"
+                          className="px-4 md:px-6 py-3 md:py-4 rounded-[24px] md:rounded-[28px] bg-red-500 text-white shadow-xl shadow-red-200 font-black uppercase tracking-widest text-[8px] md:text-[10px] flex items-center gap-2 hover:bg-red-600 hover:scale-105 active:scale-95 transition-all"
                         >
-                          <TrashIcon className="w-4 h-4" /> Cancel
+                          <TrashIcon className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Cancel</span>
                         </button>
 
                         {selectedTrip.status !== 'completed' && (
                           <button 
                             onClick={() => router.push(`/plan?tripId=${selectedTrip.id}`)}
-                            className="px-6 py-4 rounded-[28px] bg-gray-900 text-white shadow-xl shadow-gray-200 font-black uppercase tracking-widest text-[10px] flex items-center gap-2 hover:bg-purple-600 hover:scale-105 active:scale-95 transition-all"
+                            className="px-4 md:px-6 py-3 md:py-4 rounded-[24px] md:rounded-[28px] bg-gray-900 text-white shadow-xl shadow-gray-200 font-black uppercase tracking-widest text-[8px] md:text-[10px] flex items-center gap-2 hover:bg-purple-600 hover:scale-105 active:scale-95 transition-all"
                           >
-                            <PencilIcon className="w-4 h-4" /> Edit Trip
+                            <PencilIcon className="w-3.5 h-3.5 md:w-4 md:h-4" /> <span className="hidden sm:inline">Edit Trip</span>
                           </button>
                         )}
                       </div>
 
                     {selectedTrip.cities && selectedTrip.cities.length > 0 && (
-                      <div className="absolute bottom-10 left-10">
-                        <div className="flex gap-2 mb-4">
+                      <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:left-10">
+                        <div className="flex gap-2 mb-2 md:mb-4">
                           {selectedTrip.status === 'active' && (
-                            <span className="bg-green-500 text-white px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-green-500/40">
-                              <RocketLaunchIconSolid className="w-3 h-3" /> Trip is Active
+                            <span className="bg-green-500 text-white px-3 md:px-4 py-1 rounded-full text-[7px] md:text-[8px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg shadow-green-500/40">
+                              <RocketLaunchIconSolid className="w-2.5 h-2.5 md:w-3 md:h-3" /> Live
                             </span>
                           )}
-                          <span className="bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-[8px] font-black text-white uppercase tracking-widest border border-white/10">
+                          <span className="bg-white/20 backdrop-blur-md px-3 md:px-4 py-1 rounded-full text-[7px] md:text-[8px] font-black text-white uppercase tracking-widest border border-white/10">
                             {selectedTrip.status}
                           </span>
                         </div>
                         <h2 className={cn(
-                          "font-black text-white uppercase tracking-tighter mb-2",
-                          selectedTrip.status === 'active' ? "text-7xl" : "text-5xl"
+                          "font-black text-white uppercase tracking-tighter mb-2 line-clamp-2",
+                          selectedTrip.status === 'active' ? "text-3xl md:text-7xl" : "text-2xl md:text-5xl"
                         )}>{selectedTrip.title}</h2>
-                        <div className="flex gap-4">
-                          <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
-                            <MapPinIcon className="w-4 h-4 text-purple-400" /> {selectedTrip.cities.length} Cities
+                        <div className="flex flex-wrap gap-2 md:gap-4">
+                          <span className="bg-white/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[8px] md:text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <MapPinIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-400" /> {selectedTrip.cities.length} Cities
                           </span>
-                          <span className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
-                            <TicketIcon className="w-4 h-4 text-blue-400" /> {selectedTrip.cities.reduce((acc, c) => acc + (c.items?.length || 0), 0)} Items
+                          <span className="bg-white/20 backdrop-blur-md px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[8px] md:text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
+                            <TicketIcon className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" /> {selectedTrip.cities.reduce((acc, c) => acc + (c.items?.length || 0), 0)} Items
                           </span>
                         </div>
                       </div>

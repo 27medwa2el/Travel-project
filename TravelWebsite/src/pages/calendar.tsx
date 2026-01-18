@@ -32,6 +32,14 @@ const Calendar = ({ initialTrip, activitiesMap, eventsMap }: Props) => {
   const router = useRouter();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isMobile, setIsMobile] = useState(false);
+
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!initialTrip) {
     return (
@@ -114,7 +122,7 @@ const Calendar = ({ initialTrip, activitiesMap, eventsMap }: Props) => {
               </div>
 
               {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-px bg-gray-100 rounded-3xl overflow-hidden border border-gray-100">
+              <div className="grid grid-cols-7 gap-px bg-gray-100 rounded-2xl md:rounded-3xl overflow-hidden border border-gray-100">
                 {calendarDays.map((day, i) => {
                   const dayItems = getDayItems(day);
                   const isSelected = isSameDay(day, selectedDate);
@@ -126,27 +134,27 @@ const Calendar = ({ initialTrip, activitiesMap, eventsMap }: Props) => {
                       key={day.toString()}
                       onClick={() => setSelectedDate(day)}
                       className={cn(
-                        "min-h-[140px] p-4 cursor-pointer transition-all flex flex-col gap-2 relative",
+                        "min-h-[80px] md:min-h-[140px] p-2 md:p-4 cursor-pointer transition-all flex flex-col gap-1 md:gap-2 relative",
                         isCurrentMonth ? "bg-white" : "bg-gray-50/50",
                         isSelected && "ring-2 ring-purple-500 ring-inset z-10 shadow-xl shadow-purple-500/10",
                         !isCurrentMonth && "opacity-40"
                       )}
                     >
                       <span className={cn(
-                        "text-sm font-black transition-colors",
-                        isToday ? "text-purple-600 bg-purple-50 w-7 h-7 flex items-center justify-center rounded-lg" : (isCurrentMonth ? "text-gray-900" : "text-gray-300")
+                        "text-xs md:text-sm font-black transition-colors",
+                        isToday ? "text-purple-600 bg-purple-50 w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-lg" : (isCurrentMonth ? "text-gray-900" : "text-gray-300")
                       )}>
                         {format(day, 'd')}
                       </span>
                       
                       <div className="flex flex-col gap-1 overflow-hidden">
-                        {dayItems.slice(0, 2).map((item, idx) => {
+                        {dayItems.slice(0, (isMobile ? 1 : 2)).map((item, idx) => {
                           const data = item.type === 'ACTIVITY' ? activitiesMap[item.activityId || item.referenceId] : eventsMap[item.eventId || item.referenceId];
                           return (
                             <div 
                               key={item.id}
                               className={cn(
-                                "text-[8px] font-black uppercase tracking-tight px-2 py-1 rounded-lg truncate border",
+                                "text-[6px] md:text-[8px] font-black uppercase tracking-tight px-1 md:px-2 py-0.5 md:py-1 rounded-md md:rounded-lg truncate border",
                                 item.type === 'ACTIVITY' ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-purple-50 text-purple-600 border-purple-100"
                               )}
                             >
@@ -154,8 +162,8 @@ const Calendar = ({ initialTrip, activitiesMap, eventsMap }: Props) => {
                             </div>
                           );
                         })}
-                        {dayItems.length > 2 && (
-                          <div className="text-[8px] font-black text-gray-400 ml-1 uppercase tracking-widest">+{dayItems.length - 2} more</div>
+                        {dayItems.length > (isMobile ? 1 : 2) && (
+                          <div className="text-[6px] md:text-[8px] font-black text-gray-400 ml-1 uppercase tracking-widest">+{dayItems.length - (isMobile ? 1 : 2)}</div>
                         )}
                       </div>
                     </div>

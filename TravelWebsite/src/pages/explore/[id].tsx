@@ -40,29 +40,29 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
 
       <Navbar />
 
-      <main className="pt-32 pb-20 px-6 md:px-10 max-w-7xl mx-auto">
+      <main className="pt-24 md:pt-32 pb-20 px-6 md:px-10 max-w-7xl mx-auto">
         {/* Back Button */}
         <button 
           onClick={() => router.push('/explore')}
-          className="flex items-center gap-2 text-gray-400 hover:text-purple-600 font-bold uppercase tracking-widest text-[10px] mb-8 transition-all group"
+          className="flex items-center gap-2 text-gray-400 hover:text-purple-600 font-bold uppercase tracking-widest text-[8px] md:text-[10px] mb-6 md:mb-8 transition-all group"
         >
-          <ArrowLeftIcon className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Countries
+          <ArrowLeftIcon className="w-3 md:w-4 h-3 md:h-4 group-hover:-translate-x-1 transition-transform" /> Back to Countries
         </button>
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-16">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-4xl">📍</span>
-              <h1 className="text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none">
+            <div className="flex items-center gap-3 md:gap-4 mb-4">
+              <span className="text-3xl md:text-4xl">📍</span>
+              <h1 className="text-4xl md:text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none">
                 {country.name}
               </h1>
             </div>
-            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] md:text-xs">
               Select a city to discover local activities and interactive maps
             </p>
           </motion.div>
@@ -70,19 +70,19 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
           <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
             <button 
               onClick={() => router.push(`/plan?countryId=${country.id}`)}
-              className="w-full md:w-auto bg-purple-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-purple-200 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
+              className="w-full md:w-auto bg-purple-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[8px] md:text-[10px] shadow-xl shadow-purple-200 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3"
             >
               <SparklesIcon className="w-4 h-4" /> Plan Multi-City Trip
             </button>
             <div className="relative w-full md:w-80">
-              <div className="flex items-center bg-white p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
-                <MagnifyingGlassIcon className="ml-4 w-5 h-5 text-gray-400" />
+              <div className="flex items-center bg-white p-1.5 md:p-2 rounded-2xl border border-gray-100 shadow-xl shadow-black/[0.02]">
+                <MagnifyingGlassIcon className="ml-4 w-4 md:w-5 h-4 md:h-5 text-gray-400" />
                 <input 
                   type="text"
                   placeholder="Search cities..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-3 pr-4 py-3 bg-transparent border-none font-bold text-sm outline-none"
+                  className="w-full pl-2 md:pl-3 pr-4 py-2 md:py-3 bg-transparent border-none font-bold text-xs md:text-sm outline-none"
                 />
               </div>
             </div>
@@ -100,30 +100,30 @@ const CountryCitiesPage = ({ country, cities }: Props) => {
               transition={{ delay: i * 0.1 }}
             >
               <Link href={`/details?id=${city.id}`}>
-                <div className="group relative bg-white rounded-[48px] overflow-hidden shadow-xl shadow-black/[0.02] hover:shadow-2xl transition-all cursor-pointer border border-gray-100">
-                  <div className="relative h-64 w-full">
+                <div className="group relative bg-white rounded-[32px] md:rounded-[48px] overflow-hidden shadow-xl shadow-black/[0.02] hover:shadow-2xl transition-all cursor-pointer border border-gray-100">
+                  <div className="relative h-48 md:h-64 w-full">
                     <img 
                       src={city.images?.[0] || 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=800&q=80'} 
                       alt={city.name}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-8 left-8">
-                      <h3 className="text-4xl font-black text-white uppercase tracking-tighter drop-shadow-lg">
+                    <div className="absolute bottom-6 md:bottom-8 left-6 md:left-8">
+                      <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter drop-shadow-lg">
                         {city.name}
                       </h3>
                     </div>
                   </div>
                   
-                  <div className="p-8 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
-                        <MapPinIcon className="w-5 h-5" />
+                  <div className="p-6 md:p-8 flex items-center justify-between">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                        <MapPinIcon className="w-4 h-4 md:w-5 md:h-5" />
                       </div>
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Explore Map</span>
+                      <span className="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Explore Map</span>
                     </div>
-                    <div className="w-12 h-12 rounded-full border-2 border-gray-50 flex items-center justify-center group-hover:border-purple-500 group-hover:bg-purple-50 transition-all">
-                      <ChevronRightIcon className="w-5 h-5 text-gray-300 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-gray-50 flex items-center justify-center group-hover:border-purple-500 group-hover:bg-purple-50 transition-all">
+                      <ChevronRightIcon className="w-4 h-4 md:w-5 md:h-5 text-gray-300 group-hover:text-purple-600 group-hover:translate-x-1 transition-all" />
                     </div>
                   </div>
                 </div>
