@@ -454,7 +454,15 @@ const Dashboard = ({
                       >
                         <div className="flex items-center justify-between mb-12">
                           <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter">Trip Itinerary</h3>
-                          <button className="bg-purple-50 text-purple-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">Download PDF</button>
+                          <div className="flex gap-3">
+                            <button 
+                              onClick={() => router.push(`/calendar?tripId=${selectedTrip.id}`)}
+                              className="bg-blue-50 text-blue-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"
+                            >
+                              <CalendarDaysIcon className="w-4 h-4" /> Full Calendar
+                            </button>
+                            <button className="bg-purple-50 text-purple-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all">Download PDF</button>
+                          </div>
                         </div>
 
                         <div className="space-y-16">
